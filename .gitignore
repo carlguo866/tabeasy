@@ -1,1 +1,26 @@
-tabeasy/settings.py
+# Python files
+__pycache__
+*.pyc
+
+# Secret folder
+tabeasy_secrets/
+
+# Server deployment files
+deploy.sh
+
+# # uWSGI directory
+# uwsgi
+
+# Miscellaneous files
+.DS_Store
+.idea
+*.log
+*.pot
+*.pid
+*.socket
+.fuse_hidden*
+.vscode
+
+# # uwsgi stuff should be kept locally
+# uwsgi
+
