@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}" />
+    <link href="{% static 'css/googlefont.css' %}" rel="stylesheet" />
+    <!-- bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <!-- MDBootstrap -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/mdb.min.css' %}"/>
+    <title>{% block title %}Tabeasy Homepage{% endblock title %}</title>
+    {% block extra_css %}{% endblock extra_css %}
+
+
+</head>
+<body>
+
+ <header>
+ <nav class="navbar navbar-expand-lg navbar-dark d-none d-lg-block" style="z-index: 2000;">
+      <div class="container-fluid">
+        <!-- Navbar brand -->
+        <a class="navbar-brand nav-link" target="_blank" href="{% url 'index' %} ">
+          <strong>Tabeasy</strong>
+        </a>
+        <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarExample01"
+          aria-controls="navbarExample01" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarExample01">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item active">
+              <a class="nav-link" aria-current="page" href="#intro">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://www.youtube.com/channel/UC5CF7mLQZhvx8O5GODZAhdA" rel="nofollow"
+                target="_blank">Learn Bootstrap 5</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://mdbootstrap.com/docs/standard/" target="_blank">Download MDB UI KIT</a>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav d-flex flex-row">
+            <li class="nav-item">
+                {% if user.is_authenticated %}
+                    <a class="nav-link" href="https://mdbootstrap.com/docs/standard/" target="_blank">Login</a>
+                {% else %}
+                    <a class="nav-link" href="{% url 'index' %}" target="_blank">Login</a>
+                {% endif %}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- Navbar -->
+
+</header>
+{#    <div class="header">#}
+{#        <a href={% url 'index' %}>#}
+{#            <img src="{% static "images/base/logo.png" %}" style="padding-left:3vw; height:4vw; vertical-align:middle">#}
+{#        </a>#}
+{#        {% if user.is_authenticated %}#}
+{#            <a href="{% url 'profile' %}">#}
+{#                <span style="vertical-align: middle; margin-left: 75vw; font-size:1.4vw;">{{ user.username }}</span>#}
+{#            </a>#}
+{#        {% else %}#}
+{#            <!-- add the login span id to id="login" if want to do pop up page for login -->#}
+{#            <a href="{% url 'login' %}">#}
+{#                <span style="vertical-align: middle; margin-left: 65vw; font-size: 1.2vw;">#}
+{#                    Log in#}
+{#                </span>#}
+{#            </a>#}
+{#            <a href="{% url 'signup' %}">#}
+{#                <span style="background-color: #B62C25;color: white; margin-left:3vw; font-size: 1.2vw; padding:0.68vw 0.68vw 0.68vw 0.68vw;vertical-align: middle;">#}
+{#                    Sign up#}
+{#                </span>#}
+{#            </a>#}
+{#        {% endif %}#}
+{#    </div>#}
+    {% block content %}
+        Nothing here<br>
+        Reload this<br>
+    {% endblock content %}
+
+ <footer class="bg-light text-lg-start">
+{#    <div class="py-4 text-center">#}
+{#      <a role="button" class="btn btn-primary btn-lg m-2"#}
+{#        href="https://www.youtube.com/channel/UC5CF7mLQZhvx8O5GODZAhdA" rel="nofollow" target="_blank">#}
+{#        Learn Bootstrap 5#}
+{#      </a>#}
+{#      <a role="button" class="btn btn-primary btn-lg m-2" href="https://mdbootstrap.com/docs/standard/" target="_blank">#}
+{#        Download MDB UI KIT#}
+{#      </a>#}
+{#    </div>#}
+{##}
+{#    <hr class="m-0" />#}
+{##}
+{#    <div class="text-center py-4 align-items-center">#}
+{#      <p>Follow MDB on social media</p>#}
+{#      <a href="https://www.youtube.com/channel/UC5CF7mLQZhvx8O5GODZAhdA" class="btn btn-primary m-1" role="button"#}
+{#        rel="nofollow" target="_blank">#}
+{#        <i class="fab fa-youtube"></i>#}
+{#      </a>#}
+{#      <a href="https://www.facebook.com/mdbootstrap" class="btn btn-primary m-1" role="button" rel="nofollow"#}
+{#        target="_blank">#}
+{#        <i class="fab fa-facebook-f"></i>#}
+{#      </a>#}
+{#      <a href="https://twitter.com/MDBootstrap" class="btn btn-primary m-1" role="button" rel="nofollow"#}
+{#        target="_blank">#}
+{#        <i class="fab fa-twitter"></i>#}
+{#      </a>#}
+{#      <a href="https://github.com/mdbootstrap/mdb-ui-kit" class="btn btn-primary m-1" role="button" rel="nofollow"#}
+{#        target="_blank">#}
+{#        <i class="fab fa-github"></i>#}
+{#      </a>#}
+{#    </div>#}
+
+    <!-- Copyright -->
+    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+      © 2022 Copyright:
+      <a class="text-dark" href="{% url 'index' %}">tabeasy.org</a>
+    </div>
+    <!-- Copyright -->
+</footer>
+
+<!-- MDB -->
+<script type="text/javascript" src="{% static 'js/mdb.min.js' %}"></script>
+
+</body>
+</html>

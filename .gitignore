@@ -21,6 +21,6 @@ deploy.sh
 .fuse_hidden*
 .vscode
 
-# # uwsgi stuff should be kept locally
-# uwsgi
+node_modules/
+poll
 
