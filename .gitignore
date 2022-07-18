@@ -22,5 +22,6 @@ deploy.sh
 .vscode
 
 node_modules/
-poll
-
+polls
+package.json
+package-lock.json
