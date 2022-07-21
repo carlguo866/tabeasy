@@ -21,7 +21,9 @@
 
 {% block content%}
 	{% if user.is_authenticated %}
-	{{ user.username }}
+		{{ user.username }}
+		{{ user.team_name }}
+		{{ user.team_roster }}
 	{% else %}
 	<!-- Background image -->
 	<div id="intro" class="bg-image shadow-2-strong">
