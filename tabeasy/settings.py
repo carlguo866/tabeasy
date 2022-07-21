@@ -145,7 +145,7 @@ STATICFILES_DIRS = [
 ]
 
 LOGIN_REDIRECT_URL='/'
-AUTH_USER_MODEL='accounts.Team'
+AUTH_USER_MODEL='accounts.User'
  
 # overwrite with local secret setting
 try:

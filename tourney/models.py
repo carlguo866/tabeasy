@@ -3,25 +3,26 @@ from django.db import models
 # Create your models here
 from django_better_admin_arrayfield.models.fields import ArrayField
 
-from accounts.models import Team
+from accounts.models import User
 
 class Ballot(models.Model):
+    id = models.AutoField(primary_key=True)
     courtroom = models.CharField(max_length=1, null=True)
     # p_team = models.CharField(max_length=20)
     # d_team = models.CharField(max_length=20)
-    p_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='p_teams',
-                             related_query_name='p_team', null=True)
-    d_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='d_teams',
-                             related_query_name='d_team', null=True)
+    # p_team = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='p_teams',
+    #                            related_query_name='p_team', null=True)
+    # d_team = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='d_teams',
+    #                            related_query_name='d_team', null=True)
     judge_name = models.CharField(max_length=20)
     round_num = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)],null=True)
 
-    @property
-    def p_roster_choices(self):
-        return [(i, i) for i in self.p_team.team_roster]
-    @property
-    def d_roster_choices(self):
-        return [(i, i) for i in self.d_team.team_roster]
+    # @property
+    # def p_roster_choices(self):
+    #     return [(i, i) for i in self.p_team.team_roster]
+    # @property
+    # def d_roster_choices(self):
+    #     return [(i, i) for i in self.d_team.team_roster]
 
     #Scores
     # p_open_name = models.CharField(max_length=20, choices=p_roster_choices(), null=True)

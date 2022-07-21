@@ -5,9 +5,8 @@ import django_better_admin_arrayfield.models.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('accounts', '0004_alter_team_team_roster'),
+        ('accounts', '0003_auto_20220719_1748'),
     ]
 
     operations = [
