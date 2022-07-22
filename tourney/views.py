@@ -1,6 +1,8 @@
 import math
 import string
 import random
+from audioop import reverse
+
 import pinyin
 import openpyxl
 from django.contrib.auth import authenticate
@@ -12,7 +14,9 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
 from accounts.models import User
+from tabeasy.utils.mixins import JudgeOnlyMixin
 from tourney.forms import PairingFormSimple, RoundForm, UpdateConflictForm
+from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
 from tourney.models.team import Team
 
@@ -38,7 +42,7 @@ def pairing(request):
 # #         if form.is_valid():
 # #
 # #     return render(request, 'tourney/add_conflict.html', {'form':form})
-class ConflictUpdateView(UpdateView):
+class ConflictUpdateView(JudgeOnlyMixin, UpdateView):
     model = Judge
     template_name = "tourney/add_conflict.html"
     # fields = ['conflicts']
@@ -52,6 +56,20 @@ class ConflictUpdateView(UpdateView):
         return self.request.user.judge
 
     success_url = reverse_lazy('index')
+
+class BallotCreateView(CreateView):
+    model = Ballot
+    template_name = "tourney/add_conflict.html"
+
+    fields = ['courtroom', 'p_team','d_team','judge','round_num',
+              'p_open','p_open_comment','d_open','d_open_comment']
+
+    # def form_valid(self, form):
+    #
+    #     return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('index', args=[self.object.pk])
 
 
 def generate_random_password():

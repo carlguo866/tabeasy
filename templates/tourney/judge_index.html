@@ -15,7 +15,10 @@ haha
 
 Ballots:
 {% for round in request.user.judge.pairing1s.all|add_array:request.user.judge.pairing2s.all %}
-{{ round }}<br>
+<a href="{% url 'tourney:submit_ballot' %}">
+{#round#}
+	<button type="button" class="btn btn-secondary">{{ round }}</button>
+</a>
 {% endfor %}
 
 

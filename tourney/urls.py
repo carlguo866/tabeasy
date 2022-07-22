@@ -7,4 +7,7 @@ urlpatterns = [
     path('judge/update_conflict',
          views.ConflictUpdateView.as_view(),
          name='update_conflict'),
+    path('judge/submit_ballot',
+         views.BallotCreateView.as_view(),
+         name='submit_ballot'),
 ]
