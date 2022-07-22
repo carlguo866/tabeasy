@@ -6,10 +6,10 @@ from accounts.models import User, Tab
 
 class UserAdmin(BaseUserAdmin, DynamicArrayMixin):
     model = User
-
+    list_display = ('id', 'username')
     fieldsets = (
         (None, {'fields': ('username', 'password', 'raw_password')}),
-        # (('Personal info'), {'fields': ('team_name', 'school','team_roster')}),
+        (('Personal info'), {'fields': ('is_team', 'is_judge')}),
         # (('Round info'), {'fields':('sides','ballots','cs','pd')}),
         (('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )

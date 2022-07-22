@@ -1,0 +1,21 @@
+{% load static %}
+{% load mytags %}
+{{ request.user.username }}
+haha
+
+<br>
+<a href="{% url 'tourney:update_conflict' %}">
+	<button type="button" class="btn btn-secondary">Update Conflict</button>
+</a>
+
+<br>Conflicted Teams:<br>
+{% for team in request.user.judge.conflicts.all %}
+{{ team }}<br>
+{% endfor %}
+
+Ballots:
+{% for round in request.user.judge.pairing1s.all|add_array:request.user.judge.pairing2s.all %}
+{{ round }}<br>
+{% endfor %}
+
+

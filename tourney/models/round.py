@@ -61,10 +61,10 @@ class PairingItem(models.Model):
                                related_query_name='p_team', null=True)
     d_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='d_teams',
                                related_query_name='d_team', null=True)
-    judge_1 = models.ForeignKey(Judge, on_delete=models.CASCADE, related_name='judge_1',
-                               related_query_name='judge_1', null=True)
-    judge_2 = models.ForeignKey(Judge, on_delete=models.CASCADE, related_name='judge_2',
-                                related_query_name='judge_2', null=True)
+    judge_1 = models.ForeignKey(Judge, on_delete=models.CASCADE, related_name='pairing1s',
+                               related_query_name='pairing1', null=True)
+    judge_2 = models.ForeignKey(Judge, on_delete=models.CASCADE, related_name='pairing2s',
+                                related_query_name='pairing2', null=True)
 
     def __str__(self):
         return f'Round {self.pairing.round_num} Courtroom {self.courtroom.upper()}'

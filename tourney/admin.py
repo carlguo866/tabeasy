@@ -43,6 +43,9 @@ class RoundAdmin(admin.ModelAdmin):
 @admin.register(Judge)
 class JudgeAdmin(admin.ModelAdmin, DynamicArrayMixin):
     search_fields = ['user.username']
+    # fieldsets = (
+    #     (None, {'fields': ('ballots', 'pairing1s', 'pairing2s')}),
+    # )
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):

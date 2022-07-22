@@ -37,12 +37,12 @@ class Team(models.Model):
         null=True,
         blank=True
     )
-    ballots = ArrayField(
-        models.DecimalField(max_digits=2, decimal_places=1, null=True, blank=True),
-        size=4,
-        null=True,
-        blank=True
-    )
+    # ballots = ArrayField(
+    #     models.DecimalField(max_digits=2, decimal_places=1, null=True, blank=True),
+    #     size=4,
+    #     null=True,
+    #     blank=True
+    # )
     cs = ArrayField(
         models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True),
         size=4,

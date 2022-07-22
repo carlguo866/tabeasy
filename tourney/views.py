@@ -4,12 +4,16 @@ import random
 import pinyin
 import openpyxl
 from django.contrib.auth import authenticate
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.shortcuts import render
 
 # Create your views here.
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView
+
 from accounts.models import User
-from tourney.forms import PairingFormSimple, RoundForm
+from tourney.forms import PairingFormSimple, RoundForm, UpdateConflictForm
+from tourney.models.judge import Judge
 from tourney.models.team import Team
 
 
@@ -26,6 +30,28 @@ def pairing(request):
             'form': RoundForm()}
     return render(request, 'tourney/pairing.html', dict)
 
+
+# @login_required
+# # def add_conflict(request):
+# #     if request.method == 'POST':
+# #         form = AddConflictForm(data=request.POST)
+# #         if form.is_valid():
+# #
+# #     return render(request, 'tourney/add_conflict.html', {'form':form})
+class ConflictUpdateView(UpdateView):
+    model = Judge
+    template_name = "tourney/add_conflict.html"
+    # fields = ['conflicts']
+    #
+    # def form_valid(self, form):
+    #     form.instance.judge = self.request.user.judge
+    #     return super().form_valid(form)
+    # #
+    form_class = UpdateConflictForm
+    def get_object(self, queryset=None):
+        return self.request.user.judge
+
+    success_url = reverse_lazy('index')
 
 
 def generate_random_password():

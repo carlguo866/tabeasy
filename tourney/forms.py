@@ -65,3 +65,15 @@ class RoundForm(forms.ModelForm):
         self.fields['d_team'].queryset = Team.objects.all()
         self.fields['judge_1'].queryset = Judge.objects.all()
         self.fields['judge_2'].queryset = Judge.objects.all()
+
+class UpdateConflictForm(forms.ModelForm):
+    class Meta:
+        model = Judge
+        fields = ['conflicts']
+    #
+    # user = forms.Select()
+
+    conflicts = forms.ModelMultipleChoiceField(
+        queryset=Team.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )

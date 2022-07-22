@@ -31,7 +31,11 @@
 		{% elif user.is_team%}
 			{{ user.team_name }}
 			{{ user.team_roster }}
+
+		{% elif user.is_judge %}
+			 {% include 'tourney/judge_index.html' %}
 		{% endif %}
+
 	{% else %}
 	<!-- Background image -->
 	<div id="intro" class="bg-image shadow-2-strong">

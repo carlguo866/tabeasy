@@ -2,17 +2,19 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django_better_admin_arrayfield.models.fields import ArrayField
 
+from tourney.models.judge import Judge
+from tourney.models.team import Team
+
 
 class Ballot(models.Model):
     id = models.IntegerField(primary_key=True)
     courtroom = models.CharField(max_length=1, null=True)
-    # p_team = models.CharField(max_length=20)
-    # d_team = models.CharField(max_length=20)
-    # p_team = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='p_teams',
-    #                            related_query_name='p_team', null=True)
-    # d_team = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='d_teams',
-    #                            related_query_name='d_team', null=True)
-    judge = models.CharField(max_length=30, null=True)
+    p_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='p_ballots',
+                               related_query_name='p_ballot', null=True)
+    d_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='d_ballots',
+                               related_query_name='d_ballot', null=True)
+    judge = models.ForeignKey('tourney.Judge', on_delete=models.CASCADE, related_name='ballots',
+                               related_query_name='ballot', null=True)
     round_num = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)],null=True)
 
     # @property
