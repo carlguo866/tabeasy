@@ -1,12 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Judge, Team, Tab
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
+from accounts.models import User, Tab
 
-
-
-
-# Register your models here.
 
 class UserAdmin(BaseUserAdmin, DynamicArrayMixin):
     model = User
@@ -20,8 +16,4 @@ class UserAdmin(BaseUserAdmin, DynamicArrayMixin):
     readonly_fields = ('raw_password',) #,'sides','ballots','cs','pd'
 admin.site.register(User, UserAdmin)
 
-class JudgeAdmin(admin.ModelAdmin, DynamicArrayMixin):
-    model = Judge
-admin.site.register(Judge, JudgeAdmin)
-admin.site.register(Team)
 admin.site.register(Tab)

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% load pairing_tags %}
+
+{% block content %}
+<h1>here is the pairing landing page</h1>
+{#	{{ div_1_teams.count}}#}
+{#	{{ half_div_1_teams_num }}#}
+{##}
+{#	{{ div_2_teams.count}}#}
+{#	{{ half_div_2_teams_num }}#}
+	<div class="container-fluid">
+		{{ div_1_teams.first.division }} Pairing
+		<br>
+		<form method="POST" action = "">{% csrf_token %}
+			{% with ''|center:half_div_1_teams_num as range %}
+				{% for _ in range %}
+					Courtroom {{ forloop.counter0|chr }}
+					<table>{{ form.as_table }}</table>
+
+					<br>
+				{% endfor %}
+			{% endwith %}
+			<input type="submit" value="Submit!"/>
+
+        </form>
+
+{#		{% for  in div_1_teams.count/2 %}#}
+{##}
+{##}
+{#  		{% endfor %}#}
+	</div>
+	{{ div_2_teams.count}}
+	{% for team in div_1_teams %}
+
+	  	<strong> {{ team }} {{ team.school }}</strong><br>
+  	{% endfor %}
+
+{#	{% if div_2_teams == None %}#}
+{#		{% for team in div_2_teams %}#}
+{#			<strong> {{ team }} {{ team.school }}</strong><br>#}
+{#		{% endfor %}#}
+{#	{% endif %}#}
+
+{% endblock content %}

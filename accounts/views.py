@@ -4,6 +4,8 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 import django.contrib.auth.views as auth_views
 from accounts.forms import *
+from tourney.forms import JudgeForm, TeamForm
+
 
 def single_true(iterable):
     i = iter(iterable)

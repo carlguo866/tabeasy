@@ -1,12 +1,10 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-# Create your models here
 from django_better_admin_arrayfield.models.fields import ArrayField
 
-from accounts.models import User
 
 class Ballot(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
     courtroom = models.CharField(max_length=1, null=True)
     # p_team = models.CharField(max_length=20)
     # d_team = models.CharField(max_length=20)
@@ -14,7 +12,7 @@ class Ballot(models.Model):
     #                            related_query_name='p_team', null=True)
     # d_team = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='d_teams',
     #                            related_query_name='d_team', null=True)
-    judge_name = models.CharField(max_length=20)
+    judge = models.CharField(max_length=30, null=True)
     round_num = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)],null=True)
 
     # @property
@@ -27,16 +25,16 @@ class Ballot(models.Model):
     #Scores
     # p_open_name = models.CharField(max_length=20, choices=p_roster_choices(), null=True)
     p_open = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
-    p_open_comment = models.CharField(max_length=5000,null=True)
+    p_open_comment = models.CharField(max_length=5000,null=True, blank=True)
     d_open = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
-    d_open_comment = models.CharField(max_length=5000,null=True)
+    d_open_comment = models.CharField(max_length=5000,null=True, blank=True)
 
     p_wit1_wit_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     p_wit1_wit_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     p_wit1_att_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     p_wit1_att_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],
                                            help_text='this is for d!',null=True)
-    p_wit1_wit_direct_comment = models.CharField(max_length=5000,null=True)
+    p_wit1_wit_direct_comment = models.CharField(max_length=5000,null=True, blank=True)
     p_wit1_wit_cross_comment = models.CharField(max_length=5000,null=True)
     p_wit1_att_direct_comment = models.CharField(max_length=5000,null=True)
     p_wit1_att_cross_comment = models.CharField(max_length=5000,null=True)
@@ -150,9 +148,3 @@ class Ballot(models.Model):
             return int(pd < 0), pd
         else:
             return 0.5, pd
-
-
-
-
-
-
