@@ -7,6 +7,7 @@ import pinyin
 import openpyxl
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import user_passes_test, login_required
+from django.forms import inlineformset_factory, modelformset_factory
 from django.shortcuts import render
 
 # Create your views here.
@@ -15,10 +16,10 @@ from django.views.generic import CreateView, UpdateView
 
 from accounts.models import User
 from tabeasy.utils.mixins import JudgeOnlyMixin
-from tourney.forms import PairingFormSimple, RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm
+from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
-from tourney.models.round import Round
+from tourney.models.round import Round, Pairing
 from tourney.models.team import Team
 
 
@@ -35,6 +36,22 @@ def pairing(request):
             'form': RoundForm()}
     return render(request, 'tourney/pairing.html', dict)
 
+
+@user_passes_test(lambda u: u.is_staff)
+def create_pairing(request, pairing_id):
+    pairing = Pairing.objects.get(pk=pairing_id)
+    if pairing == None:
+        pairing = Pairing(pk=pairing_id, division='Disney', round=1)
+    RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, extra=3)
+    if request.method == "POST":
+        formset = RoundFormSet(request.POST, request.FILES, instance=pairing, form_kwargs={'pairing': pairing})
+        if formset.is_valid():
+            formset.save()
+            # Do something. Should generally end with a redirect. For example:
+            return reverse_lazy('index')
+    else:
+        formset = RoundFormSet(instance=pairing, form_kwargs={'pairing': pairing})
+    return render(request, 'tourney/pairing.html', {'formset': formset})
 
 # @login_required
 # # def add_conflict(request):
@@ -93,10 +110,6 @@ class BallotCreateView(JudgeOnlyMixin, CreateView):
     def get_success_url(self):
         return reverse('index') #, args=[self.object.pk]
 
-
-def generate_random_password():
-    chars = list(string.ascii_letters + string.digits + "!@#$%^&*()")
-    return "".join(random.choice(chars) for _ in range(8))
 
 @user_passes_test(lambda u: u.is_staff)
 def load_teams(request):

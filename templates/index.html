@@ -23,8 +23,8 @@
 	{% if user.is_authenticated %}
 		<h1>Welcome back, {{ user.username }}!</h1>
 		{% if user.is_staff %}
-			adk;fna;dkn
-			<a href="{% url 'tourney:pairing' %}">
+			You are a tab admin!
+			<a href="{% url 'tourney:pairing' 1 %}">
 				<button type="button" class="btn btn-secondary">Pairing</button>
 			</a>
 

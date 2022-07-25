@@ -9,12 +9,13 @@ from tourney.models.team import Team
 
 
 class Pairing(models.Model):
+    id = models.BigAutoField(primary_key=True)
     division_choices = [('Disney', 'Disney'), ('Universal', 'Universal')]
     division = models.CharField(
         max_length=100,
         choices=division_choices
     )
-    round_num = models.IntegerField(primary_key=True,validators=[MinValueValidator(1), MaxValueValidator(5)])
+    round_num = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     # div_1 = ArrayField(
     #     ArrayField(
     #         models.CharField(max_length=30, null=True),
