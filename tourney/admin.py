@@ -32,13 +32,16 @@ class PairingAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['round_num']
     inlines = [RoundInline]
 
+
+class BallotInlineAdmin(admin.TabularInline):
+    model = Ballot
+    fields = ['judge']
+    extra = 0
+    show_change_link = True
+
 @admin.register(Round)
 class RoundAdmin(admin.ModelAdmin):
-    pass
-    # formfield_overrides = {
-    #     models.OneToOneField: {'widget': Select(attrs={'size': '5'})},
-    #     models.TextField: {'widget': Textarea(attrs={'rows': 4, 'cols': 40})},
-    # }
+    inlines = [BallotInlineAdmin]
 
 @admin.register(Judge)
 class JudgeAdmin(admin.ModelAdmin, DynamicArrayMixin):

@@ -92,20 +92,10 @@ class JudgeFriendUpdateView(JudgeOnlyMixin, UpdateView):
 
     success_url = reverse_lazy('index')
 
-class BallotCreateView(JudgeOnlyMixin, CreateView):
+class BallotUpdateView(JudgeOnlyMixin, UpdateView):
     model = Ballot
-    template_name = "tourney/add_conflict.html"
+    template_name = "utils/test_form.html"
     form_class = BallotForm
-
-    def form_valid(self, form):
-        print(self.object)
-        form.instance.round = Round.objects.get(pk=self.object.pk)
-        return super(BallotCreateView, self).form_valid(form)
-
-    # def get_context_data(self, **kwargs):
-    #     context = super(BallotCreateView, self).get_context_data(self, **kwargs)
-    #     # context['round'] = self.round
-    #     return context
 
     def get_success_url(self):
         return reverse('index') #, args=[self.object.pk]

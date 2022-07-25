@@ -27,7 +27,7 @@ class PairingForm(forms.ModelForm):
 class RoundForm(forms.ModelForm):
     class Meta:
         model = Round
-        fields = ('courtroom','p_team','d_team','judge_1','judge_2')
+        fields = ('courtroom','p_team','d_team','judges')
         # widgets = {
         #     'p_team': forms.Select(attrs={'size': 5}),
         #     'd_team': forms.Select(attrs={'size': 5}),
@@ -35,7 +35,7 @@ class RoundForm(forms.ModelForm):
         #     'judge_2': forms.Select(attrs={'size': 5})
         # }
 
-    def __init__(self, pairing, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(RoundForm, self).__init__(*args, **kwargs)
         # self.fields['p_team'].queryset = Team.objects.all() #filter(division='Disney')
         # # if 'pairing' in self.data:
@@ -48,10 +48,6 @@ class RoundForm(forms.ModelForm):
         # #     #     pass
         # # else:
         # #     print('error hereeee')
-        self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)
-        self.fields['d_team'].queryset = Team.objects.filter(division=pairing.division)
-        self.fields['judge_1'].queryset = Judge.objects.all()
-        self.fields['judge_2'].queryset = Judge.objects.all()
 
 
 class CustomModelChoiceIterator(ModelChoiceIterator):

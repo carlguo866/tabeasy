@@ -9,7 +9,6 @@ from tourney.models.team import Team
 
 
 class Pairing(models.Model):
-    id = models.BigAutoField(primary_key=True)
     division_choices = [('Disney', 'Disney'), ('Universal', 'Universal')]
     division = models.CharField(
         max_length=100,
@@ -54,17 +53,15 @@ class Pairing(models.Model):
 
 
 class Round(models.Model):
-    id = models.AutoField(primary_key=True)
     pairing = models.ForeignKey(Pairing, on_delete=models.CASCADE, related_name='rounds', related_query_name='round', null=True)
     courtroom = models.CharField(max_length=1, null=True)
     p_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='p_teams',
                                related_query_name='p_team', null=True)
     d_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='d_teams',
                                related_query_name='d_team', null=True)
-    judge_1 = models.ForeignKey(Judge, on_delete=models.CASCADE, related_name='pairing1s',
-                               related_query_name='pairing1', null=True)
-    judge_2 = models.ForeignKey(Judge, on_delete=models.CASCADE, related_name='pairing2s',
-                                related_query_name='pairing2', null=True)
+    judges = models.ManyToManyField('Judge', related_name='rounds',
+                                    related_query_name='round',
+                                    through='Ballot')
 
     def __str__(self):
         return f'Round {self.pairing.round_num} Courtroom {self.courtroom.upper()}'
@@ -72,8 +69,6 @@ class Round(models.Model):
     def clean(self):
         """check that word and characters do not mismatch in chinese & pinyin"""
         super().clean()
-        if self.judge_1 == self.judge_2:
-            raise ValidationError('cant have the same two judges')
 
         if self.p_team == self.d_team:
             raise ValidationError('one team cant compete against itself')

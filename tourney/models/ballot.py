@@ -8,9 +8,12 @@ from tourney.models.team import Team
 
 
 class Ballot(models.Model):
-    id = models.IntegerField(primary_key=True)
-    round = models.ForeignKey(Round, on_delete=models.CASCADE, related_name='ballots', related_query_name='ballot', null=True)
-    judge_name = models.CharField(max_length=30, null=True)
+    round = models.ForeignKey(Round, on_delete=models.CASCADE,
+                              related_name='ballots',
+                              related_query_name='ballot')
+    judge = models.ForeignKey(Judge, on_delete=models.CASCADE,
+                              related_name='ballots',
+                              related_query_name='ballot')
     # @property
     # def p_roster_choices(self):
     #     return [(i, i) for i in self.p_team.team_roster]
@@ -106,7 +109,7 @@ class Ballot(models.Model):
     )
 
     def __str__(self):
-        return f"{self.judge_name} Ballot {self.id}"
+        return f"{self.judge.user.username} Ballot {self.id}"
 
     def calculate_win(self):
         assert(not None in set([self.p_open, self.p_wit1_att_direct, self.p_wit1_wit_direct, self.p_wit1_wit_cross,
@@ -146,3 +149,6 @@ class Ballot(models.Model):
             return int(pd < 0), pd
         else:
             return 0.5, pd
+
+    class Meta:
+        unique_together = ['round', 'judge']
