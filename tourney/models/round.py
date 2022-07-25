@@ -4,7 +4,6 @@ from django.db import models
 # Create your models here
 from django_better_admin_arrayfield.models.fields import ArrayField
 
-from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
 from tourney.models.team import Team
 
@@ -53,7 +52,7 @@ class Pairing(models.Model):
                 existing_judges.extend([pairing_item.judge_1, pairing_item.judge_2])
 
 
-class PairingItem(models.Model):
+class Round(models.Model):
     id = models.AutoField(primary_key=True)
     pairing = models.ForeignKey(Pairing, on_delete=models.CASCADE, related_name='rounds', related_query_name='round', null=True)
     courtroom = models.CharField(max_length=1, null=True)

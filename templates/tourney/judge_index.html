@@ -1,8 +1,6 @@
 {% load static %}
 {% load mytags %}
 {{ request.user.username }}
-haha
-
 <br>
 <a href="{% url 'tourney:update_conflict' %}">
 	<button type="button" class="btn btn-secondary">Update Conflict</button>
@@ -13,9 +11,21 @@ haha
 {{ team }}<br>
 {% endfor %}
 
+
+<a href="{% url 'tourney:judge_friend' %}">
+	<button type="button" class="btn btn-secondary">Add/Update Judge Friends</button>
+</a>
+
+<br>Judge Friends:<br>
+{% for friend in request.user.judge.judge_friends.all %}
+{{ friend }}<br>
+{% endfor %}
+
+
+
 Ballots:
 {% for round in request.user.judge.pairing1s.all|add_array:request.user.judge.pairing2s.all %}
-<a href="{% url 'tourney:submit_ballot' %}">
+<a href="{% url 'tourney:submit_ballot' round.pk %}">
 {#round#}
 	<button type="button" class="btn btn-secondary">{{ round }}</button>
 </a>

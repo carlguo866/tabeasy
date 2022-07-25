@@ -7,7 +7,10 @@ urlpatterns = [
     path('judge/update_conflict',
          views.ConflictUpdateView.as_view(),
          name='update_conflict'),
-    path('judge/submit_ballot',
+    path('judge/judge_friends',
+         views.JudgeFriendUpdateView.as_view(),
+         name='judge_friend'),
+    path('judge/submit_ballot/<int:pk>',
          views.BallotCreateView.as_view(),
          name='submit_ballot'),
 ]

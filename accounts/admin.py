@@ -9,7 +9,7 @@ class UserAdmin(BaseUserAdmin, DynamicArrayMixin):
     list_display = ('id', 'username')
     fieldsets = (
         (None, {'fields': ('username', 'password', 'raw_password')}),
-        (('Personal info'), {'fields': ('is_team', 'is_judge')}),
+        (('Personal info'), {'fields': ('first_name', 'last_name', 'is_team', 'is_judge')}),
         # (('Round info'), {'fields':('sides','ballots','cs','pd')}),
         (('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )

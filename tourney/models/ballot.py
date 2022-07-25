@@ -3,19 +3,13 @@ from django.db import models
 from django_better_admin_arrayfield.models.fields import ArrayField
 
 from tourney.models.judge import Judge
+from tourney.models.round import Round
 from tourney.models.team import Team
 
 
 class Ballot(models.Model):
     id = models.IntegerField(primary_key=True)
-    courtroom = models.CharField(max_length=1, null=True)
-    p_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='p_ballots',
-                               related_query_name='p_ballot', null=True)
-    d_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='d_ballots',
-                               related_query_name='d_ballot', null=True)
-    judge = models.ForeignKey('tourney.Judge', on_delete=models.CASCADE, related_name='ballots',
-                               related_query_name='ballot', null=True)
-    round_num = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)],null=True)
+    round = models.ForeignKey(Round, on_delete=models.CASCADE, related_name='ballots', related_query_name='ballot', null=True)
 
     # @property
     # def p_roster_choices(self):
@@ -37,65 +31,65 @@ class Ballot(models.Model):
     p_wit1_att_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],
                                            help_text='this is for d!',null=True)
     p_wit1_wit_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
-    p_wit1_wit_cross_comment = models.TextField(max_length=5000,null=True)
-    p_wit1_att_direct_comment = models.TextField(max_length=5000,null=True)
-    p_wit1_att_cross_comment = models.TextField(max_length=5000,null=True)
+    p_wit1_wit_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
+    p_wit1_att_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    p_wit1_att_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
 
     p_wit2_wit_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     p_wit2_wit_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     p_wit2_att_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     p_wit2_att_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],
                                            help_text='this is for d!',null=True)
-    p_wit2_wit_direct_comment = models.TextField(max_length=5000,null=True)
-    p_wit2_wit_cross_comment = models.TextField(max_length=5000,null=True)
-    p_wit2_att_direct_comment = models.TextField(max_length=5000,null=True)
-    p_wit2_att_cross_comment = models.TextField(max_length=5000,null=True)
+    p_wit2_wit_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    p_wit2_wit_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
+    p_wit2_att_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    p_wit2_att_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
 
     p_wit3_wit_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     p_wit3_wit_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     p_wit3_att_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     p_wit3_att_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],
                                            help_text='this is for d!',null=True)
-    p_wit3_wit_direct_comment = models.TextField(max_length=5000,null=True)
-    p_wit3_wit_cross_comment = models.TextField(max_length=5000,null=True)
-    p_wit3_att_direct_comment = models.TextField(max_length=5000,null=True)
-    p_wit3_att_cross_comment = models.TextField(max_length=5000,null=True)
+    p_wit3_wit_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    p_wit3_wit_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
+    p_wit3_att_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    p_wit3_att_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
 
     d_wit1_wit_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     d_wit1_wit_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     d_wit1_att_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     d_wit1_att_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],
                                            help_text='this is for p!',null=True)
-    d_wit1_wit_direct_comment = models.TextField(max_length=5000,null=True)
-    d_wit1_wit_cross_comment = models.TextField(max_length=5000,null=True)
-    d_wit1_att_direct_comment = models.TextField(max_length=5000,null=True)
-    d_wit1_att_cross_comment = models.TextField(max_length=5000,null=True)
+    d_wit1_wit_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    d_wit1_wit_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
+    d_wit1_att_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    d_wit1_att_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
 
     d_wit2_wit_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     d_wit2_wit_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     d_wit2_att_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     d_wit2_att_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],
                                            help_text='this is for p!',null=True)
-    d_wit2_wit_direct_comment = models.TextField(max_length=5000,null=True)
-    d_wit2_wit_cross_comment = models.TextField(max_length=5000,null=True)
-    d_wit2_att_direct_comment = models.TextField(max_length=5000,null=True)
-    d_wit2_att_cross_comment = models.TextField(max_length=5000,null=True)
+    d_wit2_wit_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    d_wit2_wit_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
+    d_wit2_att_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    d_wit2_att_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
 
     d_wit3_wit_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     d_wit3_wit_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     d_wit3_att_direct = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     d_wit3_att_cross = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],
                                            help_text='this is for p!',null=True)
-    d_wit3_wit_direct_comment = models.TextField(max_length=5000,null=True)
-    d_wit3_wit_cross_comment = models.TextField(max_length=5000,null=True)
-    d_wit3_att_direct_comment = models.TextField(max_length=5000,null=True)
-    d_wit3_att_cross_comment = models.TextField(max_length=5000,null=True)
+    d_wit3_wit_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    d_wit3_wit_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
+    d_wit3_att_direct_comment = models.TextField(max_length=5000,null=True, blank=True)
+    d_wit3_att_cross_comment = models.TextField(max_length=5000,null=True, blank=True)
 
 
     p_close = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
-    p_close_comment = models.TextField(max_length=5000,null=True)
+    p_close_comment = models.TextField(max_length=5000,null=True, blank=True)
     d_close = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
-    d_close_comment = models.TextField(max_length=5000,null=True)
+    d_close_comment = models.TextField(max_length=5000,null=True, blank=True)
 
     att_ranks = ArrayField(
         models.CharField(max_length=20),

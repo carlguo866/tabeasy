@@ -23,9 +23,9 @@ def signup(request):
             user.raw_password = raw_password
             user.is_judge = form.cleaned_data.get('is_judge')
             user.is_team = form.cleaned_data.get('is_team')
-            user.is_tab = form.cleaned_data.get('is_tab')
+            user.is_tab = False
             if not single_true([user.is_judge,user.is_team, user.is_tab]):
-                raise Http404("ur both a team and a judge")
+                raise ValidationError('user is both judge and team')
             user.save()
 
             if user.is_judge:

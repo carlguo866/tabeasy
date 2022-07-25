@@ -15,9 +15,10 @@ from django.views.generic import CreateView, UpdateView
 
 from accounts.models import User
 from tabeasy.utils.mixins import JudgeOnlyMixin
-from tourney.forms import PairingFormSimple, RoundForm, UpdateConflictForm
+from tourney.forms import PairingFormSimple, RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
+from tourney.models.round import Round
 from tourney.models.team import Team
 
 
@@ -45,31 +46,52 @@ def pairing(request):
 class ConflictUpdateView(JudgeOnlyMixin, UpdateView):
     model = Judge
     template_name = "tourney/add_conflict.html"
-    # fields = ['conflicts']
-    #
-    # def form_valid(self, form):
-    #     form.instance.judge = self.request.user.judge
-    #     return super().form_valid(form)
-    # #
+
     form_class = UpdateConflictForm
+
+    def get_form(self, form_class=None):
+        form = super(ConflictUpdateView, self).get_form(form_class)
+        form.fields['conflicts'].required = False
+        return form
+
     def get_object(self, queryset=None):
         return self.request.user.judge
 
     success_url = reverse_lazy('index')
 
-class BallotCreateView(CreateView):
+class JudgeFriendUpdateView(JudgeOnlyMixin, UpdateView):
+    model = Judge
+    template_name = "utils/generic_form.html"
+
+    form_class = UpdateJudgeFriendForm
+
+    def get_form(self, form_class=None):
+        form = super(JudgeFriendUpdateView, self).get_form(form_class)
+        form.fields['judge_friends'].required = False
+        return form
+
+    def get_object(self, queryset=None):
+        return self.request.user.judge
+
+    success_url = reverse_lazy('index')
+
+class BallotCreateView(JudgeOnlyMixin, CreateView):
     model = Ballot
     template_name = "tourney/add_conflict.html"
+    form_class = BallotForm
 
-    fields = ['courtroom', 'p_team','d_team','judge','round_num',
-              'p_open','p_open_comment','d_open','d_open_comment']
+    def form_valid(self, form):
+        print(self.object)
+        form.instance.round = Round.objects.get(pk=self.object.pk)
+        return super(BallotCreateView, self).form_valid(form)
 
-    # def form_valid(self, form):
-    #
-    #     return super().form_valid(form)
+    # def get_context_data(self, **kwargs):
+    #     context = super(BallotCreateView, self).get_context_data(self, **kwargs)
+    #     # context['round'] = self.round
+    #     return context
 
     def get_success_url(self):
-        return reverse('index', args=[self.object.pk])
+        return reverse('index') #, args=[self.object.pk]
 
 
 def generate_random_password():

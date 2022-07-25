@@ -7,7 +7,7 @@ from accounts.models import User, Tab
 class SignUpForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('username', 'password1', 'password2','is_team','is_judge', 'is_tab')
+        fields = ('username', 'first_name', 'last_name', 'password1', 'password2','is_team','is_judge')
 
 class TabForm(forms.ModelForm):
     class Meta:

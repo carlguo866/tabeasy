@@ -6,7 +6,7 @@ from django.forms import TextInput, Textarea, Select
 from tourney.forms import RoundForm
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
-from tourney.models.round import Pairing, PairingItem
+from tourney.models.round import Pairing, Round
 from tourney.models.team import Team
 
 
@@ -17,7 +17,7 @@ admin.site.register(Ballot, BallotAdmin)
 
 
 class RoundInline(admin.StackedInline):
-    model = PairingItem
+    model = Round
     form = RoundForm
     autocomplete_fields = ['p_team', 'd_team']
     extra = 0
@@ -32,7 +32,7 @@ class PairingAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['round_num']
     inlines = [RoundInline]
 
-@admin.register(PairingItem)
+@admin.register(Round)
 class RoundAdmin(admin.ModelAdmin):
     pass
     # formfield_overrides = {
