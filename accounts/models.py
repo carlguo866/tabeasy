@@ -15,7 +15,7 @@ class User(AbstractUser):
     is_team = models.BooleanField(default=True)
     is_tab = models.BooleanField(default=False)
     def __str__(self):
-        return f"User: {self.username}"
+        return f"{self.username}"
 
 class Tab(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE,

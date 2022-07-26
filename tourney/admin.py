@@ -10,27 +10,27 @@ from tourney.models.round import Pairing, Round
 from tourney.models.team import Team
 
 
-class BallotAdmin(admin.ModelAdmin, DynamicArrayMixin):
-    model = Ballot
-
-admin.site.register(Ballot, BallotAdmin)
-
-
 class RoundInline(admin.StackedInline):
     model = Round
-    form = RoundForm
-    autocomplete_fields = ['p_team', 'd_team']
-    extra = 0
+    # form = RoundForm
+    autocomplete_fields = ['p_team', 'd_team', 'judges']
+    show_change_link = True
+    # extra = 0
 
-    def get_queryset(self, request):
-        qs = super(RoundInline, self).get_queryset(request)
-        return qs.filter()
+    # def get_queryset(self, request):
+    #     qs = super(RoundInline, self).get_queryset(request)
+    #     return qs.filter()
 
 
 @admin.register(Pairing)
 class PairingAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['round_num']
     inlines = [RoundInline]
+
+@admin.register(Ballot)
+class BallotAdmin(admin.ModelAdmin, DynamicArrayMixin):
+    list_display = ['pk', 'round', 'judge']
+    model = Ballot
 
 
 class BallotInlineAdmin(admin.TabularInline):
@@ -52,6 +52,7 @@ class JudgeAdmin(admin.ModelAdmin, DynamicArrayMixin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
+    list_display = ['team_id','team_name','division','school']
     search_fields = ['team_name']
 
 

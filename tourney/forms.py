@@ -1,6 +1,9 @@
+import string
+
 from django import forms
+from django.core.exceptions import ValidationError
 from django.forms import MultipleChoiceField
-from django.forms.models import ModelChoiceIterator
+from django.forms.models import ModelChoiceIterator, BaseInlineFormSet
 
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
@@ -35,19 +38,61 @@ class RoundForm(forms.ModelForm):
         #     'judge_2': forms.Select(attrs={'size': 5})
         # }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, pairing, *args, **kwargs):
         super(RoundForm, self).__init__(*args, **kwargs)
-        # self.fields['p_team'].queryset = Team.objects.all() #filter(division='Disney')
-        # # if 'pairing' in self.data:
-        # #     # try:
-        # #     division = int(self.data.get('pairing').get('division'))
-        # #     print(division)
-        # #     self.fields['p_team'].queryset = Team.objects.filter(country_id=division).order_by('team_name')
-        # #     # except (ValueError, TypeError):
-        # #     #     print('error ')
-        # #     #     pass
-        # # else:
-        # #     print('error hereeee')
+        self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)
+        self.fields['d_team'].queryset = Team.objects.filter(division=pairing.division)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = []
+        if cleaned_data.get('courtroom') not in string.ascii_uppercase:
+            errors.append('Courtroom is not in the alphabet')
+        if cleaned_data.get('judges').count() > 3:
+            errors.append('more than 3 judges for a round')
+        if cleaned_data.get('judges').count() < 2:
+            errors.append('less than 2 judges for a round')
+        if cleaned_data.get('p_team') == cleaned_data.get('d_team'):
+            errors.appenderrors.append('one team cant compete against itself')
+        for judge in cleaned_data.get('judges').all():
+            if cleaned_data.get('p_team') in judge.conflicts.all():
+                errors.append(f"{judge} conflicted with p_team {cleaned_data.get('p_team')}")
+            if cleaned_data.get('d_team') in judge.conflicts.all():
+                errors.append(f"{judge} conflicted with d_team {cleaned_data.get('d_team')}")
+        if errors != []:
+            raise ValidationError(errors)
+
+class PairingFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        if any(self.errors):
+            return
+        existing_judges = []
+        existing_teams = []
+        existing_courtrooms = []
+        errors = []
+        for form in self.forms:
+            if self.can_delete and self._should_delete_form(form):
+                continue
+            if form.cleaned_data == {}:
+                continue
+            if form.cleaned_data.get('courtroom') in existing_courtrooms:
+                errors.append(f"courtroom {form.cleaned_data.get('courtroom')} already in use")
+            existing_courtrooms.append(form.cleaned_data.get('courtroom'))
+            form_judges = form.cleaned_data.get('judges').all()
+            for judge in form_judges:
+                if judge in existing_judges:
+                    errors.append(f'{judge} used twice!')
+                existing_judges.append(judge)
+            teams = [form.cleaned_data.get('p_team'),form.cleaned_data.get('d_team')]
+            for team in teams:
+                if team in existing_teams:
+                    errors.append(f'{team} used twice!')
+                existing_teams.append(team)
+        if errors != []:
+            raise ValidationError(errors)
+
+
 
 
 class CustomModelChoiceIterator(ModelChoiceIterator):
@@ -110,7 +155,8 @@ class BallotForm(forms.ModelForm):
               'd_wit3_wit_direct', 'd_wit3_att_direct', 'd_wit3_wit_cross', 'd_wit3_att_cross',
               'd_wit3_wit_cross_comment', 'd_wit3_att_direct_comment', 'd_wit3_att_cross_comment',
               'd_wit3_wit_direct_comment',
-              'p_close','p_close_comment','d_close','d_close_comment'
+              'p_close','p_close_comment','d_close','d_close_comment',
+
               ]
 
         def __init__(self, *args, **kwargs):

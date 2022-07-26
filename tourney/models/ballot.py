@@ -109,7 +109,7 @@ class Ballot(models.Model):
     )
 
     def __str__(self):
-        return f"{self.judge.user.username} Ballot {self.id}"
+        return f"{self.round} {self.judge.user} Ballot"
 
     def calculate_win(self):
         assert(not None in set([self.p_open, self.p_wit1_att_direct, self.p_wit1_wit_direct, self.p_wit1_wit_cross,
@@ -136,6 +136,7 @@ class Ballot(models.Model):
                         self.d_close
         return p_total_score - d_total_score
 
+    @property
     def p_result(self):
         pd = self.calculate_win()
         if pd != 0:
@@ -143,12 +144,13 @@ class Ballot(models.Model):
         else:
             return 0.5, pd
 
+    @property
     def d_result(self):
         pd = self.calculate_win()
         if pd != 0:
-            return int(pd < 0), pd
+            return int(pd < 0), -pd
         else:
-            return 0.5, pd
+            return 0.5, -pd
 
     class Meta:
         unique_together = ['round', 'judge']

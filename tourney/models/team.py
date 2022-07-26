@@ -24,12 +24,6 @@ class Team(models.Model):
         default='placeholder',
         null=True
     )
-    team_roster = ArrayField(
-        base_field=models.CharField(max_length=100),
-        size=10,
-        null=True,
-        blank=True
-    )
     side_choices = [('P', 'Prosecution'), ('D', 'Defense')]
     sides = ArrayField(
         models.CharField(max_length=1, choices=side_choices),
@@ -37,33 +31,33 @@ class Team(models.Model):
         null=True,
         blank=True
     )
-    # ballots = ArrayField(
-    #     models.DecimalField(max_digits=2, decimal_places=1, null=True, blank=True),
+
+    # cs = ArrayField(
+    #     models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True),
     #     size=4,
     #     null=True,
     #     blank=True
     # )
-    cs = ArrayField(
-        models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True),
-        size=4,
-        null=True,
-        blank=True
-    )
-    pd = ArrayField(
-        models.IntegerField(null=True, blank=True),
-        size=4,
-        null=True,
-        blank=True
-    )
+    # pd = ArrayField(
+    #     models.IntegerField(null=True, blank=True),
+    #     size=4,
+    #     null=True,
+    #     blank=True
+    # )
     def __str__(self):
-        return f"Team: {self.team_name}"
+        return f"{self.team_name}"
 
-    def total_ballots(self):
-        total = 0
-        for each in self.ballots:
-            if each is not None:
-                total+= each
-        return total
+    def first_round_ballot(self):
+        for round in self.p_rounds.all():
+            for ballot in round.ballots.all():
+                print(ballot.p_result)
+
+    # def total_ballots(self):
+    #     total = 0
+    #     for each in self.p_rounds.:
+    #         if each is not None:
+    #             total+= each
+    #     return total
 
     def total_cs(self):
         total = 0
@@ -79,3 +73,7 @@ class Team(models.Model):
                 total += each
         return total
 
+
+class TeamMember(models.Model):
+    name = models.CharField(max_length=30)
+    team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='members',related_query_name='member')

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+	{% if form.errors %}
+		{% for error in form.errors %}
+        	<div class="alert alert-danger" role="alert">{{ error }}</div>
+		{% endfor %}
+    {% endif %}
+	<div>Round: {{ object.round.pairing.round_num }}</div>
+	<div>Courtroom: {{ object.round.courtroom }}</div>
+	<div>P Team: {{ object.round.p_team }}</div>
+  	<div>D Team: {{ object.round.d_team }}</div>
+	<div>Judge Name: {{ object.judge }}</div>
+  	<form method="post">
+		{% csrf_token %}
+		{{ form.as_p }}
+		<input class="button button-primary" type="submit" value="Save">
+  	</form>
+{% endblock content %}

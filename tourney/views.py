@@ -2,7 +2,7 @@ import math
 import string
 import random
 from audioop import reverse
-
+from functools import partial
 import pinyin
 import openpyxl
 from django.contrib.auth import authenticate
@@ -16,25 +16,25 @@ from django.views.generic import CreateView, UpdateView
 
 from accounts.models import User
 from tabeasy.utils.mixins import JudgeOnlyMixin
-from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm
+from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
 from tourney.models.round import Round, Pairing
-from tourney.models.team import Team
+from tourney.models.team import Team, TeamMember
 
 
 def index(request):
     return render(request, 'index.html')
 
-@user_passes_test(lambda u: u.is_staff)
-def pairing(request):
-    div_1_teams = Team.objects.filter(division='Universal')
-    div_2_teams = Team.objects.filter(division='Disney')
-    dict = {'div_1_teams': div_1_teams, 'div_2_teams':div_2_teams,
-            'half_div_1_teams_num': math.ceil(float(len(div_1_teams))/2),
-            'half_div_2_teams_num': math.ceil(float(len(div_2_teams))/2),
-            'form': RoundForm()}
-    return render(request, 'tourney/pairing.html', dict)
+# @user_passes_test(lambda u: u.is_staff)
+# def pairing(request):
+#     div_1_teams = Team.objects.filter(division='Universal')
+#     div_2_teams = Team.objects.filter(division='Disney')
+#     dict = {'div_1_teams': div_1_teams, 'div_2_teams':div_2_teams,
+#             'half_div_1_teams_num': math.ceil(float(len(div_1_teams))/2),
+#             'half_div_2_teams_num': math.ceil(float(len(div_2_teams))/2),
+#             'form': RoundForm()}
+#     return render(request, 'tourney/pairing.html', dict)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -42,13 +42,14 @@ def create_pairing(request, pairing_id):
     pairing = Pairing.objects.get(pk=pairing_id)
     if pairing == None:
         pairing = Pairing(pk=pairing_id, division='Disney', round=1)
-    RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, extra=3)
+    RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet)
+                                        # max_num=8, validate_max=True,
+                                        # min_num=8, validate_min=True)
     if request.method == "POST":
         formset = RoundFormSet(request.POST, request.FILES, instance=pairing, form_kwargs={'pairing': pairing})
         if formset.is_valid():
             formset.save()
-            # Do something. Should generally end with a redirect. For example:
-            return reverse_lazy('index')
+            return render(request, 'index.html')
     else:
         formset = RoundFormSet(instance=pairing, form_kwargs={'pairing': pairing})
     return render(request, 'tourney/pairing.html', {'formset': formset})
@@ -94,11 +95,11 @@ class JudgeFriendUpdateView(JudgeOnlyMixin, UpdateView):
 
 class BallotUpdateView(JudgeOnlyMixin, UpdateView):
     model = Ballot
-    template_name = "utils/test_form.html"
+    template_name = "tourney/ballot.html"
     form_class = BallotForm
 
     def get_success_url(self):
-        return reverse('index') #, args=[self.object.pk]
+        return reverse_lazy('index') #
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -134,14 +135,21 @@ def load_teams(request):
                 try:
                     if Team.objects.filter(pk=pk).exists():
                         message += f'update team {pk}'
-                        Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school, team_roster=team_roster)
+                        Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
                     else:
                         message += f'create team {pk}'
                         raw_password = User.objects.make_random_password()
                         user = User(username=team_name, raw_password=raw_password, is_team=True)
                         user.set_password(raw_password)
                         user.save()
-                        Team.objects.create(team_id=pk, user=user, team_name=team_name,division=division,school=school, team_roster=team_roster)
+                        Team.objects.create(team_id=pk, user=user, team_name=team_name,division=division,school=school)
+                    for name in team_roster:
+                        if TeamMember.objects.filter(name=name).exists():
+                            message += f'update member {name}'
+                            TeamMember.objects.filter(name=name).update(team=Team.objects.filter(pk=pk)[0],name=name)
+                        else:
+                            message += f'create member {name}'
+                            TeamMember.objects.create(name=name,team=Team.objects.filter(pk=pk)[0])
                 except Exception as e:
                     message += str(e)
                 else:
