@@ -8,7 +8,7 @@ from django.forms.models import ModelChoiceIterator, BaseInlineFormSet
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
 from tourney.models.round import Pairing, Round
-from tourney.models.team import Team
+from tourney.models.team import Team, TeamMember
 
 
 class TeamForm(forms.ModelForm):
@@ -165,6 +165,9 @@ class BallotForm(forms.ModelForm):
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
+            # self.fields['wit_rank_1'].queryset = TeamMember.objects.filter(
+            #                         team=self.p_team) + TeamMember.objects.filter(team=self.d_team)
+
             # self.fields['round'].queryset = self.request.user.judge.rounds.all()
 
 

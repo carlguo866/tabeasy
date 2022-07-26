@@ -47,32 +47,45 @@ class Team(models.Model):
     def __str__(self):
         return f"{self.team_name}"
 
-    def first_round_ballot(self):
-        for round in self.p_rounds.all():
-            for ballot in round.ballots.all():
-                print(ballot.p_result)
+    def p_ballot(self):
+        if self.p_rounds.count() > 0:
+            return sum([ballot[0] for ballot in round.ballots.all()
+                        for round in self.p_rounds.all() ])
+        else:
+            return 0
 
-    # def total_ballots(self):
-    #     total = 0
-    #     for each in self.p_rounds.:
-    #         if each is not None:
-    #             total+= each
-    #     return total
+    def d_ballot(self):
+        if self.d_rounds.count() > 0:
+            return sum([ballot[0] for ballot in round.ballots.all()
+                        for round in self.d_rounds.all() ])
+        else:
+            return 0
+
+    def total_ballots(self):
+        return self.p_ballot() + self.d_ballot()
 
     def total_cs(self):
-        total = 0
-        for each in self.cs:
-            if each is not None:
-                total += each
-        return total
+        cs = 0
+        for p_round in self.p_rounds.all():
+            cs += p_round.d_team.total_ballots()
+        for d_round in self.d_rounds.all():
+            cs += d_round.p_team.total_ballots()
+        return cs
 
     def total_pd(self):
-        total = 0
-        for each in self.pd:
-            if each is not None:
-                total += each
-        return total
+        if self.d_rounds.count() > 0 or self.p_rounds.count():
+            return sum([ballot[1] for ballot in round.ballots.all()
+                        for round in self.d_rounds.all()+self.p_rounds.all()])
+        else:
+            return 0
 
+    def next_side(self):
+        if self.p_rounds.count() == self.d_rounds.count():
+            return 'both'
+        elif self.p_rounds.count() > self.d_rounds.count():
+            return 'd'
+        else:
+            return 'p'
 
 class TeamMember(models.Model):
     name = models.CharField(max_length=30)
