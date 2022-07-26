@@ -24,7 +24,7 @@ class RoundInline(admin.StackedInline):
 
 @admin.register(Pairing)
 class PairingAdmin(admin.ModelAdmin, DynamicArrayMixin):
-    list_display = ['round_num']
+    list_display = ['pk', 'round_num','division']
     inlines = [RoundInline]
 
 @admin.register(Ballot)

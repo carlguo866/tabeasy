@@ -1,22 +1,13 @@
-import math
-import string
-import random
-from audioop import reverse
-from functools import partial
-import pinyin
 import openpyxl
-from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import user_passes_test, login_required
-from django.forms import inlineformset_factory, modelformset_factory
+from django.forms import inlineformset_factory
 from django.shortcuts import render
-
-# Create your views here.
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
 from accounts.models import User
 from tabeasy.utils.mixins import JudgeOnlyMixin
-from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet
+from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, PairingForm
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
 from tourney.models.round import Round, Pairing
@@ -26,33 +17,44 @@ from tourney.models.team import Team, TeamMember
 def index(request):
     return render(request, 'index.html')
 
-# @user_passes_test(lambda u: u.is_staff)
-# def pairing(request):
-#     div_1_teams = Team.objects.filter(division='Universal')
-#     div_2_teams = Team.objects.filter(division='Disney')
-#     dict = {'div_1_teams': div_1_teams, 'div_2_teams':div_2_teams,
-#             'half_div_1_teams_num': math.ceil(float(len(div_1_teams))/2),
-#             'half_div_2_teams_num': math.ceil(float(len(div_2_teams))/2),
-#             'form': RoundForm()}
-#     return render(request, 'tourney/pairing.html', dict)
+@user_passes_test(lambda u: u.is_staff)
+def pairing_index(request):
+    current_pairings = Pairing.objects.all()
+    dict = {'pairings': current_pairings}
+    return render(request, 'tourney/pairing/main.html', dict)
 
 
 @user_passes_test(lambda u: u.is_staff)
-def create_pairing(request, pairing_id):
-    pairing = Pairing.objects.get(pk=pairing_id)
-    if pairing == None:
-        pairing = Pairing(pk=pairing_id, division='Disney', round=1)
+def edit_pairing(request, pairing_id):
     RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet)
-                                        # max_num=8, validate_max=True,
-                                        # min_num=8, validate_min=True)
-    if request.method == "POST":
-        formset = RoundFormSet(request.POST, request.FILES, instance=pairing, form_kwargs={'pairing': pairing})
-        if formset.is_valid():
-            formset.save()
-            return render(request, 'index.html')
+                                            # max_num=8, validate_max=True,
+                                            # min_num=8, validate_min=True)
+    if Pairing.objects.filter(pk=pairing_id).exists():
+        pairing = Pairing.objects.get(pk=pairing_id)
+        if request.method == "POST":
+            formset = RoundFormSet(request.POST, request.FILES, instance=pairing, form_kwargs={'pairing': pairing})
+            if formset.is_valid():
+                formset.save()
+                return reverse_lazy('tourney:pairing_index')
+        else:
+            formset = RoundFormSet(instance=pairing, form_kwargs={'pairing': pairing})
+        return render(request, 'tourney/pairing/edit.html', {'formset': formset})
     else:
-        formset = RoundFormSet(instance=pairing, form_kwargs={'pairing': pairing})
-    return render(request, 'tourney/pairing.html', {'formset': formset})
+        if request.method == 'POST':
+            pairing_form = PairingForm(request.POST, prefix='pairing')
+            if pairing_form.is_valid():
+                pairing = pairing_form.save()
+                return reverse_lazy('tourney:pairing_index')
+        else:
+            pairing_form = PairingForm(prefix='pairing')
+            return render(request, 'tourney/pairing/edit.html', {
+                    'pairing_form': pairing_form,
+                })
+
+
+
+
+
 
 # @login_required
 # # def add_conflict(request):

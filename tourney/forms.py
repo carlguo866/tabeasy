@@ -40,8 +40,12 @@ class RoundForm(forms.ModelForm):
 
     def __init__(self, pairing, *args, **kwargs):
         super(RoundForm, self).__init__(*args, **kwargs)
-        self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)
-        self.fields['d_team'].queryset = Team.objects.filter(division=pairing.division)
+        if pairing == None:
+            self.fields['p_team'].queryset = Team.objects.all()
+            self.fields['d_team'].queryset = Team.objects.all()
+        else:
+            self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)
+            self.fields['d_team'].queryset = Team.objects.filter(division=pairing.division)
 
     def clean(self):
         cleaned_data = super().clean()
