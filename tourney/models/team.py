@@ -77,3 +77,29 @@ class Team(models.Model):
 class TeamMember(models.Model):
     name = models.CharField(max_length=30)
     team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='members',related_query_name='member')
+
+    @property
+    def att_individual_score(self):
+        total = 0
+        dict = {
+            self.att_rank_1: 5,
+            self.att_rank_2: 4,
+            self.att_rank_3: 3,
+            self.att_rank_4: 2,
+        }
+        for k, v in dict:
+            total += v*k.count()
+        return total
+
+    @property
+    def wit_individual_score(self):
+        total = 0
+        dict = {
+            self.wit_rank_1: 5,
+            self.wit_rank_2: 4,
+            self.wit_rank_3: 3,
+            self.wit_rank_4: 2,
+        }
+        for k, v in dict:
+            total += v*k.count()
+        return total

@@ -11,8 +11,8 @@ class User(AbstractUser):
         default='THIS_IS_NOT_RECORDED',
         help_text='A read-only field to record password only for development.'
     )
-    is_judge = models.BooleanField(default=False)
-    is_team = models.BooleanField(default=True)
+    is_judge = models.BooleanField(default=True)
+    is_team = models.BooleanField(default=False)
     is_tab = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.username}"

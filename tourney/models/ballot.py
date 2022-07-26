@@ -4,7 +4,7 @@ from django_better_admin_arrayfield.models.fields import ArrayField
 
 from tourney.models.judge import Judge
 from tourney.models.round import Round
-from tourney.models.team import Team
+from tourney.models.team import Team, TeamMember
 
 
 class Ballot(models.Model):
@@ -94,19 +94,23 @@ class Ballot(models.Model):
     d_close = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(10)],null=True)
     d_close_comment = models.TextField(max_length=5000,null=True, blank=True)
 
-    att_ranks = ArrayField(
-        models.CharField(max_length=20),
-        size=4,
-        null=True,
-        blank=True
-    )
+    att_rank_1 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_query_name='att_rank_1',
+                                   related_name='att_rank_1',null=True)
+    att_rank_2 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_query_name='att_rank_2',
+                                   related_name='att_rank_2',null=True)
+    att_rank_3 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_query_name='att_rank_3',
+                                   related_name='att_rank_3',null=True)
+    att_rank_4 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_query_name='att_rank_4',
+                                   related_name='att_rank_4',null=True)
 
-    wit_ranks = ArrayField(
-        models.CharField(max_length=20),
-        size=4,
-        null=True,
-        blank=True
-    )
+    wit_rank_1 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_query_name='wit_rank_1',
+                                   related_name='wit_rank_1',null=True)
+    wit_rank_2 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_query_name='wit_rank_2',
+                                   related_name='wit_rank_2',null=True)
+    wit_rank_3 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_query_name='wit_rank_3',
+                                   related_name='wit_rank_3',null=True)
+    wit_rank_4 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_query_name='wit_rank_4',
+                                   related_name='wit_rank_4',null=True)
 
     def __str__(self):
         return f"{self.round} {self.judge.user} Ballot"

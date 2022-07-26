@@ -5,7 +5,13 @@
 {% block content %}
 	<strong>Current Pairings: </strong>
 	{% for pairing in pairings %}
-	
+		<a href="{% url 'tourney:edit_pairing' pairing.pk %}">
+			<button type="button" class="btn btn-secondary">Round {{ pairing.round_num }} {{ pairing.division }}</button>
+		</a>
 	{% endfor %}
+	<br>
+	<a href="{% url 'tourney:edit_pairing' 999 %}">
+		<button type="button" class="btn btn-secondary">Add</button>
+	</a>
 
 {% endblock content %}

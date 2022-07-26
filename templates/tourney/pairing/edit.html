@@ -4,22 +4,31 @@
 
 {% block content %}
 	<h1>here is the pairing landing page</h1>
-	{% if formset.errors %}
-		{% for error in formset.errors %}
-        	<div class="alert alert-danger" role="alert">{{ error }}</div>
-		{% endfor %}
-    {% endif %}
-	{% if formset.non_form_errors %}
-		{% for error in formset.non_form_errors %}
-        	<div class="alert alert-danger" role="alert">{{ error }}</div>
-		{% endfor %}
-    {% endif %}
+	{% if formset %}
+		<strong>Create Rounds</strong>
+		{% if formset.errors %}
+			{% for error in formset.errors %}
+				<div class="alert alert-danger" role="alert">{{ error }}</div>
+			{% endfor %}
+		{% endif %}
+		{% if formset.non_form_errors %}
+			{% for error in formset.non_form_errors %}
+				<div class="alert alert-danger" role="alert">{{ error }}</div>
+			{% endfor %}
+		{% endif %}
 
-	<form method="post">
-		{% csrf_token %}
-		{{ formset.as_p }}
-		<input class="button button-primary" type="submit" value="Save">
-	</form>
+		<form method="post">
+			{% csrf_token %}
+			{{ formset.as_p }}
+			<input class="button button-primary" type="submit" value="Save">
+		</form>
+	{% else %}
+		<form method="post">
+			{% csrf_token %}
+			{{ pairing_form.as_p }}
+			<input class="button button-primary" type="submit" value="Save">
+		</form>
+	{% endif %}
 {#	{{ div_1_teams.count}}#}
 {#	{{ half_div_1_teams_num }}#}
 {##}

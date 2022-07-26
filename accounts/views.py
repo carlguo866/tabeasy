@@ -6,26 +6,15 @@ import django.contrib.auth.views as auth_views
 from accounts.forms import *
 from tourney.forms import JudgeForm, TeamForm
 
-
-def single_true(iterable):
-    i = iter(iterable)
-    return any(i) and not any(i)
-
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(data=request.POST)
         if form.is_valid():
-            form.save()  # why? this seems to create the user
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
+            form.save()
             user = authenticate(username=username, password=raw_password)
-
             user.raw_password = raw_password
-            user.is_judge = form.cleaned_data.get('is_judge')
-            user.is_team = form.cleaned_data.get('is_team')
-            user.is_tab = False
-            if not single_true([user.is_judge,user.is_team, user.is_tab]):
-                raise ValidationError('user is both judge and team')
             user.save()
 
             if user.is_judge:
@@ -34,9 +23,6 @@ def signup(request):
             elif user.is_team:
                 print('is_team')
                 role_form = TeamForm(data=request.POST)
-            else:
-                print('is_tab')
-                role_form = TabForm(data=request.POST)
             role = role_form.save(commit=False)
             role.user = user
             role.save()
