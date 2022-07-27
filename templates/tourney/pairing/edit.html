@@ -8,12 +8,15 @@
 		<strong>Create Rounds</strong>
 		{% if formset.errors %}
 			{% for error in formset.errors %}
-				<div class="alert alert-danger" role="alert">{{ error }}</div>
+				{% if error %}
+					<div class="alert alert-danger" role="alert">{{ error }}</div>
+				{% endif  %}
 			{% endfor %}
-		{% endif %}
-		{% if formset.non_form_errors %}
+		{% elif formset.non_form_errors %}
 			{% for error in formset.non_form_errors %}
-				<div class="alert alert-danger" role="alert">{{ error }}</div>
+				{% if error %}
+					<div class="alert alert-danger" role="alert">{{ error }}</div>
+				{% endif %}
 			{% endfor %}
 		{% endif %}
 

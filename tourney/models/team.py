@@ -61,15 +61,16 @@ class Team(models.Model):
         else:
             return 0
 
+    @property
     def total_ballots(self):
         return self.p_ballot() + self.d_ballot()
 
     def total_cs(self):
         cs = 0
         for p_round in self.p_rounds.all():
-            cs += p_round.d_team.total_ballots()
+            cs += p_round.d_team.total_ballots
         for d_round in self.d_rounds.all():
-            cs += d_round.p_team.total_ballots()
+            cs += d_round.p_team.total_ballots
         return cs
 
     def total_pd(self):
@@ -79,6 +80,7 @@ class Team(models.Model):
         else:
             return 0
 
+    @property
     def next_side(self):
         if self.p_rounds.count() == self.d_rounds.count():
             return 'both'
@@ -90,6 +92,9 @@ class Team(models.Model):
 class TeamMember(models.Model):
     name = models.CharField(max_length=30)
     team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='members',related_query_name='member')
+
+    def __str__(self):
+        return self.name
 
     @property
     def att_individual_score(self):
@@ -116,3 +121,16 @@ class TeamMember(models.Model):
         for k, v in dict:
             total += v*k.count()
         return total
+
+
+class NonReversibleForeignKey(models.ForeignKey):
+    _relation_counter = 0
+
+    @classmethod
+    def generate_related_name(cls):
+        cls._relation_counter += 1
+        return "anonymous_relation_%s" % cls._relation_counter
+    #
+    # def contribute_to_related_class(self, cls, related):
+    #     self.name = NonReversibleForeignKey.generate_related_name()
+    #     return super(NonReversibleForeignKey, self).contribute_to_related_class(cls, related)

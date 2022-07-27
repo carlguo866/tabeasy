@@ -6,8 +6,8 @@ from django.forms import TextInput, Textarea, Select
 from tourney.forms import RoundForm
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
-from tourney.models.round import Pairing, Round
-from tourney.models.team import Team
+from tourney.models.round import Pairing, Round, CaptainsMeeting
+from tourney.models.team import Team, TeamMember
 
 
 class RoundInline(admin.StackedInline):
@@ -45,6 +45,7 @@ class RoundAdmin(admin.ModelAdmin):
 
 @admin.register(Judge)
 class JudgeAdmin(admin.ModelAdmin, DynamicArrayMixin):
+    list_display = ['pk', '__str__']
     search_fields = ['user.username']
     # fieldsets = (
     #     (None, {'fields': ('ballots', 'pairing1s', 'pairing2s')}),
@@ -55,4 +56,12 @@ class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['team_id','team_name','division','school']
     search_fields = ['team_name']
 
+@admin.register(TeamMember)
+class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
+    list_display = ['pk', 'name','team']
+    search_fields = ['name']
 
+@admin.register(CaptainsMeeting)
+class CaptainsMeetingAdmin(admin.ModelAdmin):
+    list_display = ['round', 'submit']
+    search_fields = ['round']

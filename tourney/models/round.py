@@ -1,11 +1,10 @@
+from annoying.fields import AutoOneToOneField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 # Create your models here
 from django_better_admin_arrayfield.models.fields import ArrayField
-
-from tourney.models.judge import Judge
-from tourney.models.team import Team
+from tourney.models.team import Team, TeamMember
 
 
 class Pairing(models.Model):
@@ -15,42 +14,12 @@ class Pairing(models.Model):
         choices=division_choices
     )
     round_num = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    # div_1 = ArrayField(
-    #     ArrayField(
-    #         models.CharField(max_length=30, null=True),
-    #         size=6,
-    #         null=True
-    #     ),
-    #     null=True,
-    #     blank=True
-    # # )
-    #rounds = models.OneToManyField(Round, related_name='rounds', related_query_name='round')
-    # div_1_team_1 = models.CharField(max_length=30)
+
+    class Meta:
+        unique_together = ('division', 'round_num',)
 
     def __str__(self):
         return f'Round {self.round_num}'
-    #
-    # def clean(self):
-    #     super().clean()
-    #     existing_teams = []
-    #     existing_judges = []
-    #     for pairing_item in self.rounds.all():
-    #         print(pairing_item)
-    #         print(existing_teams)
-    #         if pairing_item.p_team in existing_teams:
-    #             raise ValidationError(f'repeated a team {pairing_item.p_team}')
-    #         elif pairing_item.d_team in existing_teams:
-    #             raise ValidationError(f'repeated a team {pairing_item.d_team}')
-    #         else:
-    #             existing_teams.extend([pairing_item.p_team, pairing_item.d_team])
-    #
-    #         if pairing_item.judge_1 in existing_judges :
-    #             raise ValidationError(f'repeated a judge {pairing_item.judge_1}')
-    #         elif pairing_item.judge_2 in existing_judges:
-    #             raise ValidationError(f'repeated a judge {pairing_item.judge_2}')
-    #         else:
-    #             existing_judges.extend([pairing_item.judge_1, pairing_item.judge_2])
-
 
 class Round(models.Model):
     pairing = models.ForeignKey(Pairing, on_delete=models.CASCADE, related_name='rounds', related_query_name='round', null=True)
@@ -62,10 +31,100 @@ class Round(models.Model):
     judges = models.ManyToManyField('Judge', related_name='rounds',
                                     related_query_name='round',
                                     through='Ballot')
-
     def __str__(self):
         return f'Round {self.pairing.round_num} Courtroom {self.courtroom.upper()}'
 
+    def save(self, force_insert=False, force_update=False):
+        is_new = self.id is None
+        super(Round, self).save(force_insert, force_update)
+        if is_new:
+            CaptainsMeeting.objects.create(round=self)
     # def clean(self, *args, **kwargs):
     #
     #     super().clean()
+
+
+
+
+class CaptainsMeeting(models.Model):
+    round = models.OneToOneField(Round, on_delete=models.CASCADE, related_name='captains_meeting'
+                                 , related_query_name='captains_meeting', primary_key=True)
+    character_evidence = models.BooleanField(default=False, null=True,
+                                             help_text='Was Character Evidence form completed?')
+    p_charge_options = [
+        ('Haley Floyd','Haley Floyd'),
+        ('Winston Thomas','Winston Thomas'),
+        ('Both victims','Both victims')
+    ]
+    p_charge = models.CharField(max_length=30, choices=p_charge_options, null=True, blank=True)
+
+    d_charge_options = [
+        ('not_guilty','Not guilty of all criminal charges.'),
+        ('not_guilty_robbery_1','Not guilty of ROBBERY 1 but guilty of ROBBERY 2 and THEFT BY DECEPTION.'),
+        ('not_guilty_robbery','Not guilty of ROBBERY but guilty of THEFT BY DECEPTION'),
+    ]
+    d_charge = models.CharField(max_length=30, choices=d_charge_options, null=True, blank=True)
+
+
+    witness_choices = [
+        ('J.C. Longstreet' , 'J.C. Longstreet' ),
+        ('Francis Kimball', 'Francis Kimball'),
+        ('Whit Bowman', 'Whit Bowman'),
+        ('Jackie Hunter', 'Jackie Hunter'),
+        ('Charlie Kaminsky', 'Charlie Kaminsky'),
+        ('Billy Isaacs', 'Billy Isaacs'),
+        ('Haley Floyd', 'Haley Floyd'),
+    ]
+    p_opener = models.ForeignKey(TeamMember, on_delete=models.SET_NULL,
+                                 related_name='p_opener', related_query_name='p_opener', null=True, blank=True)
+    d_opener = models.ForeignKey(TeamMember, on_delete=models.SET_NULL, related_name='d_opener', null=True, blank=True)
+    #
+    p_wit1_name = models.CharField(max_length=30, choices=witness_choices, null=True, blank=True)
+    p_wit1 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit1', null=True, blank=True)
+    p_wit1_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE,
+                                          related_name='p_wit1_direct_att', null=True, blank=True)
+    p_wit1_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE,
+                                         related_name='p_wit1_cross_att', null=True, blank=True)
+
+    p_wit2_name = models.CharField(max_length=30, choices=witness_choices, null=True, blank=True)
+    p_wit2 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit2', null=True, blank=True)
+    p_wit2_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit2_direct_att',
+                                          null=True, blank=True)
+    p_wit2_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit2_cross_att',
+                                         null=True, blank=True)
+
+    p_wit3_name = models.CharField(max_length=30, choices=witness_choices, null=True, blank=True)
+    p_wit3 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit3', null=True, blank=True)
+    p_wit3_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit3_direct_att',
+                                          null=True, blank=True)
+    p_wit3_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit3_cross_att',
+                                         null=True, blank=True)
+
+
+    d_wit1_name = models.CharField(max_length=30, choices=witness_choices, null=True, blank=True)
+    d_wit1 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit1', null=True, blank=True)
+    d_wit1_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE,
+                                          related_name='d_wit1_direct_att', null=True, blank=True)
+    d_wit1_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE,
+                                         related_name='d_wit1_cross_att', null=True, blank=True)
+
+    d_wit2_name = models.CharField(max_length=30, choices=witness_choices, null=True, blank=True)
+    d_wit2 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit2', null=True, blank=True)
+    d_wit2_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit2_direct_att',
+                                          null=True, blank=True)
+    d_wit2_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit2_cross_att',
+                                         null=True, blank=True)
+
+    d_wit3_name = models.CharField(max_length=30, choices=witness_choices, null=True, blank=True)
+    d_wit3 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit3', null=True, blank=True)
+    d_wit3_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit3_direct_att',
+                                          null=True, blank=True)
+    d_wit3_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit3_cross_att',
+                                         null=True, blank=True)
+
+    p_closer = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_closer', null=True, blank=True)
+    d_closer = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_closer', null=True, blank=True)
+
+    demo = models.BooleanField(default=False, null=True,
+                                             help_text='Were all exhibits/demonstratives shown to opposing counsel?')
+    submit =  models.BooleanField(default=False, null=True, help_text='Submit')

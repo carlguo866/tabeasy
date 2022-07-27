@@ -14,4 +14,7 @@ urlpatterns = [
     path('judge/submit_ballot/<int:pk>',
          views.BallotUpdateView.as_view(),
          name='submit_ballot'),
+    path('team/captains_meeting/<int:pk>',
+         views.CaptainsMeetingUpdateView.as_view(),
+         name='captains_meeting'),
 ]

@@ -30,9 +30,14 @@
 			</a>
 
 		{% elif user.is_team%}
-			{{ user.team_name }}
-			{{ user.team_roster }}
-
+			{{ user.team.team_name }}
+			{{ user.team.team_roster }}
+			Prosecution Rounds:
+			{% for round in  user.team.p_rounds.all %}
+				<a href="{% url 'tourney:captains_meeting' round.captains_meeting.pk %}">
+					<button type="button" class="btn btn-secondary">{{ round }}</button>
+				</a>
+			{% endfor %}
 		{% elif user.is_judge %}
 			 {% include 'tourney/judge_index.html' %}
 		{% endif %}

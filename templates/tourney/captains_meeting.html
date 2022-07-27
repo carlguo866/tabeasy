@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	<div>Round: {{ object.round.pairing.round_num }}</div>
+	<div>Courtroom: {{ object.round.courtroom }}</div>
+	<div>P Team: {{ object.round.p_team }}</div>
+  	<div>D Team: {{ object.round.d_team }}</div>
+	<form method="post">
+		{% csrf_token %}
+		{{ form.as_p }}
+		<input class="button button-primary" type="submit" value="Save">
+	</form>
+{% endblock content %}

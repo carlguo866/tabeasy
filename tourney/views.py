@@ -1,16 +1,17 @@
 import openpyxl
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.forms import inlineformset_factory
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
 from accounts.models import User
 from tabeasy.utils.mixins import JudgeOnlyMixin
-from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, PairingForm
+from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, PairingForm, \
+    CaptainsMeetingForm
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
-from tourney.models.round import Round, Pairing
+from tourney.models.round import Round, Pairing, CaptainsMeeting
 from tourney.models.team import Team, TeamMember
 
 
@@ -35,7 +36,7 @@ def edit_pairing(request, pairing_id):
             formset = RoundFormSet(request.POST, request.FILES, instance=pairing, form_kwargs={'pairing': pairing})
             if formset.is_valid():
                 formset.save()
-                return reverse_lazy('tourney:pairing_index')
+                return redirect('tourney:pairing_index')
         else:
             formset = RoundFormSet(instance=pairing, form_kwargs={'pairing': pairing})
         return render(request, 'tourney/pairing/edit.html', {'formset': formset})
@@ -44,7 +45,7 @@ def edit_pairing(request, pairing_id):
             pairing_form = PairingForm(request.POST, prefix='pairing')
             if pairing_form.is_valid():
                 pairing = pairing_form.save()
-                return reverse_lazy('tourney:pairing_index')
+                return redirect('tourney:pairing_index')
         else:
             pairing_form = PairingForm(prefix='pairing')
             return render(request, 'tourney/pairing/edit.html', {
@@ -103,6 +104,13 @@ class BallotUpdateView(JudgeOnlyMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('index') #
 
+class CaptainsMeetingUpdateView(UpdateView):
+    model = CaptainsMeeting
+    template_name = "utils/generic_form.html"
+    form_class = CaptainsMeetingForm
+
+    def get_success_url(self):
+        return reverse_lazy('index')
 
 @user_passes_test(lambda u: u.is_staff)
 def load_teams(request):
@@ -141,7 +149,8 @@ def load_teams(request):
                     else:
                         message += f'create team {pk}'
                         raw_password = User.objects.make_random_password()
-                        user = User(username=team_name, raw_password=raw_password, is_team=True)
+                        username = ''.join(team_name.split(' '))
+                        user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False)
                         user.set_password(raw_password)
                         user.save()
                         Team.objects.create(team_id=pk, user=user, team_name=team_name,division=division,school=school)

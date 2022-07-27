@@ -2,12 +2,13 @@ import string
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models import QuerySet
 from django.forms import MultipleChoiceField
 from django.forms.models import ModelChoiceIterator, BaseInlineFormSet
 
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
-from tourney.models.round import Pairing, Round
+from tourney.models.round import Pairing, Round, CaptainsMeeting
 from tourney.models.team import Team, TeamMember
 
 
@@ -63,6 +64,19 @@ class RoundForm(forms.ModelForm):
                 errors.append(f"{judge} conflicted with p_team {cleaned_data.get('p_team')}")
             if cleaned_data.get('d_team') in judge.conflicts.all():
                 errors.append(f"{judge} conflicted with d_team {cleaned_data.get('d_team')}")
+            conflicts = None
+            for round in judge.rounds.all():
+                if round != self.instance:
+                    if conflicts == None:
+                        conflicts = Team.objects.filter(pk=round.p_team.pk)
+                    else:
+                        conflicts |= Team.objects.filter(pk=round.p_team.pk)
+                    conflicts |= Team.objects.filter(pk=round.d_team.pk)
+            if conflicts != None:
+                if cleaned_data.get('p_team') in conflicts:
+                    errors.append(f"{judge} has judged p_team {cleaned_data.get('p_team')}")
+                if cleaned_data.get('d_team') in conflicts:
+                    errors.append(f"{judge} has judged d_team {cleaned_data.get('d_team')}")
         if errors != []:
             raise ValidationError(errors)
 
@@ -130,9 +144,6 @@ class UpdateJudgeFriendForm(forms.ModelForm):
         model = Judge
         fields = ['judge_friends']
 
-    #
-    # user = forms.Select()
-
     judge_friends = forms.ModelMultipleChoiceField(
         queryset=Judge.objects.all(),
         widget=forms.CheckboxSelectMultiple
@@ -143,31 +154,72 @@ class BallotForm(forms.ModelForm):
         model = Ballot
         labels =  {'p_open': 'P Opening', 'p_open_comment': 'Comment', 'd_open': 'D Opening','d_open_comment': 'Comment'}
         fields = ['p_open','p_open_comment','d_open','d_open_comment',
-              'p_wit1_wit_direct', 'p_wit1_att_direct', 'p_wit1_wit_cross','p_wit1_att_cross',
-              'p_wit1_wit_direct_comment','p_wit1_wit_cross_comment','p_wit1_att_direct_comment','p_wit1_att_cross_comment',
-              'p_wit2_wit_direct', 'p_wit2_att_direct', 'p_wit2_wit_cross', 'p_wit2_att_cross',
-              'p_wit2_wit_cross_comment', 'p_wit2_att_direct_comment', 'p_wit2_att_cross_comment', 'p_wit2_wit_direct_comment',
-              'p_wit3_wit_direct', 'p_wit3_att_direct', 'p_wit3_wit_cross', 'p_wit3_att_cross',
-              'p_wit3_wit_cross_comment', 'p_wit3_att_direct_comment', 'p_wit3_att_cross_comment', 'p_wit3_wit_direct_comment',
+                  'p_wit1_wit_direct', 'p_wit1_att_direct', 'p_wit1_wit_cross','p_wit1_att_cross',
+                  'p_wit1_wit_direct_comment','p_wit1_wit_cross_comment','p_wit1_att_direct_comment','p_wit1_att_cross_comment',
+                  'p_wit2_wit_direct', 'p_wit2_att_direct', 'p_wit2_wit_cross', 'p_wit2_att_cross',
+                  'p_wit2_wit_cross_comment', 'p_wit2_att_direct_comment', 'p_wit2_att_cross_comment', 'p_wit2_wit_direct_comment',
+                  'p_wit3_wit_direct', 'p_wit3_att_direct', 'p_wit3_wit_cross', 'p_wit3_att_cross',
+                  'p_wit3_wit_cross_comment', 'p_wit3_att_direct_comment', 'p_wit3_att_cross_comment', 'p_wit3_wit_direct_comment',
 
-              'd_wit1_wit_direct', 'd_wit1_att_direct', 'd_wit1_wit_cross', 'd_wit1_att_cross',
-              'd_wit1_wit_direct_comment', 'd_wit1_wit_cross_comment', 'd_wit1_att_direct_comment',
-              'd_wit1_att_cross_comment',
-              'd_wit2_wit_direct', 'd_wit2_att_direct', 'd_wit2_wit_cross', 'd_wit2_att_cross',
-              'd_wit2_wit_cross_comment', 'd_wit2_att_direct_comment', 'd_wit2_att_cross_comment',
-              'd_wit2_wit_direct_comment',
-              'd_wit3_wit_direct', 'd_wit3_att_direct', 'd_wit3_wit_cross', 'd_wit3_att_cross',
-              'd_wit3_wit_cross_comment', 'd_wit3_att_direct_comment', 'd_wit3_att_cross_comment',
-              'd_wit3_wit_direct_comment',
-              'p_close','p_close_comment','d_close','d_close_comment',
-
+                  'd_wit1_wit_direct', 'd_wit1_att_direct', 'd_wit1_wit_cross', 'd_wit1_att_cross',
+                  'd_wit1_wit_direct_comment', 'd_wit1_wit_cross_comment', 'd_wit1_att_direct_comment',
+                  'd_wit1_att_cross_comment',
+                  'd_wit2_wit_direct', 'd_wit2_att_direct', 'd_wit2_wit_cross', 'd_wit2_att_cross',
+                  'd_wit2_wit_cross_comment', 'd_wit2_att_direct_comment', 'd_wit2_att_cross_comment',
+                  'd_wit2_wit_direct_comment',
+                  'd_wit3_wit_direct', 'd_wit3_att_direct', 'd_wit3_wit_cross', 'd_wit3_att_cross',
+                  'd_wit3_wit_cross_comment', 'd_wit3_att_direct_comment', 'd_wit3_att_cross_comment',
+                  'd_wit3_wit_direct_comment',
+                  'p_close','p_close_comment','d_close','d_close_comment',
+                  'att_rank_1', 'att_rank_2', 'att_rank_3', 'att_rank_4',
+                  'wit_rank_1', 'wit_rank_2', 'wit_rank_3', 'wit_rank_4',
               ]
 
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            # self.fields['wit_rank_1'].queryset = TeamMember.objects.filter(
-            #                         team=self.p_team) + TeamMember.objects.filter(team=self.d_team)
+    def __init__(self, *args, **kwargs):
+        super(BallotForm, self).__init__(*args, **kwargs)
+        individual_award_query = TeamMember.objects.filter(team=self.instance.round.p_team).union(
+                                                   TeamMember.objects.filter(team=self.instance.round.d_team))
+        self.fields['att_rank_1'].queryset = individual_award_query
+        self.fields['att_rank_2'].queryset = individual_award_query
+        self.fields['att_rank_3'].queryset = individual_award_query
+        self.fields['att_rank_4'].queryset = individual_award_query
 
-            # self.fields['round'].queryset = self.request.user.judge.rounds.all()
+        self.fields['wit_rank_1'].queryset = individual_award_query
+        self.fields['wit_rank_2'].queryset = individual_award_query
+        self.fields['wit_rank_3'].queryset = individual_award_query
+        self.fields['wit_rank_4'].queryset = individual_award_query
 
 
+class CaptainsMeetingForm(forms.ModelForm):
+    class Meta:
+        model = CaptainsMeeting
+        fields = '__all__'
+        exclude = ['round']
+
+    def __init__(self, *args, **kwargs):
+        super(CaptainsMeetingForm, self).__init__(*args, **kwargs)
+        p_team_members = TeamMember.objects.filter(team=self.instance.round.p_team)
+        self.fields['p_opener'].queryset = p_team_members
+        self.fields['p_wit1'].queryset = p_team_members
+        self.fields['p_wit1_direct_att'].queryset = p_team_members
+        self.fields['p_wit2'].queryset = p_team_members
+        self.fields['p_wit2_direct_att'].queryset = p_team_members
+        self.fields['p_wit3'].queryset = p_team_members
+        self.fields['p_wit3_direct_att'].queryset = p_team_members
+        self.fields['d_wit1_cross_att'].queryset = p_team_members
+        self.fields['d_wit2_cross_att'].queryset = p_team_members
+        self.fields['d_wit3_cross_att'].queryset = p_team_members
+        self.fields['p_closer'].queryset = p_team_members
+
+        d_team_members = TeamMember.objects.filter(team=self.instance.round.d_team)
+        self.fields['d_opener'].queryset = d_team_members
+        self.fields['d_wit1'].queryset = d_team_members
+        self.fields['d_wit1_direct_att'].queryset = d_team_members
+        self.fields['d_wit2'].queryset = d_team_members
+        self.fields['d_wit2_direct_att'].queryset = d_team_members
+        self.fields['d_wit3'].queryset = d_team_members
+        self.fields['d_wit3_direct_att'].queryset = d_team_members
+        self.fields['p_wit1_cross_att'].queryset = d_team_members
+        self.fields['p_wit2_cross_att'].queryset = d_team_members
+        self.fields['p_wit3_cross_att'].queryset = d_team_members
+        self.fields['d_closer'].queryset = d_team_members
