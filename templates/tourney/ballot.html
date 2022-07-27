@@ -12,6 +12,7 @@
 	<div>P Team: {{ object.round.p_team }}</div>
   	<div>D Team: {{ object.round.d_team }}</div>
 	<div>Judge Name: {{ object.judge }}</div>
+
   	<form method="post">
 		{% csrf_token %}
 		{{ form.as_p }}

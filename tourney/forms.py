@@ -59,28 +59,29 @@ class RoundForm(forms.ModelForm):
             errors.append('less than 2 judges for a round')
         if cleaned_data.get('p_team') == cleaned_data.get('d_team'):
             errors.appenderrors.append('one team cant compete against itself')
+
         for judge in cleaned_data.get('judges').all():
-            if cleaned_data.get('p_team') in judge.conflicts.all():
-                errors.append(f"{judge} conflicted with p_team {cleaned_data.get('p_team')}")
-            if cleaned_data.get('d_team') in judge.conflicts.all():
-                errors.append(f"{judge} conflicted with d_team {cleaned_data.get('d_team')}")
-            conflicts = None
+            teams = [cleaned_data.get('p_team'), cleaned_data.get('d_team')]
+            for team in teams:
+                if team in judge.conflicts.all():
+                    errors.append(f"{judge} conflicted with p_team {team}")
+            judged = None
             for round in judge.rounds.all():
                 if round != self.instance:
-                    if conflicts == None:
-                        conflicts = Team.objects.filter(pk=round.p_team.pk)
+                    if judged == None:
+                        judged = Team.objects.filter(pk=round.p_team.pk)
                     else:
-                        conflicts |= Team.objects.filter(pk=round.p_team.pk)
-                    conflicts |= Team.objects.filter(pk=round.d_team.pk)
-            if conflicts != None:
-                if cleaned_data.get('p_team') in conflicts:
-                    errors.append(f"{judge} has judged p_team {cleaned_data.get('p_team')}")
-                if cleaned_data.get('d_team') in conflicts:
-                    errors.append(f"{judge} has judged d_team {cleaned_data.get('d_team')}")
+                        judged |= Team.objects.filter(pk=round.p_team.pk)
+                    judged |= Team.objects.filter(pk=round.d_team.pk)
+            if judged != None:
+                for team in teams:
+                    if team in judged:
+                        errors.append(f"{judge} has judged p_team {team}")
         if errors != []:
             raise ValidationError(errors)
 
 class PairingFormSet(BaseInlineFormSet):
+
     def clean(self):
         super().clean()
         if any(self.errors):
@@ -177,17 +178,43 @@ class BallotForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(BallotForm, self).__init__(*args, **kwargs)
-        individual_award_query = TeamMember.objects.filter(team=self.instance.round.p_team).union(
-                                                   TeamMember.objects.filter(team=self.instance.round.d_team))
-        self.fields['att_rank_1'].queryset = individual_award_query
-        self.fields['att_rank_2'].queryset = individual_award_query
-        self.fields['att_rank_3'].queryset = individual_award_query
-        self.fields['att_rank_4'].queryset = individual_award_query
+        if self.instance.round.captains_meeting.submit == True:
+            att_id = [self.instance.round.captains_meeting.p_wit1_direct_att.pk,
+                      self.instance.round.captains_meeting.p_wit2_direct_att.pk,
+                      self.instance.round.captains_meeting.p_wit3_direct_att.pk,
+                      self.instance.round.captains_meeting.d_wit1_direct_att.pk,
+                      self.instance.round.captains_meeting.d_wit2_direct_att.pk,
+                      self.instance.round.captains_meeting.d_wit3_direct_att.pk,
+                      ]
+            att_list = TeamMember.objects.filter(pk__in=att_id)
+            self.fields['att_rank_1'].queryset = att_list
+            self.fields['att_rank_2'].queryset = att_list
+            self.fields['att_rank_3'].queryset = att_list
+            self.fields['att_rank_4'].queryset = att_list
 
-        self.fields['wit_rank_1'].queryset = individual_award_query
-        self.fields['wit_rank_2'].queryset = individual_award_query
-        self.fields['wit_rank_3'].queryset = individual_award_query
-        self.fields['wit_rank_4'].queryset = individual_award_query
+            wit_id = [self.instance.round.captains_meeting.p_wit1.pk,
+                      self.instance.round.captains_meeting.p_wit2.pk,
+                      self.instance.round.captains_meeting.p_wit3.pk,
+                      self.instance.round.captains_meeting.d_wit1.pk,
+                      self.instance.round.captains_meeting.d_wit2.pk,
+                      self.instance.round.captains_meeting.d_wit3.pk,
+                      ]
+            wit_list = TeamMember.objects.filter(pk__in=wit_id)
+            self.fields['wit_rank_1'].queryset = wit_list
+            self.fields['wit_rank_2'].queryset = wit_list
+            self.fields['wit_rank_3'].queryset = wit_list
+            self.fields['wit_rank_4'].queryset = wit_list
+        else:
+            individual_award_query = TeamMember.objects.filter(team=self.instance.round.p_team).union(
+                                            TeamMember.objects.filter(team=self.instance.round.d_team))
+            self.fields['att_rank_1'].queryset = individual_award_query
+            self.fields['att_rank_2'].queryset = individual_award_query
+            self.fields['att_rank_3'].queryset = individual_award_query
+            self.fields['att_rank_4'].queryset = individual_award_query
+            self.fields['wit_rank_1'].queryset = individual_award_query
+            self.fields['wit_rank_2'].queryset = individual_award_query
+            self.fields['wit_rank_3'].queryset = individual_award_query
+            self.fields['wit_rank_4'].queryset = individual_award_query
 
 
 class CaptainsMeetingForm(forms.ModelForm):
