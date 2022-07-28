@@ -81,13 +81,19 @@ class Team(models.Model):
             return 0
 
     @property
-    def next_side(self):
-        if self.p_rounds.count() == self.d_rounds.count():
+    def current_round(self):
+        return self.p_rounds.count() + self.d_rounds.count()
+
+    def next_side(self, round_num):
+        if self.current_round == round_num:
+            return 'good'
+        elif round_num % 2 == 1:
             return 'both'
-        elif self.p_rounds.count() > self.d_rounds.count():
-            return 'd'
         else:
-            return 'p'
+            if self.p_rounds.count() > self.d_rounds.count():
+                return 'd'
+            elif self.p_rounds.count() < self.d_rounds.count():
+                return 'p'
 
 class TeamMember(models.Model):
     name = models.CharField(max_length=30)

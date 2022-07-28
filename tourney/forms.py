@@ -50,16 +50,23 @@ class RoundForm(forms.ModelForm):
 
         if cleaned_data.get('p_team') == cleaned_data.get('d_team'):
             errors.append('one team cant compete against itself')
+        if cleaned_data.get('p_team').next_side(self.instance.pairing.round_num) == 'd':
+            errors.append(f"{cleaned_data.get('p_team')} is supposed to play d this round")
+        if cleaned_data.get('d_team').next_side(self.instance.pairing.round_num) == 'p':
+            errors.append(f"{cleaned_data.get('d_team')} is supposed to play p this round")
         if cleaned_data.get('presiding_judge') == cleaned_data.get('scoring_judge'):
-            errors.append('assigning one judge as two roles')
+            errors.append('assigning one judge for two roles')
 
         judges = [cleaned_data.get('presiding_judge'),cleaned_data.get('scoring_judge')]
         for judge in judges:
             if judge != None:
+                #check conflict
                 teams = [cleaned_data.get('p_team'), cleaned_data.get('d_team')]
                 for team in teams:
                     if team in judge.conflicts.all():
                         errors.append(f"{judge} conflicted with p_team {team}")
+
+                #check if judged
                 judged = None
                 for round in judge.rounds:
                     if round != self.instance:
@@ -72,6 +79,16 @@ class RoundForm(forms.ModelForm):
                     for team in teams:
                         if team in judged:
                             errors.append(f"{judge} has judged p_team {team}")
+
+                # #check if assigned in another division
+                pairings = Pairing.objects.filter(round_num=self.instance.pairing.round_num)
+                if pairings.exists ():
+                    for pairing in pairings.all():
+                        if pairing != self.instance.pairing:
+                            for round in pairing.rounds.all():
+                                if judge in [round.presiding_judge,round.scoring_judge]:
+                                    errors.append(f"{judge} already assigned in {pairing.division}")
+
         if errors != []:
             raise ValidationError(errors)
     # #
@@ -94,14 +111,11 @@ class PairingFormSet(BaseInlineFormSet):
                 continue
             if form.cleaned_data == {}:
                 continue
-            # if form.cleaned_data.get('courtroom') in existing_courtrooms:
-            #     errors.append(f"courtroom {form.cleaned_data.get('courtroom')} already in use")
-            # existing_courtrooms.append(form.cleaned_data.get('courtroom'))
-            # form_judges = form.cleaned_data.get('judges').all()
-            # for judge in form_judges:
-            #     if judge in existing_judges:
-            #         errors.append(f'{judge} used twice!')
-            #     existing_judges.append(judge)
+            form_judges = [form.cleaned_data.get('presiding_judge'),form.cleaned_data.get('scoring_judge')]
+            for judge in form_judges:
+                if judge in existing_judges:
+                    errors.append(f'{judge} used twice!')
+                existing_judges.append(judge)
             teams = [form.cleaned_data.get('p_team'),form.cleaned_data.get('d_team')]
             for team in teams:
                 if team in existing_teams:
