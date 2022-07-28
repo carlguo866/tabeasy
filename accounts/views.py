@@ -14,7 +14,8 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             form.save()
             user = authenticate(username=username, password=raw_password)
-            user.raw_password = raw_password
+            if form.cleaned_data.get('is_team') == True:
+                user.raw_password = raw_password
             user.save()
 
             if user.is_judge:

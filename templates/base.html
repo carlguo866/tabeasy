@@ -13,9 +13,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <!-- MDBootstrap -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/mdb.min.css' %}"/>
+	<link rel="stylesheet" href="{% static "styles/main-solved.css" %}?v=0.1.0">
+
     <title>{% block title %}Tabeasy{% endblock title %}</title>
     {% block extra_css %}{% endblock extra_css %}
-
 
 </head>
 <body>
@@ -27,28 +28,16 @@
         <a class="navbar-brand nav-link" target="_blank" href="{% url 'index' %} ">
 {#            <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>#}
             <img src="{% static "img/base/logo2.png" %}" alt='' width="40" height="38" class="me-2 d-inline-block align-text-top">
-            <strong>Tabeasy</strong>
+            <strong id="header-title">Tabeasy</strong>
         </a>
-        <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarExample01"
-            aria-controls="navbarExample01" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="fas fa-bars"></i>
-        </button>
         <div class="collapse navbar-collapse" id="navbarExample01">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item active">
-                <a class="nav-link" aria-current="page" href="#intro">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="https://www.youtube.com/channel/UC5CF7mLQZhvx8O5GODZAhdA" rel="nofollow"
-                target="_blank">Placeholder</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="https://mdbootstrap.com/docs/standard/" target="_blank">Placeholder</a>
-            </li>
+            <ul class="navbar-nav me-auto">
+{#				<li class="nav-item active">#}
+{#					<a class="nav-link" aria-current="page" href="#intro">Home</a>#}
+{#				</li>#}
             </ul>
 
           <ul class="navbar-nav d-flex flex-row">
-
                 {% if user.is_authenticated %}
 					<li class="nav-item align-items-center me-2">
 						<a class="nav-link" href="#" target="_blank">
@@ -83,48 +72,18 @@
         Reload this<br>
     {% endblock content %}
 
- <footer class="bg-light text-lg-start">
-{#    <div class="py-4 text-center">#}
-{#      <a role="button" class="btn btn-primary btn-lg m-2"#}
-{#        href="https://www.youtube.com/channel/UC5CF7mLQZhvx8O5GODZAhdA" rel="nofollow" target="_blank">#}
-{#        Learn Bootstrap 5#}
-{#      </a>#}
-{#      <a role="button" class="btn btn-primary btn-lg m-2" href="https://mdbootstrap.com/docs/standard/" target="_blank">#}
-{#        Download MDB UI KIT#}
-{#      </a>#}
-{#    </div>#}
-{##}
-{#    <hr class="m-0" />#}
-{##}
-{#    <div class="text-center py-4 align-items-center">#}
-{#      <p>Follow MDB on social media</p>#}
-{#      <a href="https://www.youtube.com/channel/UC5CF7mLQZhvx8O5GODZAhdA" class="btn btn-primary m-1" role="button"#}
-{#        rel="nofollow" target="_blank">#}
-{#        <i class="fab fa-youtube"></i>#}
-{#      </a>#}
-{#      <a href="https://www.facebook.com/mdbootstrap" class="btn btn-primary m-1" role="button" rel="nofollow"#}
-{#        target="_blank">#}
-{#        <i class="fab fa-facebook-f"></i>#}
-{#      </a>#}
-{#      <a href="https://twitter.com/MDBootstrap" class="btn btn-primary m-1" role="button" rel="nofollow"#}
-{#        target="_blank">#}
-{#        <i class="fab fa-twitter"></i>#}
-{#      </a>#}
-{#      <a href="https://github.com/mdbootstrap/mdb-ui-kit" class="btn btn-primary m-1" role="button" rel="nofollow"#}
-{#        target="_blank">#}
-{#        <i class="fab fa-github"></i>#}
-{#      </a>#}
-{#    </div>#}
 
-    <!-- Copyright -->
-    <div class="text-center p-3" style="background-color: rgba(94,46,145, 0.3);">
-        © 2022 Copyright：<a class="text-dark" href="{% url 'index' %}">tabeasy.org</a>
-		<a class='p-1' href="https://github.com/carlguo866/tabeasy" rel="nofollow" target="_blank" role="button">
-           <i class="fab fa-github"></i>
-        </a>
-    </div>
-    <!-- Copyright -->
+
+
+<footer class="full-width-bg-container" id="footer-bg" >
+	<div id="footer">
+		<span id="copyright-info">Tabeasy &copy; 2022.</span>
+		<div id="footer-icon-container">
+		  <a href="https://github.com/carlguo866/tabeasy" class="footer-icon"><i class="fab fa-github"></i></a>
+		</div>
+	</div>
 </footer>
+
 
 <!-- MDB -->
 <script type="text/javascript" src="{% static 'js/mdb.min.js' %}"></script>

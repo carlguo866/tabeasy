@@ -58,7 +58,7 @@ class RoundForm(forms.ModelForm):
         if cleaned_data.get('judges').count() < 2:
             errors.append('less than 2 judges for a round')
         if cleaned_data.get('p_team') == cleaned_data.get('d_team'):
-            errors.appenderrors.append('one team cant compete against itself')
+            errors.append('one team cant compete against itself')
 
         for judge in cleaned_data.get('judges').all():
             teams = [cleaned_data.get('p_team'), cleaned_data.get('d_team')]
@@ -90,6 +90,7 @@ class PairingFormSet(BaseInlineFormSet):
         existing_teams = []
         existing_courtrooms = []
         errors = []
+
         for form in self.forms:
             if self.can_delete and self._should_delete_form(form):
                 continue
@@ -179,27 +180,12 @@ class BallotForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BallotForm, self).__init__(*args, **kwargs)
         if self.instance.round.captains_meeting.submit == True:
-            att_id = [self.instance.round.captains_meeting.p_wit1_direct_att.pk,
-                      self.instance.round.captains_meeting.p_wit2_direct_att.pk,
-                      self.instance.round.captains_meeting.p_wit3_direct_att.pk,
-                      self.instance.round.captains_meeting.d_wit1_direct_att.pk,
-                      self.instance.round.captains_meeting.d_wit2_direct_att.pk,
-                      self.instance.round.captains_meeting.d_wit3_direct_att.pk,
-                      ]
-            att_list = TeamMember.objects.filter(pk__in=att_id)
+            att_list = TeamMember.objects.filter(pk__in=[att.pk for att in self.instance.round.captains_meeting.atts])
             self.fields['att_rank_1'].queryset = att_list
             self.fields['att_rank_2'].queryset = att_list
             self.fields['att_rank_3'].queryset = att_list
             self.fields['att_rank_4'].queryset = att_list
-
-            wit_id = [self.instance.round.captains_meeting.p_wit1.pk,
-                      self.instance.round.captains_meeting.p_wit2.pk,
-                      self.instance.round.captains_meeting.p_wit3.pk,
-                      self.instance.round.captains_meeting.d_wit1.pk,
-                      self.instance.round.captains_meeting.d_wit2.pk,
-                      self.instance.round.captains_meeting.d_wit3.pk,
-                      ]
-            wit_list = TeamMember.objects.filter(pk__in=wit_id)
+            wit_list = TeamMember.objects.filter(pk__in=[wit.pk for wit in self.instance.round.captains_meeting.wits])
             self.fields['wit_rank_1'].queryset = wit_list
             self.fields['wit_rank_2'].queryset = wit_list
             self.fields['wit_rank_3'].queryset = wit_list
@@ -216,15 +202,22 @@ class BallotForm(forms.ModelForm):
             self.fields['wit_rank_3'].queryset = individual_award_query
             self.fields['wit_rank_4'].queryset = individual_award_query
 
-
+BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 class CaptainsMeetingForm(forms.ModelForm):
+
     class Meta:
         model = CaptainsMeeting
         fields = '__all__'
         exclude = ['round']
+        widgets = {
+            'submit': forms.Select(choices=BOOL_CHOICES)
+        }
 
     def __init__(self, *args, **kwargs):
         super(CaptainsMeetingForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].required = False
+
         p_team_members = TeamMember.objects.filter(team=self.instance.round.p_team)
         self.fields['p_opener'].queryset = p_team_members
         self.fields['p_wit1'].queryset = p_team_members
@@ -250,3 +243,42 @@ class CaptainsMeetingForm(forms.ModelForm):
         self.fields['p_wit2_cross_att'].queryset = d_team_members
         self.fields['p_wit3_cross_att'].queryset = d_team_members
         self.fields['d_closer'].queryset = d_team_members
+
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = []
+        if cleaned_data.get('submit') == True:
+            for k,v in cleaned_data.items():
+                if v == None:
+                    errors.append(f"{k} empty")
+
+            #check characters
+            # existing_characters = []
+            # if cleaned_data.get('p_wit1_name') in existing_characters:
+            #     errors.append(f"{cleaned_data.get('p_wit1_name')} used twice")
+            # existing_characters.append(cleaned_data.get('p_wit1_name'))
+            # if cleaned_data.get('p_wit2_name') in existing_characters:
+            #     errors.append(f"{cleaned_data.get('p_wit2_name')} used twice")
+            # existing_characters.append(cleaned_data.get('p_wit2_name'))
+            # if cleaned_data.get('p_wit3_name') in existing_characters:
+            #     errors.append(f"{cleaned_data.get('p_wit3_name')} used twice")
+            # existing_characters.append(cleaned_data.get('p_wit3_name'))
+            # if cleaned_data.get('d_wit1_name') in existing_characters:
+            #     errors.append(f"{cleaned_data.get('d_wit1_name')} used twice")
+            # existing_characters.append(cleaned_data.get('d_wit1_name'))
+            # if cleaned_data.get('d_wit2_name') in existing_characters:
+            #     errors.append(f"{cleaned_data.get('d_wit2_name')} used twice")
+            # existing_characters.append(cleaned_data.get('d_wit2_name'))
+            # if cleaned_data.get('d_wit3_name') in existing_characters:
+            #     errors.append(f"{cleaned_data.get('d_wit3_name')} used twice")
+            # existing_characters.append(cleaned_data.get('d_wit3_name'))
+
+        if errors != []:
+            raise ValidationError(errors)
+            existing_roles = []
+
+
+
+
+
+

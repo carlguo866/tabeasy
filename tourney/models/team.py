@@ -122,6 +122,12 @@ class TeamMember(models.Model):
             total += v*k.count()
         return total
 
+    def __lt__(self, other):
+        return self.id < other.id
+
+    class Meta:
+        ordering = ['id']
+
 
 class NonReversibleForeignKey(models.ForeignKey):
     _relation_counter = 0

@@ -15,10 +15,3 @@ class TeamOnlyMixin(django.contrib.auth.mixins.UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_authenticated \
                and self.request.user.is_team
-
-class TabOnlyMixin(django.contrib.auth.mixins.UserPassesTestMixin):
-    permission_denied_message = "Only tabs can access this page"
-
-    def test_func(self):
-        return self.request.user.is_authenticated \
-               and self.request.user.is_tab

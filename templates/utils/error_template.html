@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>{% block error_header %}{% endblock error_header %}</h1>
+  <br>
+  <h2>{% block error_message %}{% endblock error_message %}</h2>
+  <br>
+  <h3>{% block error_description %}{% endblock error_description %} </h3>
+  <br>
+{% endblock content %}

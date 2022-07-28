@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+{#	{% if form.errors %}#}
+{#		<div class="alert alert-danger" role="alert">{{ form.errors }}</div>#}
+{#	{% endif %}#}
 	<div>Round: {{ object.round.pairing.round_num }}</div>
 	<div>Courtroom: {{ object.round.courtroom }}</div>
 	<div>P Team: {{ object.round.p_team }}</div>

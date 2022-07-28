@@ -106,7 +106,7 @@ class BallotUpdateView(JudgeOnlyMixin, UpdateView):
 
 class CaptainsMeetingUpdateView(UpdateView):
     model = CaptainsMeeting
-    template_name = "utils/generic_form.html"
+    template_name = "tourney/captains_meeting.html"
     form_class = CaptainsMeetingForm
 
     def get_success_url(self):
