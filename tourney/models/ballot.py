@@ -1,9 +1,8 @@
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django_better_admin_arrayfield.models.fields import ArrayField
 
-from tourney.models.judge import Judge
-from tourney.models.round import Round
 from tourney.models.team import Team, TeamMember
 
 
@@ -14,6 +13,7 @@ class Ballot(models.Model):
     judge = models.ForeignKey('Judge', on_delete=models.CASCADE,
                               related_name='ballots',
                               related_query_name='ballot')
+
     #Scores
     p_open = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)],null=True)
     p_open_comment = models.TextField(max_length=5000,null=True, blank=True)
@@ -106,6 +106,13 @@ class Ballot(models.Model):
 
     submit = models.BooleanField(default=False, help_text='Submit')
 
+    def att_ranks(self):
+        return [self.att_rank_1, self.att_rank_2, self.att_rank_3, self.att_rank_4]
+
+    def wit_ranks(self):
+        return [self.wit_rank_1, self.wit_rank_2, self.wit_rank_3, self.wit_rank_4]
+
+
     def __str__(self):
         return f"{self.round} {self.judge.user} Ballot"
 
@@ -152,3 +159,15 @@ class Ballot(models.Model):
 
     class Meta:
         unique_together = ['round', 'judge']
+
+    def clean(self):
+        super().clean()
+        errors = []
+        if self.submit:
+            if len(self.att_ranks()) != len(set(self.att_ranks())):
+                errors.append('you gave one attorney two ranks')
+            if len(self.wit_ranks()) != len(set(self.wit_ranks())):
+                errors.append('you gave one witness two ranks')
+
+        if errors != []:
+            raise ValidationError(errors)

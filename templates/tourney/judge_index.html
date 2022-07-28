@@ -20,6 +20,7 @@
 {% for friend in request.user.judge.judge_friends.all %}
 {{ friend }}<br>
 {% endfor %}
+<br>Can preside?: {{ request.user.judge.get_preside_preference }}<br>
 
 
 

@@ -11,7 +11,7 @@ from tourney.models.judge import Judge
 from tourney.models.round import Pairing, Round, CaptainsMeeting
 from tourney.models.team import Team, TeamMember
 
-
+BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
@@ -31,7 +31,8 @@ class PairingForm(forms.ModelForm):
 class RoundForm(forms.ModelForm):
     class Meta:
         model = Round
-        fields = ('courtroom','p_team','d_team','judges')
+        fields = '__all__'
+        exclude = ['pairing','extra_judge']
         # widgets = {
         #     'p_team': forms.Select(attrs={'size': 5}),
         #     'd_team': forms.Select(attrs={'size': 5}),
@@ -53,30 +54,30 @@ class RoundForm(forms.ModelForm):
         errors = []
         if cleaned_data.get('courtroom') not in string.ascii_uppercase:
             errors.append('Courtroom is not in the alphabet')
-        if cleaned_data.get('judges').count() > 3:
-            errors.append('more than 3 judges for a round')
-        if cleaned_data.get('judges').count() < 2:
-            errors.append('less than 2 judges for a round')
         if cleaned_data.get('p_team') == cleaned_data.get('d_team'):
             errors.append('one team cant compete against itself')
+        if cleaned_data.get('presiding_judge') == cleaned_data.get('scoring_judge'):
+            errors.append('assigning one judge as two roles')
 
-        for judge in cleaned_data.get('judges').all():
-            teams = [cleaned_data.get('p_team'), cleaned_data.get('d_team')]
-            for team in teams:
-                if team in judge.conflicts.all():
-                    errors.append(f"{judge} conflicted with p_team {team}")
-            judged = None
-            for round in judge.rounds.all():
-                if round != self.instance:
-                    if judged == None:
-                        judged = Team.objects.filter(pk=round.p_team.pk)
-                    else:
-                        judged |= Team.objects.filter(pk=round.p_team.pk)
-                    judged |= Team.objects.filter(pk=round.d_team.pk)
-            if judged != None:
+        judges = [cleaned_data.get('presiding_judge'),cleaned_data.get('scoring_judge')]
+        for judge in judges:
+            if judge != None:
+                teams = [cleaned_data.get('p_team'), cleaned_data.get('d_team')]
                 for team in teams:
-                    if team in judged:
-                        errors.append(f"{judge} has judged p_team {team}")
+                    if team in judge.conflicts.all():
+                        errors.append(f"{judge} conflicted with p_team {team}")
+                judged = None
+                for round in judge.rounds:
+                    if round != self.instance:
+                        if judged == None:
+                            judged = Team.objects.filter(pk=round.p_team.pk)
+                        else:
+                            judged |= Team.objects.filter(pk=round.p_team.pk)
+                        judged |= Team.objects.filter(pk=round.d_team.pk)
+                if judged != None:
+                    for team in teams:
+                        if team in judged:
+                            errors.append(f"{judge} has judged p_team {team}")
         if errors != []:
             raise ValidationError(errors)
 
@@ -99,11 +100,11 @@ class PairingFormSet(BaseInlineFormSet):
             if form.cleaned_data.get('courtroom') in existing_courtrooms:
                 errors.append(f"courtroom {form.cleaned_data.get('courtroom')} already in use")
             existing_courtrooms.append(form.cleaned_data.get('courtroom'))
-            form_judges = form.cleaned_data.get('judges').all()
-            for judge in form_judges:
-                if judge in existing_judges:
-                    errors.append(f'{judge} used twice!')
-                existing_judges.append(judge)
+            # form_judges = form.cleaned_data.get('judges').all()
+            # for judge in form_judges:
+            #     if judge in existing_judges:
+            #         errors.append(f'{judge} used twice!')
+            #     existing_judges.append(judge)
             teams = [form.cleaned_data.get('p_team'),form.cleaned_data.get('d_team')]
             for team in teams:
                 if team in existing_teams:
@@ -157,6 +158,10 @@ class BallotForm(forms.ModelForm):
         labels =  {'p_open': 'P Opening', 'p_open_comment': 'Comment', 'd_open': 'D Opening','d_open_comment': 'Comment'}
         fields = '__all__'
         exclude = ['round','judge']
+        widgets = {
+            'submit': forms.Select(choices=BOOL_CHOICES)
+        }
+
 
     def __init__(self, *args, **kwargs):
         super(BallotForm, self).__init__(*args, **kwargs)
@@ -196,8 +201,6 @@ class BallotForm(forms.ModelForm):
                     errors.append(f"{k} empty")
         raise ValidationError(errors)
 
-
-BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 class CaptainsMeetingForm(forms.ModelForm):
 
     class Meta:

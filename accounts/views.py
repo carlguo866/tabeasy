@@ -14,18 +14,17 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             form.save()
             user = authenticate(username=username, password=raw_password)
-            if form.cleaned_data.get('is_team') == True:
+            if form.cleaned_data.get('is_team'):
                 user.raw_password = raw_password
             user.save()
 
             if user.is_judge:
-                print('is_judge')
                 role_form = JudgeForm(data=request.POST)
             elif user.is_team:
-                print('is_team')
                 role_form = TeamForm(data=request.POST)
             role = role_form.save(commit=False)
             role.user = user
+            role.preside = form.cleaned_data.get('preside')
             role.save()
 
             login(request, user)
