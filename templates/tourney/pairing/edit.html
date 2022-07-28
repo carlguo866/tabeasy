@@ -6,6 +6,8 @@
 	<h1>here is the pairing landing page</h1>
 	{% if formset %}
 		<strong>Create Rounds</strong>
+		{{ formset.errors }}
+		{{ formset.non_form_errors }}
 		{% if formset.errors %}
 			{% for error in formset.errors %}
 				{% if error %}

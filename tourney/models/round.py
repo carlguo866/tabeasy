@@ -18,11 +18,15 @@ class Pairing(models.Model):
     )
     round_num = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
 
+    def get_rounds(self):
+        return self.rounds.order_by('courtroom')
+
+
     class Meta:
         unique_together = ('division', 'round_num',)
 
     def __str__(self):
-        return f'Round {self.round_num}'
+        return f'Round {self.round_num} {self.division}'
 
 class Round(models.Model):
     pairing = models.ForeignKey(Pairing, on_delete=models.CASCADE, related_name='rounds', related_query_name='round', null=True)
@@ -41,7 +45,17 @@ class Round(models.Model):
 
 
     def __str__(self):
-        return f'Round {self.pairing.round_num} Courtroom {self.courtroom.upper()}'
+        return f'Round {self.pairing.round_num} Courtroom {self.courtroom}'
+
+
+    def clean(self):
+        super().clean()
+        errors = []
+        if self.presiding_judge.preside == 0:
+            errors.append(f'{self.presiding_judge} can\'t preside')
+        if errors != []:
+            raise ValidationError(errors)
+
 
     def save(self):
         is_new = self.id is None
@@ -49,17 +63,10 @@ class Round(models.Model):
         if is_new:
             CaptainsMeeting.objects.create(round=self)
         if Ballot.objects.filter(round=self).exists():
-            Ballot.objects.filter(pk=Ballot.objects.filter(round=self).all()[0].pk).update(judge=self.presiding_judge)
-            Ballot.objects.filter(pk=Ballot.objects.filter(round=self).all()[1].pk).update(judge=self.scoring_judge)
-        else:
-            Ballot.objects.create(round=self, judge=self.presiding_judge)
-            Ballot.objects.create(round=self, judge=self.scoring_judge)
-            if self.extra_judge != None:
-                Ballot.objects.create(round=self, judge=self.extra_judge)
-
-            # def clean(self, *args, **kwargs):
-    #
-    #     super().clean()
-
+            Ballot.objects.filter(round=self).delete()
+        Ballot.objects.create(round=self, judge=self.presiding_judge)
+        Ballot.objects.create(round=self, judge=self.scoring_judge)
+        if self.extra_judge != None:
+            Ballot.objects.create(round=self, judge=self.extra_judge)
 
 

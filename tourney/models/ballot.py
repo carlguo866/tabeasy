@@ -157,8 +157,8 @@ class Ballot(models.Model):
         else:
             return 0.5, -pd
 
-    class Meta:
-        unique_together = ['round', 'judge']
+    # class Meta:
+    #     unique_together = ['round', 'judge']
 
     def clean(self):
         super().clean()

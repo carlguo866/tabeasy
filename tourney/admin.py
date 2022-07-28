@@ -41,7 +41,9 @@ class BallotInlineAdmin(admin.TabularInline):
 
 @admin.register(Round)
 class RoundAdmin(admin.ModelAdmin):
+    list_display = ['pk','__str__','p_team','d_team','presiding_judge','scoring_judge']
     inlines = [BallotInlineAdmin]
+    search_fields = ['__str__']
 
 @admin.register(Judge)
 class JudgeAdmin(admin.ModelAdmin, DynamicArrayMixin):

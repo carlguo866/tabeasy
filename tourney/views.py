@@ -1,6 +1,9 @@
+import random
+import string
 import openpyxl
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
+from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -9,6 +12,7 @@ from django.views.generic import CreateView, UpdateView
 
 from accounts.models import User
 from tabeasy.utils.mixins import JudgeOnlyMixin, TeamOnlyMixin, AuthorizedJudgeOnlyMixin
+from tabeasy_secrets.secret import DIVISION_ROUND_NUM
 from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, PairingForm, \
     CaptainsMeetingForm
 from tourney.models.ballot import Ballot
@@ -37,6 +41,20 @@ def edit_pairing(request, pairing_id):
         if request.method == "POST":
             formset = RoundFormSet(request.POST, request.FILES, instance=pairing, form_kwargs={'pairing': pairing})
             if formset.is_valid():
+                round_num = len(formset)
+                for form in formset:
+                    if form.instance.p_team == None or form.instance.d_team == None:
+                        round_num-=1
+
+                if formset[0].instance.pairing.division == 'Disney':
+                    random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:round_num]
+                else:
+                    random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2*DIVISION_ROUND_NUM][:round_num]
+                random_choice = random.sample(list(random_choice), round_num)
+                for i in range(len(formset)):
+                    if formset[i].instance.p_team != None and formset[i].instance.d_team != None:
+                        formset[i].instance.courtroom = random_choice[i]
+                        formset[i].save()
                 formset.save()
                 return redirect('tourney:pairing_index')
         else:

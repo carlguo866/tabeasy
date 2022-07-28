@@ -1,5 +1,5 @@
 import string
-
+import random
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
@@ -32,13 +32,8 @@ class RoundForm(forms.ModelForm):
     class Meta:
         model = Round
         fields = '__all__'
-        exclude = ['pairing','extra_judge']
-        # widgets = {
-        #     'p_team': forms.Select(attrs={'size': 5}),
-        #     'd_team': forms.Select(attrs={'size': 5}),
-        #     'judge_1': forms.Select(attrs={'size': 5}),
-        #     'judge_2': forms.Select(attrs={'size': 5})
-        # }
+        exclude = ['pairing','extra_judge','courtroom']
+        # widgets = {'courtroom': forms.HiddenInput()}
 
     def __init__(self, pairing, *args, **kwargs):
         super(RoundForm, self).__init__(*args, **kwargs)
@@ -52,8 +47,7 @@ class RoundForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         errors = []
-        if cleaned_data.get('courtroom') not in string.ascii_uppercase:
-            errors.append('Courtroom is not in the alphabet')
+
         if cleaned_data.get('p_team') == cleaned_data.get('d_team'):
             errors.append('one team cant compete against itself')
         if cleaned_data.get('presiding_judge') == cleaned_data.get('scoring_judge'):
@@ -80,6 +74,9 @@ class RoundForm(forms.ModelForm):
                             errors.append(f"{judge} has judged p_team {team}")
         if errors != []:
             raise ValidationError(errors)
+    # #
+    # def save(self, commit=True):
+    #     super().save()
 
 class PairingFormSet(BaseInlineFormSet):
 
@@ -89,7 +86,7 @@ class PairingFormSet(BaseInlineFormSet):
             return
         existing_judges = []
         existing_teams = []
-        existing_courtrooms = []
+        # existing_courtrooms = []
         errors = []
 
         for form in self.forms:
@@ -97,9 +94,9 @@ class PairingFormSet(BaseInlineFormSet):
                 continue
             if form.cleaned_data == {}:
                 continue
-            if form.cleaned_data.get('courtroom') in existing_courtrooms:
-                errors.append(f"courtroom {form.cleaned_data.get('courtroom')} already in use")
-            existing_courtrooms.append(form.cleaned_data.get('courtroom'))
+            # if form.cleaned_data.get('courtroom') in existing_courtrooms:
+            #     errors.append(f"courtroom {form.cleaned_data.get('courtroom')} already in use")
+            # existing_courtrooms.append(form.cleaned_data.get('courtroom'))
             # form_judges = form.cleaned_data.get('judges').all()
             # for judge in form_judges:
             #     if judge in existing_judges:
