@@ -43,6 +43,7 @@ class RoundForm(forms.ModelForm):
         else:
             self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)
             self.fields['d_team'].queryset = Team.objects.filter(division=pairing.division)
+        self.fields['presiding_judge'].queryset = Judge.objects.filter(preside__gt=0)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -54,9 +55,16 @@ class RoundForm(forms.ModelForm):
             errors.append(f"{cleaned_data.get('p_team')} is supposed to play d this round")
         if cleaned_data.get('d_team').next_side(self.instance.pairing.round_num) == 'p':
             errors.append(f"{cleaned_data.get('d_team')} is supposed to play p this round")
+        for round in cleaned_data.get('p_team').p_rounds.all():
+            if round != self.instance and round.d_team == cleaned_data.get('d_team'):
+                errors.append(f"{cleaned_data.get('p_team')} and {cleaned_data.get('d_team')} played each other before")
+        for round in cleaned_data.get('p_team').d_rounds.all():
+            if round != self.instance and round.p_team == cleaned_data.get('d_team'):
+                errors.append(f"{cleaned_data.get('p_team')} and {cleaned_data.get('d_team')} played each other before")
+
+
         if cleaned_data.get('presiding_judge') == cleaned_data.get('scoring_judge'):
             errors.append('assigning one judge for two roles')
-
         judges = [cleaned_data.get('presiding_judge'),cleaned_data.get('scoring_judge')]
         for judge in judges:
             if judge != None:
@@ -82,7 +90,7 @@ class RoundForm(forms.ModelForm):
 
                 # #check if assigned in another division
                 pairings = Pairing.objects.filter(round_num=self.instance.pairing.round_num)
-                if pairings.exists ():
+                if pairings.exists():
                     for pairing in pairings.all():
                         if pairing != self.instance.pairing:
                             for round in pairing.rounds.all():
@@ -257,6 +265,7 @@ class CaptainsMeetingForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         errors = []
+        #after submission all fields need to be filled
         if cleaned_data.get('submit') == True:
             for k,v in cleaned_data.items():
                 if v == None:

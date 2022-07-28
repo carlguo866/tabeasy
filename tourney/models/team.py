@@ -47,6 +47,9 @@ class Team(models.Model):
     def __str__(self):
         return f"{self.team_name}"
 
+    def rounds(self):
+        return self.p_rounds.all()+ self.d_rounds.all()
+
     def p_ballot(self):
         if self.p_rounds.count() > 0:
             return sum([ballot[0] for ballot in round.ballots.all()

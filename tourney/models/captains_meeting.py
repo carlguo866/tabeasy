@@ -166,18 +166,27 @@ class CaptainsMeeting(models.Model):
             for character in self.d_characters():
                 if character not in ['Whit Bowman', 'Jackie Hunter', 'Charlie Kaminsky','Billy Isaacs','Haley Floyd']:
                     errors.append(f"{character} not supposed to be used by d")
-
+            #p
+            if self.p_opener == self.p_closer:
+                errors.append(f"{self.p_opener} both opener and closer")
             if len(self.p_direct_atts) != len(set(self.p_direct_atts)):
                 errors.append(f"p has one attorneys for two directs")
             if len(self.p_cross_atts) != len(set(self.p_cross_atts)):
                 errors.append(f"p has one attorneys for two crosses")
+            if len(self.p_wits) != len(set(self.p_wits)):
+                errors.append(f"p has one person for two witnesses")
             if sorted(self.p_direct_atts) != sorted(self.p_cross_atts):
                 errors.append(f"{sorted(self.p_direct_atts)} cross and direct not the same three ppl")
 
+            #d
+            if self.d_opener == self.d_closer:
+                errors.append(f"{self.d_opener} both opener and closer")
             if len(self.d_direct_atts) != len(set(self.d_direct_atts)):
                 errors.append(f"d has one attorneys for two directs")
             if len(self.d_cross_atts) != len(set(self.d_cross_atts)):
                 errors.append(f"d has one attorneys for two crosses")
+            if len(self.d_wits) != len(set(self.d_wits)):
+                errors.append(f"d has one person for two witnesses")
             if sorted(self.d_direct_atts) != sorted(self.d_cross_atts):
                 errors.append(f"{sorted(self.d_direct_atts)} cross and direct not the same three ppl")
 
