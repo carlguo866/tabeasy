@@ -155,30 +155,15 @@ class BallotForm(forms.ModelForm):
     class Meta:
         model = Ballot
         labels =  {'p_open': 'P Opening', 'p_open_comment': 'Comment', 'd_open': 'D Opening','d_open_comment': 'Comment'}
-        fields = ['p_open','p_open_comment','d_open','d_open_comment',
-                  'p_wit1_wit_direct', 'p_wit1_att_direct', 'p_wit1_wit_cross','p_wit1_att_cross',
-                  'p_wit1_wit_direct_comment','p_wit1_wit_cross_comment','p_wit1_att_direct_comment','p_wit1_att_cross_comment',
-                  'p_wit2_wit_direct', 'p_wit2_att_direct', 'p_wit2_wit_cross', 'p_wit2_att_cross',
-                  'p_wit2_wit_cross_comment', 'p_wit2_att_direct_comment', 'p_wit2_att_cross_comment', 'p_wit2_wit_direct_comment',
-                  'p_wit3_wit_direct', 'p_wit3_att_direct', 'p_wit3_wit_cross', 'p_wit3_att_cross',
-                  'p_wit3_wit_cross_comment', 'p_wit3_att_direct_comment', 'p_wit3_att_cross_comment', 'p_wit3_wit_direct_comment',
-
-                  'd_wit1_wit_direct', 'd_wit1_att_direct', 'd_wit1_wit_cross', 'd_wit1_att_cross',
-                  'd_wit1_wit_direct_comment', 'd_wit1_wit_cross_comment', 'd_wit1_att_direct_comment',
-                  'd_wit1_att_cross_comment',
-                  'd_wit2_wit_direct', 'd_wit2_att_direct', 'd_wit2_wit_cross', 'd_wit2_att_cross',
-                  'd_wit2_wit_cross_comment', 'd_wit2_att_direct_comment', 'd_wit2_att_cross_comment',
-                  'd_wit2_wit_direct_comment',
-                  'd_wit3_wit_direct', 'd_wit3_att_direct', 'd_wit3_wit_cross', 'd_wit3_att_cross',
-                  'd_wit3_wit_cross_comment', 'd_wit3_att_direct_comment', 'd_wit3_att_cross_comment',
-                  'd_wit3_wit_direct_comment',
-                  'p_close','p_close_comment','d_close','d_close_comment',
-                  'att_rank_1', 'att_rank_2', 'att_rank_3', 'att_rank_4',
-                  'wit_rank_1', 'wit_rank_2', 'wit_rank_3', 'wit_rank_4',
-              ]
+        fields = '__all__'
+        exclude = ['round','judge']
 
     def __init__(self, *args, **kwargs):
         super(BallotForm, self).__init__(*args, **kwargs)
+        if not self.instance.submit:
+            for field in self.fields:
+                self.fields[field].required = False
+
         if self.instance.round.captains_meeting.submit == True:
             att_list = TeamMember.objects.filter(pk__in=[att.pk for att in self.instance.round.captains_meeting.atts])
             self.fields['att_rank_1'].queryset = att_list
@@ -202,6 +187,16 @@ class BallotForm(forms.ModelForm):
             self.fields['wit_rank_3'].queryset = individual_award_query
             self.fields['wit_rank_4'].queryset = individual_award_query
 
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = []
+        if cleaned_data.get('submit'):
+            for k,v in cleaned_data.items():
+                if k.find('comment') == -1 and v == None:
+                    errors.append(f"{k} empty")
+        raise ValidationError(errors)
+
+
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 class CaptainsMeetingForm(forms.ModelForm):
 
@@ -215,8 +210,9 @@ class CaptainsMeetingForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CaptainsMeetingForm, self).__init__(*args, **kwargs)
-        for field in self.fields:
-            self.fields[field].required = False
+        if not self.instance.submit:
+            for field in self.fields:
+                self.fields[field].required = False
 
         p_team_members = TeamMember.objects.filter(team=self.instance.round.p_team)
         self.fields['p_opener'].queryset = p_team_members
@@ -252,30 +248,8 @@ class CaptainsMeetingForm(forms.ModelForm):
                 if v == None:
                     errors.append(f"{k} empty")
 
-            #check characters
-            # existing_characters = []
-            # if cleaned_data.get('p_wit1_name') in existing_characters:
-            #     errors.append(f"{cleaned_data.get('p_wit1_name')} used twice")
-            # existing_characters.append(cleaned_data.get('p_wit1_name'))
-            # if cleaned_data.get('p_wit2_name') in existing_characters:
-            #     errors.append(f"{cleaned_data.get('p_wit2_name')} used twice")
-            # existing_characters.append(cleaned_data.get('p_wit2_name'))
-            # if cleaned_data.get('p_wit3_name') in existing_characters:
-            #     errors.append(f"{cleaned_data.get('p_wit3_name')} used twice")
-            # existing_characters.append(cleaned_data.get('p_wit3_name'))
-            # if cleaned_data.get('d_wit1_name') in existing_characters:
-            #     errors.append(f"{cleaned_data.get('d_wit1_name')} used twice")
-            # existing_characters.append(cleaned_data.get('d_wit1_name'))
-            # if cleaned_data.get('d_wit2_name') in existing_characters:
-            #     errors.append(f"{cleaned_data.get('d_wit2_name')} used twice")
-            # existing_characters.append(cleaned_data.get('d_wit2_name'))
-            # if cleaned_data.get('d_wit3_name') in existing_characters:
-            #     errors.append(f"{cleaned_data.get('d_wit3_name')} used twice")
-            # existing_characters.append(cleaned_data.get('d_wit3_name'))
-
         if errors != []:
             raise ValidationError(errors)
-            existing_roles = []
 
 
 

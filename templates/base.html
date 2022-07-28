@@ -12,8 +12,9 @@
     <!-- bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <!-- MDBootstrap -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/mdb.min.css' %}"/>
-	<link rel="stylesheet" href="{% static "styles/main-solved.css" %}?v=0.1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles/mdb.min.css' %}"/>
+
+	<link rel="stylesheet" href="{% static "styles/main.css" %}?v=0.1.0">
 
     <title>{% block title %}Tabeasy{% endblock title %}</title>
     {% block extra_css %}{% endblock extra_css %}
@@ -67,12 +68,17 @@
     </nav>
 
 </header>
-    {% block content %}
-        Nothing here<br>
-        Reload this<br>
-    {% endblock content %}
 
-
+ <div class="main-content-container" id="page-container">
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% block content %}{% endblock content %}
+</div>
 
 
 <footer class="full-width-bg-container" id="footer-bg" >

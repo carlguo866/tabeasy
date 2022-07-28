@@ -4,6 +4,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 # Create your models here
 from django_better_admin_arrayfield.models.fields import ArrayField
+
 from tourney.models.team import Team, TeamMember
 
 
@@ -28,8 +29,11 @@ class Round(models.Model):
                                related_query_name='p_round', null=True)
     d_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='d_rounds',
                                related_query_name='d_round', null=True)
-    judges = models.ManyToManyField('Judge', related_name='rounds',
-                                    related_query_name='round',
+    # presiding_judge = models.ForeignKey('Judge', related_name='presiding_rounds',
+    #                                 related_query_name='presiding_round')
+    # scoring_judge = models.ForeignKey('Judge', related_name='scoring_rounds',
+    #                                 related_query_name='scoring_round')
+    judges = models.ManyToManyField('Judge', related_name='rounds', related_query_name='round',
                                     through='Ballot')
     def __str__(self):
         return f'Round {self.pairing.round_num} Courtroom {self.courtroom.upper()}'
@@ -39,6 +43,8 @@ class Round(models.Model):
         super(Round, self).save(force_insert, force_update)
         if is_new:
             CaptainsMeeting.objects.create(round=self)
+            # Ballot.objects.create(round=self, judge=self.presiding_judge)
+            # Ballot.objects.create(round=self, judge=self.scoring_judge)
     # def clean(self, *args, **kwargs):
     #
     #     super().clean()

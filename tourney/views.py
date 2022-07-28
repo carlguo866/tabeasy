@@ -1,12 +1,14 @@
 import openpyxl
+from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.forms import inlineformset_factory
-from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
 from accounts.models import User
-from tabeasy.utils.mixins import JudgeOnlyMixin
+from tabeasy.utils.mixins import JudgeOnlyMixin, TeamOnlyMixin, AuthorizedJudgeOnlyMixin
 from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, PairingForm, \
     CaptainsMeetingForm
 from tourney.models.ballot import Ballot
@@ -100,14 +102,33 @@ class BallotUpdateView(JudgeOnlyMixin, UpdateView):
     model = Ballot
     template_name = "tourney/ballot.html"
     form_class = BallotForm
+    permission_denied_message = 'You are not allowed to view this ballot.'
+
+    def test_func(self):
+        if not super().test_func():
+            return False
+        self.ballot = get_object_or_404(Ballot, pk=self.kwargs['pk'])
+        if self.ballot.judge != self.request.user.judge:
+            return False
+        return True
 
     def get_success_url(self):
-        return reverse_lazy('index') #
+        return reverse_lazy('index')
 
-class CaptainsMeetingUpdateView(UpdateView):
+class CaptainsMeetingUpdateView(TeamOnlyMixin, UpdateView):
     model = CaptainsMeeting
     template_name = "tourney/captains_meeting.html"
     form_class = CaptainsMeetingForm
+    permission_denied_message = 'You are not allowed to view this Captains Meeting Form.'
+
+    def test_func(self):
+        if not super().test_func():
+            return False
+        self.captains_meeting = get_object_or_404(CaptainsMeeting, pk=self.kwargs['pk'])
+        if self.captains_meeting.round.p_team != self.request.user.team and \
+            self.captains_meeting.round.d_team != self.request.user.team:
+            return False
+        return True
 
     def get_success_url(self):
         return reverse_lazy('index')
