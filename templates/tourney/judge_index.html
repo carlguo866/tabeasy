@@ -1,6 +1,7 @@
 {% load static %}
 {% load mytags %}
-{{ request.user.username }}
+<h1>Welcome, {{ request.user }}!</h1>
+
 <br>
 <a href="{% url 'tourney:update_conflict' %}">
 	<button type="button" class="btn btn-secondary">Update Conflict</button>
