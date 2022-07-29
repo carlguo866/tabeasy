@@ -17,8 +17,7 @@
 	{% if user.is_authenticated %}
 		{% if user.is_staff %}
 			{% include 'tourney/tab_index.html' %}
-		{% endif %}
-		{% if user.is_team%}
+		{% elif user.is_team%}
 			<h1>Welcome, Team {{ user.team.team_name }}!</h1>
 			<h2>Here are your team members:</h2>
 			{% for member in user.team.members.all %}

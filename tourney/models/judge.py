@@ -9,13 +9,11 @@ class Judge(models.Model):
                                 primary_key=True, related_name='judge')
     conflicts = models.ManyToManyField(
         Team,
-        null=True,
         blank=True
     )
 
     judge_friends = models.ManyToManyField(
         'self',
-        null=True,
         blank=True
     )
     preside_choices = [
