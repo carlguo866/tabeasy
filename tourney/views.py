@@ -3,16 +3,17 @@ import string
 import openpyxl
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, DetailView
 
 from accounts.models import User
-from tabeasy.utils.mixins import JudgeOnlyMixin, TeamOnlyMixin, AuthorizedJudgeOnlyMixin
-from tabeasy_secrets.secret import DIVISION_ROUND_NUM
+from tabeasy.utils.mixins import JudgeOnlyMixin, TeamOnlyMixin, AuthorizedJudgeOnlyMixin, PassRequestToFormViewMixin
+from tabeasy_secrets.secret import DIVISION_ROUND_NUM, IS_DEV
 from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, PairingForm, \
     CaptainsMeetingForm
 from tourney.models.ballot import Ballot
@@ -20,9 +21,76 @@ from tourney.models.judge import Judge
 from tourney.models.round import Round, Pairing, CaptainsMeeting
 from tourney.models.team import Team, TeamMember
 
+def sort_teams(teams):
+    return list(reversed(sorted(teams,
+                        key=lambda x: (x.total_ballots(), x.total_cs(), x.total_pd()))))
 
 def index(request):
     return render(request, 'index.html')
+
+
+@user_passes_test(lambda u: u.is_staff)
+def results(request):
+    div1_teams = sort_teams([team for team in Team.objects.filter(division='Disney')])
+    div2_teams = sort_teams([team for team in Team.objects.filter(division='Universal')])
+    dict = {'div1_teams_ranked': div1_teams,
+            'div2_teams_ranked': div2_teams}
+    return render(request, 'tourney/results.html', dict)
+
+@user_passes_test(lambda u: u.is_staff)
+def individual_awards(request):
+    atts_ranked = sorted([member for member in TeamMember.objects.all()],
+                        key= lambda x: x.att_individual_score )
+    wits_ranked = sorted([member for member in TeamMember.objects.all()],
+                        key= lambda x: x.wit_individual_score)
+    dict = {'atts_ranked': atts_ranked,
+           'wits_ranked': wits_ranked,}
+    return render(request, 'tourney/individual_awards.html', dict)
+
+
+@user_passes_test(lambda u: u.is_staff)
+def next_pairing(request):
+    teams = Team.objects.all()
+    next_round = max([pairing.round_num for pairing in Pairing.objects.all()])+1
+    if next_round % 2 == 0:
+        div1_d_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
+                                   if team.next_side(next_round) == 'd'])
+        div1_p_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
+                                   if team.next_side(next_round) == 'p'])
+        div2_d_teams = sort_teams([team for team in Team.objects.filter(division='Universal')
+                                   if team.next_side(next_round) == 'd'])
+        div2_p_teams = sort_teams([team for team in Team.objects.filter(division='Universal')
+                                   if team.next_side(next_round) == 'p'])
+    else:
+        div1_teams = sort_teams([team for team in Team.objects.filter(division='Disney')])
+        div1_p_teams = []
+        div1_d_teams = []
+        for i in range(0, len(div1_teams), 2):
+            if random.randint(0, 1):
+                div1_p_teams.append(div1_teams[i])
+                div1_d_teams.append(div1_teams[i+1])
+            else:
+                div1_p_teams.append(div1_teams[i+1])
+                div1_d_teams.append(div1_teams[i])
+        div2_teams = sort_teams([team for team in Team.objects.filter(division='Universal')])
+        div2_p_teams = []
+        div2_d_teams = []
+        for i in range(0, len(div2_teams), 2):
+            if random.randint(0, 1):
+                div2_p_teams.append(div2_teams[i])
+                div2_d_teams.append(div2_teams[i + 1])
+            else:
+                div2_p_teams.append(div2_teams[i + 1])
+                div2_d_teams.append(div2_teams[i])
+
+    dict = {'next_round': next_round,
+            'div1_d_teams':div1_d_teams,
+            'div1_p_teams':div1_p_teams,
+            'div2_d_teams':div2_d_teams,
+            'div2_p_teams':div2_p_teams,
+            }
+    return render(request, 'tourney/pairing/next_pairing.html', dict)
+
 
 @user_passes_test(lambda u: u.is_staff)
 def pairing_index(request):
@@ -33,9 +101,12 @@ def pairing_index(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def edit_pairing(request, pairing_id):
-    RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet)
-                                            # max_num=8, validate_max=True,
-                                            # min_num=8, validate_min=True)
+    if IS_DEV:
+        RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet)
+    else:
+        RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
+                                             max_num=8, validate_max=True,
+                                             min_num=8, validate_min=True)
     if Pairing.objects.filter(pk=pairing_id).exists():
         pairing = Pairing.objects.get(pk=pairing_id)
         if request.method == "POST":
@@ -133,7 +204,7 @@ class BallotUpdateView(JudgeOnlyMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('index')
 
-class CaptainsMeetingUpdateView(TeamOnlyMixin, UpdateView):
+class CaptainsMeetingUpdateView(PassRequestToFormViewMixin, LoginRequiredMixin, UpdateView):
     model = CaptainsMeeting
     template_name = "tourney/captains_meeting.html"
     form_class = CaptainsMeetingForm
@@ -143,8 +214,8 @@ class CaptainsMeetingUpdateView(TeamOnlyMixin, UpdateView):
         if not super().test_func():
             return False
         self.captains_meeting = get_object_or_404(CaptainsMeeting, pk=self.kwargs['pk'])
-        if self.captains_meeting.round.p_team != self.request.user.team and \
-            self.captains_meeting.round.d_team != self.request.user.team:
+        if self.request.user.team not in self.captains_meeting.round.teams and \
+                self.request.user.judge not in self.captains_meeting.round.judges:
             return False
         return True
 
@@ -187,7 +258,7 @@ def load_teams(request):
                         Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
                     else:
                         message += f'create team {pk}'
-                        raw_password = User.objects.make_random_password()
+                        raw_password = worksheet.cell(i,17).value
                         username = ''.join(team_name.split(' '))
                         user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False)
                         user.set_password(raw_password)

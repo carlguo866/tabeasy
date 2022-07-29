@@ -1,24 +1,24 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+	<link rel='stylesheet' href='{% static 'styles/signup.css' %}'>
+{% endblock css %}
 
 {% block content %}
-	{% if form.errors %}
-        <div class="alert alert-danger" role="alert">
-			{{ form.errors }}
-        </div>
-    {% endif %}
+{#	{% for %}#}
+{#	{% if form.errors %}#}
+{#        <div class="alert alert-danger" role="alert">#}
+{#			{{ form.errors }}#}
+{#        </div>#}
+{#    {% endif %}#}
+<div class="signup-container">
+	<form method="post">
+		{% csrf_token %}
+		{% include "utils/combined_forms.html" with combined_forms=forms %}
+		<br>
+		<button class='button button-primary' type="submit">Sign up</button>
+	</form>
+</div>
 
-    <form method="POST">
-        <div class="alert alert-light" role="alert">
-            Sign Up
-        </div>
-        {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-        </table>
-{#		<div class="form-outline mb-4">#}
-{#			<input name="validation" type="validation" id="validation-code" class="form-control" />#}
-{#			<label class="form-label" for="validation-code">Judge Validation Code</label>#}
-{#		</div>#}
-        <button class="btn btn-primary" type="submit">Sign up</button>
-    </form>
 {% endblock %}

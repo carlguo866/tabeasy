@@ -9,16 +9,16 @@ class CaptainsMeeting(models.Model):
                                  , related_query_name='captains_meeting', primary_key=True)
 
     character_evidence_option1 = models.BooleanField(default=False, help_text='The defendant will offer evidence under MRE 404(a)(1) of the following traits of his/her own character:')
-    character_evidence_option1_description = models.CharField(max_length=40, null=True, blank=True)
+    character_evidence_option1_description = models.CharField(max_length=40, default='')
     character_evidence_option2 = models.BooleanField(default=False,
                                                      help_text='The defendant will offer evidence under MRE 404(a)(2) of the following traits of the victim(s)\' character:')
-    character_evidence_option2_description = models.CharField(max_length=40, null=True, blank=True)
+    character_evidence_option2_description = models.CharField(max_length=40, default='')
     character_evidence_option3 = models.BooleanField(default=False,
                                                      help_text='The prosecutor will offer evidence of prior crimes, wrongs, or acts under MRE 404(b) for the following purposes:')
-    character_evidence_option3_description = models.CharField(max_length=40, null=True, blank=True)
+    character_evidence_option3_description = models.CharField(max_length=40, default='')
     character_evidence_option4 = models.BooleanField(default=False,
                                                      help_text='The defense will attack, by reputation or opinion, credibility of the following witnesses called by the prosecution under MRE 608(a)')
-    character_evidence_option4_description = models.CharField(max_length=40, null=True, blank=True)
+    character_evidence_option4_description = models.CharField(max_length=40, default='')
     character_evidence_submit = models.BooleanField(default=False,
                                              help_text='Was Character Evidence form completed?')
 
@@ -161,16 +161,17 @@ class CaptainsMeeting(models.Model):
     demo = models.BooleanField(default=False, help_text='Were all exhibits/demonstratives shown to opposing counsel?')
     submit =  models.BooleanField(default=False, help_text='Submit')
 
+    def __str__(self):
+        return f"{self.round} {self.round.p_team} vs. {self.round.d_team}"
+
     def clean(self):
         errors = []
         if self.submit:
 
-            # for i, character_evidence_option in enumerate(self.character_evidence_options()):
-            #     if character_evidence_option and \
-            #             (getattr(self, f"character_evidence_option{i+1}_description") == None \
-            #              or getattr(self, f"character_evidence_option{i+1}_description") == ''):
-            #         errors.append(f'character evidence optino {i} filled as yes but didn\'t provide description')
-
+            for i, character_evidence_option in enumerate(self.character_evidence_options()):
+                if character_evidence_option and \
+                        getattr(self, f"character_evidence_option{i+1}_description") == '':
+                    errors.append(f'character evidence option {i+1} filled as yes but didn\'t provide description')
 
             if not self.character_evidence_submit:
                 errors.append('didn\'t submit character evidence')

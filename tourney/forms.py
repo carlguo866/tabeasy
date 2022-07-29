@@ -1,6 +1,7 @@
 import string
 import random
 from django import forms
+from django.contrib.postgres.forms import SimpleArrayField, SplitArrayField
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.forms import MultipleChoiceField
@@ -12,6 +13,7 @@ from tourney.models.round import Pairing, Round, CaptainsMeeting
 from tourney.models.team import Team, TeamMember
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
+INT_CHOICES = [(i,i) for i in range(11)]
 class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
@@ -20,12 +22,12 @@ class TeamForm(forms.ModelForm):
 class JudgeForm(forms.ModelForm):
     class Meta:
         model = Judge
-        fields = []
+        fields = ['preside', 'available_round1','available_round2', 'available_round3','available_round4']
 
 class PairingForm(forms.ModelForm):
     class Meta:
         model = Pairing
-        fields = ('round_num', 'division')
+        fields = ('round_num', 'division','submit')
 
 
 class RoundForm(forms.ModelForm):
@@ -37,71 +39,20 @@ class RoundForm(forms.ModelForm):
 
     def __init__(self, pairing, *args, **kwargs):
         super(RoundForm, self).__init__(*args, **kwargs)
+
         if pairing == None:
             self.fields['p_team'].queryset = Team.objects.all()
             self.fields['d_team'].queryset = Team.objects.all()
+            self.fields['presiding_judge'].queryset = Judge.objects.filter(preside__gt=0)
         else:
             self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)
             self.fields['d_team'].queryset = Team.objects.filter(division=pairing.division)
-        self.fields['presiding_judge'].queryset = Judge.objects.filter(preside__gt=0)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        errors = []
-
-        if cleaned_data.get('p_team') == cleaned_data.get('d_team'):
-            errors.append('one team cant compete against itself')
-        if cleaned_data.get('p_team').next_side(self.instance.pairing.round_num) == 'd':
-            errors.append(f"{cleaned_data.get('p_team')} is supposed to play d this round")
-        if cleaned_data.get('d_team').next_side(self.instance.pairing.round_num) == 'p':
-            errors.append(f"{cleaned_data.get('d_team')} is supposed to play p this round")
-        for round in cleaned_data.get('p_team').p_rounds.all():
-            if round != self.instance and round.d_team == cleaned_data.get('d_team'):
-                errors.append(f"{cleaned_data.get('p_team')} and {cleaned_data.get('d_team')} played each other before")
-        for round in cleaned_data.get('p_team').d_rounds.all():
-            if round != self.instance and round.p_team == cleaned_data.get('d_team'):
-                errors.append(f"{cleaned_data.get('p_team')} and {cleaned_data.get('d_team')} played each other before")
-
-
-        if cleaned_data.get('presiding_judge') == cleaned_data.get('scoring_judge'):
-            errors.append('assigning one judge for two roles')
-        judges = [cleaned_data.get('presiding_judge'),cleaned_data.get('scoring_judge')]
-        for judge in judges:
-            if judge != None:
-                #check conflict
-                teams = [cleaned_data.get('p_team'), cleaned_data.get('d_team')]
-                for team in teams:
-                    if team in judge.conflicts.all():
-                        errors.append(f"{judge} conflicted with p_team {team}")
-
-                #check if judged
-                judged = None
-                for round in judge.rounds:
-                    if round != self.instance:
-                        if judged == None:
-                            judged = Team.objects.filter(pk=round.p_team.pk)
-                        else:
-                            judged |= Team.objects.filter(pk=round.p_team.pk)
-                        judged |= Team.objects.filter(pk=round.d_team.pk)
-                if judged != None:
-                    for team in teams:
-                        if team in judged:
-                            errors.append(f"{judge} has judged p_team {team}")
-
-                # #check if assigned in another division
-                pairings = Pairing.objects.filter(round_num=self.instance.pairing.round_num)
-                if pairings.exists():
-                    for pairing in pairings.all():
-                        if pairing != self.instance.pairing:
-                            for round in pairing.rounds.all():
-                                if judge in [round.presiding_judge,round.scoring_judge]:
-                                    errors.append(f"{judge} already assigned in {pairing.division}")
-
-        if errors != []:
-            raise ValidationError(errors)
-    # #
-    # def save(self, commit=True):
-    #     super().save()
+            available_judges_pk = [judge.pk for judge in Judge.objects.all()
+                                   if judge.get_availability(pairing.round_num)]
+            self.fields['presiding_judge'].queryset = \
+                Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0)
+            self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk)
+            self.instance.submit = pairing.submit
 
 class PairingFormSet(BaseInlineFormSet):
 
@@ -111,7 +62,6 @@ class PairingFormSet(BaseInlineFormSet):
             return
         existing_judges = []
         existing_teams = []
-        # existing_courtrooms = []
         errors = []
 
         for form in self.forms:
@@ -131,8 +81,6 @@ class PairingFormSet(BaseInlineFormSet):
                 existing_teams.append(team)
         if errors != []:
             raise ValidationError(errors)
-
-
 
 
 class CustomModelChoiceIterator(ModelChoiceIterator):
@@ -178,7 +126,35 @@ class BallotForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['round','judge']
         widgets = {
-            'submit': forms.Select(choices=BOOL_CHOICES)
+            'submit': forms.Select(choices=BOOL_CHOICES),
+            'p_open': forms.Select(choices=INT_CHOICES),
+            'd_open': forms.Select(choices=INT_CHOICES),
+            'p_wit1_wit_direct': forms.Select(choices=INT_CHOICES),
+            'p_wit1_wit_cross': forms.Select(choices=INT_CHOICES),
+            'p_wit1_att_direct': forms.Select(choices=INT_CHOICES),
+            'p_wit1_att_cross': forms.Select(choices=INT_CHOICES),
+            'p_wit2_wit_direct': forms.Select(choices=INT_CHOICES),
+            'p_wit2_wit_cross': forms.Select(choices=INT_CHOICES),
+            'p_wit2_att_direct': forms.Select(choices=INT_CHOICES),
+            'p_wit2_att_cross': forms.Select(choices=INT_CHOICES),
+            'p_wit3_wit_direct': forms.Select(choices=INT_CHOICES),
+            'p_wit3_wit_cross': forms.Select(choices=INT_CHOICES),
+            'p_wit3_att_direct': forms.Select(choices=INT_CHOICES),
+            'p_wit3_att_cross': forms.Select(choices=INT_CHOICES),
+            'd_wit1_wit_direct': forms.Select(choices=INT_CHOICES),
+            'd_wit1_wit_cross': forms.Select(choices=INT_CHOICES),
+            'd_wit1_att_direct': forms.Select(choices=INT_CHOICES),
+            'd_wit1_att_cross': forms.Select(choices=INT_CHOICES),
+            'd_wit2_wit_direct': forms.Select(choices=INT_CHOICES),
+            'd_wit2_wit_cross': forms.Select(choices=INT_CHOICES),
+            'd_wit2_att_direct': forms.Select(choices=INT_CHOICES),
+            'd_wit2_att_cross': forms.Select(choices=INT_CHOICES),
+            'd_wit3_wit_direct': forms.Select(choices=INT_CHOICES),
+            'd_wit3_wit_cross': forms.Select(choices=INT_CHOICES),
+            'd_wit3_att_direct': forms.Select(choices=INT_CHOICES),
+            'd_wit3_att_cross': forms.Select(choices=INT_CHOICES),
+            'p_close': forms.Select(choices=INT_CHOICES),
+            'd_close': forms.Select(choices=INT_CHOICES),
         }
 
 
@@ -218,7 +194,8 @@ class BallotForm(forms.ModelForm):
             for k,v in cleaned_data.items():
                 if k.find('comment') == -1 and v == None:
                     errors.append(f"{k} empty")
-        raise ValidationError(errors)
+        if errors != []:
+            raise ValidationError(errors)
 
 class CaptainsMeetingForm(forms.ModelForm):
 
@@ -227,14 +204,22 @@ class CaptainsMeetingForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['round']
         widgets = {
-            'submit': forms.Select(choices=BOOL_CHOICES)
+            'submit': forms.Select(choices=BOOL_CHOICES),
         }
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
         super(CaptainsMeetingForm, self).__init__(*args, **kwargs)
+        if self.request.user.is_judge:
+            for field in self.fields:
+                self.fields[field].widget.attrs['readonly'] = True
+
         if not self.instance.submit:
             for field in self.fields:
                 self.fields[field].required = False
+        for i, _ in enumerate(self.instance.character_evidence_options()):
+            self.fields[f'character_evidence_option{i + 1}_description'].required = False
+
 
         p_team_members = TeamMember.objects.filter(team=self.instance.round.p_team)
         self.fields['p_opener'].queryset = p_team_members
@@ -273,8 +258,6 @@ class CaptainsMeetingForm(forms.ModelForm):
 
         if errors != []:
             raise ValidationError(errors)
-
-
 
 
 

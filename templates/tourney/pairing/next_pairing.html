@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+{% load mytags %}
+
+
+{% block content %}
+	Hiiii
+	The next round is {{ next_round }}<br>
+	{% for p_team, d_team in div1_p_teams|zip:div1_d_teams %}
+		{{ p_team }} Total Ballots: {{ p_team.total_ballots }} Total CS: {{ p_team.total_cs }}
+		Total PD: {{ p_team.total_pd }}
+		||||
+		{{ d_team }} Total Ballots: {{ d_team.total_ballots }} Total CS: {{ d_team.total_cs }}
+		Total PD: {{ d_team.total_pd }}
+		<br>
+	{% endfor %}
+
+	<br><br><br>
+	{% for p_team, d_team in div2_p_teams|zip:div2_d_teams %}
+		{{ p_team }} Total Ballots: {{ p_team.total_ballots }} Total CS: {{ p_team.total_cs }}
+		Total PD: {{ p_team.total_pd }}
+		||||
+		{{ d_team }} Total Ballots: {{ d_team.total_ballots }} Total CS: {{ d_team.total_cs }}
+		Total PD: {{ d_team.total_pd }}
+		<br>
+	{% endfor %}
+
+{% endblock content %}

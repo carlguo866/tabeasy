@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+{% load mytags %}
+
+{% block content %}
+	{% for att, wit in atts_ranked|zip:atts_ranked %}
+		{{ att }}  {{ att.att_individual_score }}
+		||||
+		{{ wit }}  {{ wit.wit_individual_score }}
+		<br>
+	{% endfor %}
+
+{% endblock content %}

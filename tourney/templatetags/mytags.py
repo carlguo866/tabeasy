@@ -11,3 +11,6 @@ def chr_(value):
 def add_array_(array1, array2):
     return list(chain(array1,array2))
 
+@register.filter(name='zip')
+def zip_lists(a, b):
+  return zip(a, b)

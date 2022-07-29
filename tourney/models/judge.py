@@ -25,6 +25,15 @@ class Judge(models.Model):
     ]
 
     preside = models.IntegerField(choices=preside_choices, default=0)
+    available_round1 = models.BooleanField(default=False)
+    available_round2 = models.BooleanField(default=False)
+    available_round3 = models.BooleanField(default=False)
+    available_round4 = models.BooleanField(default=False)
+    available_round5 = models.BooleanField(default=False)
+
+    def get_availability(self, round_num):
+        return getattr(self, f"available_round{round_num}")
+
 
     def get_preside_preference(self):
         return self.preside_choices[self.preside][1]

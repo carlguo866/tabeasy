@@ -20,6 +20,7 @@ deploy.sh
 *.socket
 .fuse_hidden*
 .vscode
+.xlsx
 
 node_modules/
 polls

@@ -29,7 +29,9 @@ class PairingAdmin(admin.ModelAdmin, DynamicArrayMixin):
 
 @admin.register(Ballot)
 class BallotAdmin(admin.ModelAdmin, DynamicArrayMixin):
-    list_display = ['pk', 'round', 'judge']
+    list_display = ['pk', 'round', 'judge', 'p_pd', 'd_pd', 'submit']
+    list_filter = ['round__pairing', 'judge']
+    search_fields = ['judge']
     model = Ballot
 
 
@@ -65,5 +67,6 @@ class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
 
 @admin.register(CaptainsMeeting)
 class CaptainsMeetingAdmin(admin.ModelAdmin):
-    list_display = ['round', 'submit']
-    search_fields = ['round']
+    list_display = ['__str__', 'submit']
+    list_filter = ['round__pairing']
+    search_fields = ['round__pairing','__str__']

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+{% load mytags %}
+
+{% block content %}
+	{% for div1_team, div2_team in div1_teams_ranked|zip:div2_teams_ranked %}
+		{{ div1_team }} Total Ballots: {{ div1_team.total_ballots }} Total CS: {{ div1_team.total_cs }}
+		Total PD: {{ div1_team.total_pd }}
+		||||
+		{{ div2_team }} Total Ballots: {{ div2_team.total_ballots }} Total CS: {{ div2_team.total_cs }}
+		Total PD: {{ div2_team.total_pd }}
+		<br>
+	{% endfor %}
+
+{% endblock content %}

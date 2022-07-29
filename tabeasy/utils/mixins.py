@@ -9,7 +9,11 @@ class JudgeOnlyMixin(django.contrib.auth.mixins.UserPassesTestMixin):
                and self.request.user.is_judge
 
 
-
+class PassRequestToFormViewMixin:
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
 
 class AuthorizedJudgeOnlyMixin(django.contrib.auth.mixins.UserPassesTestMixin):
     permission_denied_message = "You are not authorized to view this ballot"

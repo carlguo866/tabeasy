@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block extra_css %}
+{% block css %}
 	<style>
 	#intro {
 		background-image: url({% static 'img/base/homepage.jpg' %});
@@ -11,16 +11,24 @@
 	color: #fff !important;
 	}
 </style>
-{% endblock extra_css %}
+{% endblock css %}
 
 {% block content%}
 	{% if user.is_authenticated %}
 		<h1>Welcome back, {{ user.username }}!</h1>
 		{% if user.is_staff %}
 			You are a tab admin!<br>
-			Pairing page here:
+			Pairing page is here:<br>
 			<a href="{% url 'tourney:pairing_index' %}">
-				<button type="button" class="btn btn-secondary">Pairing</button>
+				<button type="button" class="button button-primary">Pairing</button>
+			</a>
+			<br>
+			Results page is here:<br>
+			<a href="{% url 'tourney:results' %}">
+				<button type="button" class="button button-primary">Results</button>
+			</a>
+			<a href="{% url 'tourney:individual_awards' %}">
+				<button type="button" class="button button-primary">Individual Awards</button>
 			</a>
 
 		{% elif user.is_team%}

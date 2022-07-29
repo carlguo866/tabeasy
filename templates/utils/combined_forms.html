@@ -1,0 +1,7 @@
+{% for form in combined_forms %}
+  {{ form.non_field_errors }}
+{% endfor %}
+
+{% for form in combined_forms %}
+  {% include 'utils/form_content.html' with form=form %}
+{% endfor %}
