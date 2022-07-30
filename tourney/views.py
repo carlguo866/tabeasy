@@ -96,8 +96,11 @@ def next_pairing(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def pairing_index(request):
-    current_pairings = Pairing.objects.all()
-    dict = {'pairings': current_pairings}
+    round_num_lists = Pairing.objects.values_list('round_num',flat=True).distinct()
+    pairings = []
+    for round_num in round_num_lists:
+        pairings.append(Pairing.objects.filter(round_num=round_num).order_by('division'))
+    dict = {'pairings': pairings}
     return render(request, 'tourney/pairing/main.html', dict)
 
 

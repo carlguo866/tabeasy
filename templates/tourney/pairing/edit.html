@@ -3,77 +3,44 @@
 {% load mytags %}
 
 {% block content %}
-	<h1>Create Pairing</h1>
-	{{ formset.errors }}
-	{{ formset.non_form_errors }}
-	{% if formset %}
-		{% if formset.errors %}
-			{% for error in formset.errors %}
-				{% if error %}
-					<div class="alert alert-danger" role="alert">{{ error }}</div>
-				{% endif  %}
-			{% endfor %}
-		{% elif formset.non_form_errors %}
-			<div class="alert alert-danger" role="alert">{{ formset.non_form_errors }}</div>
-{#			{% for error in formset.non_form_errors %}#}
-{#				{% if error %}#}
-{#					<div class="alert alert-danger" role="alert">{{ error }}</div>#}
-{#				{% endif %}#}
-{#			{% endfor %}#}
-		{% endif %}
+	<div class="container-md center">
+		<h1>Create Pairing</h1>
+		{% if formset %}
 
-		<form method="post">
+			{% if formset.errors %}
+				{% for key, value in formset.errors.items %}
+					{% if value %}
+						<div class="alert alert-danger" role="alert">{{ value }}</div>
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+			{% if formset.non_form_errors %}
+				{% for key, value in formset.non_form_errors.items %}
+					{% if value %}
+						<div class="alert alert-danger" role="alert">{{ value }}</div>
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+				<form method="post">
 			{% csrf_token %}
 			{{ formset.as_p }}
 			{{ submit_form.as_p }}
 			<input class="button button-primary" type="submit" value="Save">
 		</form>
 
-	{% else %}
-		<form method="post">
-			{% csrf_token %}
-			{{ pairing_form.as_p }}
-			<input class="button button-primary" type="submit" value="Save">
-		</form>
-	{% endif %}
-{#	<br>#}
-{##}
-{#	<br><br><br><br>#}
-{#	{{ div_1_teams.count}}#}
-{#	{{ half_div_1_teams_num }}#}
-{##}
-{#	{{ div_2_teams.count}}#}
-{#	{{ half_div_2_teams_num }}#}
-{#	<div class="container-fluid">#}
-{#		{{ div_1_teams.first.division }} Pairing#}
-{#		<br>#}
-{#		<form method="POST" action = "">{% csrf_token %}#}
-{#			{% with ''|center:half_div_1_teams_num as range %}#}
-{#				{% for _ in range %}#}
-{#					Courtroom {{ forloop.counter0|chr }}#}
-{#					<table>{{ form.as_table }}</table>#}
-{##}
-{#					<br>#}
-{#				{% endfor %}#}
-{#			{% endwith %}#}
-{#			<input type="submit" value="Submit!"/>#}
-{##}
-{#        </form>#}
+		{% else %}
+			<form method="post">
+				{% csrf_token %}
+				{{ pairing_form.as_p }}
+				<input class="button button-primary" type="submit" value="Save">
+			</form>
+		{% endif %}
 
-{#		{% for  in div_1_teams.count/2 %}#}
-{##}
-{##}
-{#  		{% endfor %}#}
-{#	{{ div_2_teams.count}}#}
-{#	{% for team in div_1_teams %}#}
-{##}
-{#	  	<strong> {{ team }} {{ team.school }}</strong><br>#}
-{#  	{% endfor %}#}
+	</div>
 
-{#	{% if div_2_teams == None %}#}
-{#		{% for team in div_2_teams %}#}
-{#			<strong> {{ team }} {{ team.school }}</strong><br>#}
-{#		{% endfor %}#}
-{#	{% endif %}#}
+
+
+
+
 
 {% endblock content %}

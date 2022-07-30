@@ -3,23 +3,56 @@
 {% load mytags %}
 
 {% block content %}
-	{% for pairing in pairings %}
-		{% for round in pairing.get_rounds %}
-			Courtroom {{ round.courtroom }}: {{ round.p_team }} vs. {{ round.d_team }} <br>
-		{% endfor %}
-		<br>
-		<a href="{% url 'tourney:edit_pairing' pairing.pk %}">
-			<button type="button" class="btn btn-secondary">Round {{ pairing.round_num }} {{ pairing.division }}</button>
-		</a>
-	{% endfor %}
-	<br><br>
+	<div class="container-fluid center">
+		<h1>Pairings</h1>
+			{% for pairing in pairings %}
+				<div class="row gx-2 pb-3">
+					<h3>Round {{ pairing.0.round_num }} Pairing</h3>
+					{% for div_pairing in pairing %}
+						<div class="col-md-6">
+							<h4>{{ div_pairing }}</h4>
+							{% if div_pairing.rounds.exists %}
+							<table class="table table-striped table-bordered table-responsive">
+								<thead class="table-light">
+									<tr>
+										<th scope="col">Courtroom</th>
+										<th scope="col">Prosecution Team</th>
+										<th scope="col">Defense Team</th>
+										<th scope="col">Presiding Judge</th>
+										<th scope="col">Scoring Judge</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for round in div_pairing.get_rounds %}
+										<tr>
+											<th scope="row">{{ round.courtroom }}</th>
+											<td>{{ round.p_team }}</td>
+											<td>{{ round.d_team }}</td>
+											<td>{{ round.presiding_judge }}</td>
+											<td>{{ round.scoring_judge }}</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+							{% endif %}
+							<a href="{% url 'tourney:edit_pairing' div_pairing.pk %}">
+								<button type="button" class="button button-primary m-2">Edit {{ div_pairing }} Pairing</button>
+							</a>
+						</div>
+					{% endfor %}
+				</div>
+			{% endfor %}
 
 	<a href="{% url 'tourney:edit_pairing' 999 %}">
-		<button type="button" class="btn btn-secondary">Add</button>
+		<button type="button" class="button button-primary">Add</button>
 	</a>
 
 	<a href="{% url 'tourney:next_pairing' %}">
-		<button type="button" class="btn btn-secondary">Next Pairing</button>
+		<button type="button" class="button button-primary">Next Pairing</button>
 	</a>
+
+
+	</div>
+
 
 {% endblock content %}
