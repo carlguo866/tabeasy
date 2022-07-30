@@ -29,17 +29,29 @@ class PairingForm(forms.ModelForm):
         model = Pairing
         fields = ('round_num', 'division','submit')
 
+class PairingSubmitForm(forms.ModelForm):
+    class Meta:
+        model = Pairing
+        fields = ['submit']
+        widgets = {
+            'submit': forms.Select(choices=BOOL_CHOICES)
+        }
+
+
+
 
 class RoundForm(forms.ModelForm):
     class Meta:
         model = Round
         fields = '__all__'
-        exclude = ['pairing','extra_judge','courtroom']
+        exclude = ['pairing','extra_judge','courtroom','submit']
         # widgets = {'courtroom': forms.HiddenInput()}
 
     def __init__(self, pairing, *args, **kwargs):
         super(RoundForm, self).__init__(*args, **kwargs)
-
+        if not self.instance.submit:
+            for field in self.fields:
+                self.fields[field].required = False
         if pairing == None:
             self.fields['p_team'].queryset = Team.objects.all()
             self.fields['d_team'].queryset = Team.objects.all()
@@ -54,8 +66,17 @@ class RoundForm(forms.ModelForm):
             self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk)
             self.instance.submit = pairing.submit
 
-class PairingFormSet(BaseInlineFormSet):
+    def save(self, commit=True):
+        would_save = False
+        for k, v in self.instance.__dict__.items():
+            if k in ['p_team_id','d_team_id','presiding_judge_id','scoring_judge_id'] and v != None:
+                would_save = True
+        if would_save:
+            super().save()
 
+
+
+class PairingFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
         if any(self.errors):
@@ -63,22 +84,23 @@ class PairingFormSet(BaseInlineFormSet):
         existing_judges = []
         existing_teams = []
         errors = []
+        if self.instance.submit:
+            for form in self.forms:
+                if self.can_delete and self._should_delete_form(form):
+                    continue
+                if form.cleaned_data == {}:
+                    continue
+                form_judges = [form.cleaned_data.get('presiding_judge'),form.cleaned_data.get('scoring_judge')]
+                for judge in form_judges:
+                    if judge in existing_judges:
+                        errors.append(f'{judge} used twice!')
+                    existing_judges.append(judge)
+                teams = [form.cleaned_data.get('p_team'),form.cleaned_data.get('d_team')]
+                for team in teams:
+                    if team in existing_teams:
+                        errors.append(f'{team} used twice!')
+                    existing_teams.append(team)
 
-        for form in self.forms:
-            if self.can_delete and self._should_delete_form(form):
-                continue
-            if form.cleaned_data == {}:
-                continue
-            form_judges = [form.cleaned_data.get('presiding_judge'),form.cleaned_data.get('scoring_judge')]
-            for judge in form_judges:
-                if judge in existing_judges:
-                    errors.append(f'{judge} used twice!')
-                existing_judges.append(judge)
-            teams = [form.cleaned_data.get('p_team'),form.cleaned_data.get('d_team')]
-            for team in teams:
-                if team in existing_teams:
-                    errors.append(f'{team} used twice!')
-                existing_teams.append(team)
         if errors != []:
             raise ValidationError(errors)
 
