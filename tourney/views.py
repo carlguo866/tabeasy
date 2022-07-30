@@ -15,7 +15,7 @@ from accounts.models import User
 from tabeasy.utils.mixins import JudgeOnlyMixin, TeamOnlyMixin, AuthorizedJudgeOnlyMixin, PassRequestToFormViewMixin
 from tabeasy_secrets.secret import DIVISION_ROUND_NUM, IS_DEV
 from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, PairingForm, \
-    CaptainsMeetingForm, PairingSubmitForm
+    CaptainsMeetingForm, PairingSubmitForm, JudgeForm
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
 from tourney.models.round import Round, Pairing, CaptainsMeeting
@@ -196,6 +196,18 @@ class JudgeFriendUpdateView(JudgeOnlyMixin, UpdateView):
         return self.request.user.judge
 
     success_url = reverse_lazy('index')
+
+class JudgePreferenceUpdateView(JudgeOnlyMixin, UpdateView):
+    model = Judge
+    template_name = "utils/generic_form.html"
+
+    form_class = JudgeForm
+
+    def get_object(self, queryset=None):
+        return self.request.user.judge
+
+    success_url = reverse_lazy('index')
+
 
 class BallotUpdateView(JudgeOnlyMixin, UpdateView):
     model = Ballot

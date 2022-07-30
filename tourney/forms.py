@@ -40,6 +40,24 @@ class JudgeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(JudgeForm, self).__init__(*args, **kwargs)
         self.fields['availability'].label = "Which round(s) would you like to judge?"
+        initial_availability = []
+        for round, _ in JUDGE_AVAILABILITY_CHOICES:
+            if getattr(self.instance, round):
+                initial_availability.append(round)
+        self.fields['availability'].initial = initial_availability
+
+    def save(self, commit=True):
+        m = super(JudgeForm, self).save(commit=False)
+        for round, _ in JUDGE_AVAILABILITY_CHOICES:
+            if round in self.cleaned_data.get('availability'):
+                setattr(m, round, True)
+            else:
+                setattr(m, round, False)
+        if commit:
+            m.save()
+        return m
+
+
 
 class PairingForm(forms.ModelForm):
     class Meta:
@@ -157,6 +175,7 @@ class UpdateJudgeFriendForm(forms.ModelForm):
         queryset=Judge.objects.all(),
         widget=forms.CheckboxSelectMultiple
     )
+
 
 class BallotForm(forms.ModelForm):
     class Meta:

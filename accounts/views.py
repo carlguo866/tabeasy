@@ -18,8 +18,6 @@ def signup(request):
 
             judge = judge_form.save(commit=False)
             judge.user = user
-            for round in judge_form.cleaned_data['availability']:
-                setattr(judge, round, True)
             judge.save()
             login(request, user)
             return redirect('index')
