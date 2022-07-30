@@ -2,72 +2,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" />
-    <!-- Google Fonts Roboto -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
-    <!-- bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
-    <!-- MDBootstrap -->
-    <link rel="stylesheet" type="text/css" href="{% static 'styles/mdb.min.css' %}"/>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link async rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.8.1/css/all.css"
+        integrity="sha384-Bx4pytHkyTDy3aJKjGkGoHPt3tvv6zlwwjc3iqN7ktaiEMLDPqLSZYts2OjKcBx1"
+        crossorigin="anonymous">
+
+  <!--jquery-->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"
+          integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <!-- Temporary Bootstrap reference -->
+  <link rel="stylesheet"  href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+          integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+          integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://use.typekit.net/fiy6cyf.css">
+  <link rel="stylesheet" href="{% static "styles/main.css" %}?v=0.1.0">
+
+	<link rel="stylesheet" type="text/css" href="{% static 'styles/mdb.min.css' %}"/>
 
 	<link rel="stylesheet" href="{% static "styles/main.css" %}?v=0.1.0">
-
-    <title>{% block title %}Tabeasy{% endblock title %}</title>
-    {% block css %}{% endblock css %}
+	<link rel="shortcut icon" href="{% static "img/base/favicon.ico" %}"/>
+	<title>{% block title %}Tabeasy{% endblock title %}</title>
+	{% block css %}{% endblock css %}
 
 </head>
 <body>
 
- <header style="background-color: rgba(94,46,145, 0.7);">
- <nav class="navbar navbar-expand-lg navbar-dark d-none d-lg-block" style="z-index: 2000;">
-      <div class="container-fluid">
-        <!-- Navbar brand -->
-        <a class="navbar-brand nav-link" target="_blank" href="{% url 'index' %} ">
-{#            <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"/></svg>#}
-            <img src="{% static "img/base/logo2.png" %}" alt='' width="40" height="38" class="me-2 d-inline-block align-text-top">
-            <strong id="header-title">Tabeasy</strong>
+
+<header class="full-width-bg-container" id="navbar-bg">
+  <div class="card-container" id="navbar-container">
+    <div class="main-content-container" id="main-navbar">
+
+		<a class="navbar-brand nav-link" target="_blank" href="{% url 'index' %} ">
+			<img src="{% static "img/base/logo.png" %}" alt='' width="40" height="38" class="me-2 d-inline-block align-text-top">
+			<div id="header-title">Tabeasy</div>
+		</a>
+
+      {% if user.is_authenticated %}
+        <a class="navbar-item button button-primary" id="menu-toggle"
+           href="javascript:void(0);" onclick="mobileMenuToggle()">
+          <i class="far fa-bars"></i>
         </a>
-        <div class="collapse navbar-collapse" id="navbarExample01">
-            <ul class="navbar-nav me-auto">
+        <div class="navbar-item" id="menu">
+          <a class="button button-primary dropdown-toggle" id="userDropdown"
+                  data-toggle="dropdown" aria-haspopup="true"
+                  aria-expanded="false" href="{% url "index" %}">
+            {{ user }}
+          </a>
+          <a class="info-responsive" href="javascript:void(0)">
+            Signed in as {{ user.display_name }}
+            {% if user.is_staff %}
+            &nbsp(Staff)
+            {% endif %}
+          </a>
+          <div class="dropdown-menu dropdown-menu-right">
+            {% if user.is_staff %}
+              <a class="dropdown-item" href="{% url "admin:index" %}">Django Admin</a>
+            {% endif %}
+              <a class="dropdown-item" href="{% url "accounts:logout" %}">Logout</a>
+          </div>
+        </div>
+
+      {% else %}
+        <div class="navbar-item" id="menu">
+          <a class="button button-text-only" href="{% url "index" %}">Login</a>
+        </div>
+
+      {% endif %}
+    </div>
+  </div>
+</header>
+{##}
+{##}
+{# <header style="">#}
+{# <nav class="navbar navbar-expand-lg navbar-dark d-none d-lg-block" style="z-index: 2000;">#}
+{#      <div class="container-fluid">#}
+{#        <!-- Navbar brand -->#}
+{#        <a class="navbar-brand nav-link" target="_blank" href="{% url 'index' %} ">#}
+{#            <img src="{% static "img/base/logo.png" %}" alt='' width="40" height="38" class="me-2 d-inline-block align-text-top">#}
+{#            <strong id="header-title">Tabeasy</strong>#}
+{#        </a>#}
+{#        <div class="collapse navbar-collapse" id="navbarExample01">#}
+{#            <ul class="navbar-nav me-auto">#}
 {#				<li class="nav-item active">#}
 {#					<a class="nav-link" aria-current="page" href="#intro">Home</a>#}
 {#				</li>#}
-            </ul>
-
-          <ul class="navbar-nav d-flex flex-row">
-                {% if user.is_authenticated %}
-					<li class="nav-item align-items-center me-2">
-						<a class="nav-link" href="#" target="_blank">
-							{% if user.firstname %}
-								{{ user.firstname }} {{ user.lastname }}
-							{% else %}
-								{{ user.username }}
-							{% endif %}
-						</a>
-					</li>
-
-					<li class="nav-item align-items-center">
-						<a href="{% url 'accounts:logout' %}">
-							<button type="button" class="btn btn-outline-light" data-mdb-ripple-color="dark">Logout</button>
-						</a>
-					</li>
-
-                {% else %}
-					<li class="nav-item">
-						 <a class="nav-link" href="{% url 'accounts:login' %}" target="_blank">Login</a>
-					</li>
-                {% endif %}
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-</header>
+{#            </ul>#}
+{##}
+{#          <ul class="navbar-nav d-flex flex-row">#}
+{#                {% if user.is_authenticated %}#}
+{#					<li class="nav-item align-items-center me-2">#}
+{#						<a class="nav-link" href="#" target="_blank">#}
+{#							{% if user.firstname %}#}
+{#								{{ user.firstname }} {{ user.lastname }}#}
+{#							{% else %}#}
+{#								{{ user.username }}#}
+{#							{% endif %}#}
+{#						</a>#}
+{#					</li>#}
+{##}
+{#					<li class="nav-item align-items-center">#}
+{#						<a href="{% url 'accounts:logout' %}">#}
+{#							<button type="button" class="btn btn-outline-light" data-mdb-ripple-color="dark">Logout</button>#}
+{#						</a>#}
+{#					</li>#}
+{##}
+{#                {% else %}#}
+{#					<li class="nav-item">#}
+{#						 <a class="nav-link" href="{% url 'accounts:login' %}" target="_blank">Login</a>#}
+{#					</li>#}
+{#                {% endif %}#}
+{#            </li>#}
+{#          </ul>#}
+{#        </div>#}
+{#      </div>#}
+{#    </nav>#}
+{##}
+{#</header>#}
 
  <div class="main-content-container" id="page-container">
   {% if messages %}
@@ -89,10 +144,14 @@
 		</div>
 	</div>
 </footer>
-
-
-<!-- MDB -->
-<script type="text/javascript" src="{% static 'js/mdb.min.js' %}"></script>
-
 </body>
+
+{% csrf_token %}
+
+
+<script type="text/javascript" src="{% static 'js/mdb.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/main.js' %}"></script>
+{% block js %}{% endblock js %}
+
+
 </html>

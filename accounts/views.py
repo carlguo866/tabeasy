@@ -11,12 +11,15 @@ def signup(request):
         user_form = SignUpForm(data=request.POST)
         judge_form = JudgeForm(data=request.POST)
         if user_form.is_valid() and judge_form.is_valid():
+
             user = user_form.save()
             setattr(user, f'is_judge', True)
             user.save()
 
             judge = judge_form.save(commit=False)
             judge.user = user
+            for round in judge_form.cleaned_data['availability']:
+                setattr(judge, round, True)
             judge.save()
             login(request, user)
             return redirect('index')

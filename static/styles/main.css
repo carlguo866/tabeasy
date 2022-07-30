@@ -183,7 +183,7 @@ img {
     max-width: 100%;
     padding-left: 30px;
     padding-right: 30px;
-    padding-top: 30px;
+    padding-top: calc(80px + 30px);
     padding-bottom: calc(80px + 30px);
 }
 
@@ -243,17 +243,19 @@ header * {
     margin: 0;
     align-items: center;
     justify-content: space-between;
+    background-color: rgba(94,46,145, 0.7);
 }
 
-#main-navbar > .logo {
-    width: 108.121875px; /* There definitely exists a better way */
-    height: 38px;
-    background-image: url('/static/images/logo-color-full.svg');
-    background-repeat: no-repeat;
-    background-position: left;
-    background-size: contain;
-    cursor: pointer;
-}
+
+/*#main-navbar > .logo {*/
+/*    width: 47px; !* There definitely exists a better way *!*/
+/*    height: 45px;*/
+/*    background-image: url('../img/base/logo.png');*/
+/*    background-repeat: no-repeat;*/
+/*    background-position: left;*/
+/*    background-size: contain;*/
+/*    cursor: pointer;*/
+/*}*/
 
 #main-navbar a {
     text-decoration: none;
@@ -427,6 +429,7 @@ ul{
 
 #header-title{
     color: white;
+    transform: scale(1.2);
 }
 /***********************************
   Footer
@@ -717,7 +720,7 @@ ul{
         width: 32.4383075px;
         min-width: 32.4383075px; /* There definitely exists a better way */
         height: 38px;
-        background-image: url('/static/images/logo-color-mark.svg');
+        background-image: url('/static/img/base/logo.png');
     }
 
     .navbar-item#menu.responsive {

@@ -19,10 +19,27 @@ class TeamForm(forms.ModelForm):
         model = Team
         fields = []
 
+JUDGE_AVAILABILITY_CHOICES = [
+    ('available_round1', 'Round 1'),
+    ('available_round2', 'Round 2'),
+    ('available_round3', 'Round 3'),
+    ('available_round4', 'Round 4'),
+]
 class JudgeForm(forms.ModelForm):
+
+    availability = forms.MultipleChoiceField(
+        choices=JUDGE_AVAILABILITY_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
     class Meta:
         model = Judge
-        fields = ['preside', 'available_round1','available_round2', 'available_round3','available_round4']
+        fields = ['preside']
+
+    def __init__(self, *args, **kwargs):
+        super(JudgeForm, self).__init__(*args, **kwargs)
+        self.fields['availability'].label = "Which round(s) would you like to judge?"
 
 class PairingForm(forms.ModelForm):
     class Meta:
