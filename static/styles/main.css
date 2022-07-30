@@ -107,7 +107,7 @@
 * {
     margin: 0;
     font-family: 'Lato', 'CrimsonText', 'STKaiti', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    color: var(--primary-text);
+    /*color: var(--primary-text);*/
 }
 
 html {
@@ -247,15 +247,15 @@ header * {
 }
 
 
-/*#main-navbar > .logo {*/
-/*    width: 47px; !* There definitely exists a better way *!*/
-/*    height: 45px;*/
-/*    background-image: url('../img/base/logo.png');*/
-/*    background-repeat: no-repeat;*/
-/*    background-position: left;*/
-/*    background-size: contain;*/
-/*    cursor: pointer;*/
-/*}*/
+#main-navbar > .logo {
+    width: 47px; /* There definitely exists a better way */
+    height: 45px;
+    background-image: url('../img/base/logo.png');
+    background-repeat: no-repeat;
+    background-position: left;
+    background-size: contain;
+    cursor: pointer;
+}
 
 #main-navbar a {
     text-decoration: none;
@@ -314,7 +314,6 @@ header * {
     max-width: 700px;
     height: auto;
     margin: 12px auto;
-
     background-color: var(--navbar-color);
     border: 1px solid var(--tertiary-color);
     border-radius: 10px;
@@ -464,9 +463,9 @@ ul{
 
 
 
-/***********************************
-  Buttons
-***********************************/
+/*/************************************/
+/*  Buttons*/
+/************************************/
 
 .button {
     padding: 0.2em 1.2em; /* changed from 0.6em 1.2em */
@@ -609,9 +608,9 @@ ul{
 
 
 
-/***********************************
-  Shorthands
-***********************************/
+/*/************************************/
+/*  Shorthands*/
+/************************************/
 
 .text-highlight {
     color: var(--main-theme-color);
@@ -803,9 +802,9 @@ ul{
     }
 }
 
-/***********************************
-  Animations
-***********************************/
+/*/************************************/
+/*  Animations*/
+/************************************/
 
 @keyframes grow-down {
     0% {

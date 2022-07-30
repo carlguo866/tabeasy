@@ -4,25 +4,57 @@
 
 
 {% block content %}
-	Hiiii
-	The next round is {{ next_round }}<br>
-	{% for p_team, d_team in div1_p_teams|zip:div1_d_teams %}
-		{{ p_team }} Total Ballots: {{ p_team.total_ballots }} Total CS: {{ p_team.total_cs }}
-		Total PD: {{ p_team.total_pd }}
-		||||
-		{{ d_team }} Total Ballots: {{ d_team.total_ballots }} Total CS: {{ d_team.total_cs }}
-		Total PD: {{ d_team.total_pd }}
-		<br>
-	{% endfor %}
+<div class="container-md">
+	<h2>The next round is {{ next_round }}</h2>
 
-	<br><br><br>
-	{% for p_team, d_team in div2_p_teams|zip:div2_d_teams %}
-		{{ p_team }} Total Ballots: {{ p_team.total_ballots }} Total CS: {{ p_team.total_cs }}
-		Total PD: {{ p_team.total_pd }}
-		||||
-		{{ d_team }} Total Ballots: {{ d_team.total_ballots }} Total CS: {{ d_team.total_cs }}
-		Total PD: {{ d_team.total_pd }}
-		<br>
-	{% endfor %}
+	{% for div, div_pairing in divs|zip:teams %}
+	<h3>{{ div }}</h3>
+			<table class="table table-striped table-bordered">
+				<thead class="table-dark">
+					<tr>
+						<th scope="col">{{ div }}</th>
+						<th colspan="4" scope="colgroup">Prosecution</th>
+						<th colspan="4" scope="colgroup">Defense</th>
+					</tr>
+					<tr>
+						<th scope="col">Rank</th>
+						<th>Name</th>
+						<th>Ballots</th>
+						<th>CS</th>
+						<th>PD</th>
+						<th>Name</th>
+						<th>Ballots</th>
+						<th>CS</th>
+						<th>PD</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for p_team, d_team in div_pairing %}
+						<tr>
+							<th scope="row">{{ forloop.counter }}</th>
+							<td>{{ p_team }}</td>
+							<td>{{ p_team.total_ballots }}</td>
+							<td>{{ p_team.total_cs }}</td>
+							<td>{{ p_team.total_pd }}</td>
+							<td>{{ d_team }}</td>
+							<td>{{ d_team.total_ballots }}</td>
+							<td>{{ d_team.total_cs }}</td>
+							<td>{{ d_team.total_pd }}</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			<br><br>
+		{% endfor %}
+</div>
+
+{#	{% for p_team, d_team in div2_p_teams|zip:div2_d_teams %}#}
+{#		{{ p_team }} Total Ballots: {{ p_team.total_ballots }} Total CS: {{ p_team.total_cs }}#}
+{#		Total PD: {{ p_team.total_pd }}#}
+{#		||||#}
+{#		{{ d_team }} Total Ballots: {{ d_team.total_ballots }} Total CS: {{ d_team.total_cs }}#}
+{#		Total PD: {{ d_team.total_pd }}#}
+{#		<br>#}
+{#	{% endfor %}#}
 
 {% endblock content %}

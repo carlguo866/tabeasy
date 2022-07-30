@@ -66,14 +66,14 @@ class RoundForm(forms.ModelForm):
 
     def __init__(self, pairing, *args, **kwargs):
         super(RoundForm, self).__init__(*args, **kwargs)
-        if not self.instance.submit:
-            for field in self.fields:
-                self.fields[field].required = False
         if pairing == None:
             self.fields['p_team'].queryset = Team.objects.all()
             self.fields['d_team'].queryset = Team.objects.all()
             self.fields['presiding_judge'].queryset = Judge.objects.filter(preside__gt=0)
         else:
+            if not pairing.submit:
+                for field in self.fields:
+                    self.fields[field].required = False
             self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)
             self.fields['d_team'].queryset = Team.objects.filter(division=pairing.division)
             available_judges_pk = [judge.pk for judge in Judge.objects.all()

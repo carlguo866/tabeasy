@@ -3,11 +3,45 @@
 {% load mytags %}
 
 {% block content %}
-	{% for att, wit in atts_ranked|zip:atts_ranked %}
-		{{ att }}  {{ att.att_individual_score }}
-		||||
-		{{ wit }}  {{ wit.wit_individual_score }}
-		<br>
-	{% endfor %}
+
+
+	<div class="container-md">
+		<table class="table table-striped table-bordered">
+			<thead class="table-dark">
+				<tr>
+					<th scope="col"></th>
+					<th colspan="4" scope="colgroup">Attorneys</th>
+					<th colspan="4" scope="colgroup">Witnesses</th>
+				</tr>
+				<tr>
+					<th scope="col">#</th>
+					<th>Name</th>
+					<th>Ranks</th>
+					<th>Team</th>
+					<th>Division</th>
+					<th>Name</th>
+					<th>Ranks</th>
+					<th>Team</th>
+					<th>Division</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for att, wit in atts_ranked|zip:atts_ranked %}
+					<tr>
+						<th scope="row">{{ forloop.counter }}</th>
+						<td>{{ att }}</td>
+						<td>{{ att.att_individual_score }}</td>
+						<td>{{ att.team }}</td>
+						<td>{{ att.team.division }}</td>
+						<td>{{ wit }}</td>
+						<td>{{ wit.wit_individual_score }}</td>
+						<td>{{ wit.team }}</td>
+						<td>{{ wit.team.division }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
 
 {% endblock content %}

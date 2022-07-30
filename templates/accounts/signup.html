@@ -9,15 +9,15 @@
 
 
 <div class="signup-container">
+	{% for form in forms %}
+		{% if form.errors %}
+			{% for key, value in form.errors.items %}
+				<div class="alert alert-danger" role="alert">{{ value }}</div>
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
 	<h1>Judge Signup</h1>
 	<form method="post">
-		{% for form in forms %}
-			{% if form.errors %}
-				{% for key, value in form.errors.items %}
-      		<div class="alert alert-danger" role="alert">{{ value }}</div>
-				{% endfor %}
-			{% endif %}
-    {% endfor %}
 		{% csrf_token %}
 		{% include "utils/combined_forms.html" with combined_forms=forms %}
 		<br>

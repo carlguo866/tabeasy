@@ -1,26 +1,43 @@
 {% extends "base.html" %}
+{% load static %}
+{% block css %}
+	<link rel='stylesheet' href='{% static 'styles/ballot.css' %}'>
+{% endblock %}
+
 
 {% block content %}
-	{{ form.errors }}
 	{% if form.errors %}
-		<div class="alert alert-danger" role="alert">{{ form.errors }}</div>
-    {% endif %}
+		{% for key, value in form.errors.items %}
+			{% if value %}
+				<div class="alert alert-danger" role="alert">{{ value }}</div>
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+
 {#	no need to edit above #}
-	<div>Round: {{ object.round.pairing.round_num }}</div>
-	<div>Courtroom: {{ object.round.courtroom }}</div>
-	<div>P Team: {{ object.round.p_team }}</div>
-  	<div>D Team: {{ object.round.d_team }}</div>
-	<div>Judge Name: {{ object.judge }}</div>
+
+<div id="ballot-container">
+	<h3>{{ object.round }} Ballot</h3>
+
+	<div class="d-flex justify-content-center">
+		<h4 class="p-2">Courtroom: {{ object.round.courtroom }}</h4>
+		<h4 class="p-2">Judge Name: {{ object.judge }}</h4>
+		<h4 class="p-2">P Team: {{ object.round.p_team }}</h4>
+		<h4 class="p-2">D Team: {{ object.round.d_team }}</h4>
+	</div>
 	<div>
 	View Captains Meeting Form
 		<a href="{% url 'tourney:captains_meeting' object.round.captains_meeting.pk %}">
-			Here:
+			Here
 		</a>
 	</div>
 
-  	<form method="post">
-		{% csrf_token %}
-		{{ form.as_p }}
-		<input class="button button-primary" type="submit" value="Save">
-  	</form>
+	<form method="post">
+	{% csrf_token %}
+	{{ form.as_p }}
+	<input class="button button-primary" type="submit" value="Save">
+	</form>
+
+
+</div>
 {% endblock content %}

@@ -51,7 +51,10 @@ def individual_awards(request):
 @user_passes_test(lambda u: u.is_staff)
 def next_pairing(request):
     teams = Team.objects.all()
-    next_round = max([pairing.round_num for pairing in Pairing.objects.all()])+1
+    if Pairing.objects.exists():
+        next_round = max([pairing.round_num for pairing in Pairing.objects.all()])+1
+    else:
+        next_round = 1
     if next_round % 2 == 0:
         div1_d_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
                                    if team.next_side(next_round) == 'd'])
@@ -84,10 +87,9 @@ def next_pairing(request):
                 div2_d_teams.append(div2_teams[i])
 
     dict = {'next_round': next_round,
-            'div1_d_teams':div1_d_teams,
-            'div1_p_teams':div1_p_teams,
-            'div2_d_teams':div2_d_teams,
-            'div2_p_teams':div2_p_teams,
+            'divs': ['Disney','Universal'],
+            'teams':[zip(div1_p_teams, div1_d_teams),
+                     zip(div2_p_teams, div2_d_teams)]
             }
     return render(request, 'tourney/pairing/next_pairing.html', dict)
 
