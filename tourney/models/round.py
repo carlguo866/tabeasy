@@ -41,9 +41,6 @@ class Round(models.Model):
                                     related_query_name='scoring_round', null=True)
     extra_judge = models.ForeignKey('Judge', on_delete=models.CASCADE, related_name='extra_rounds',
                                       related_query_name='extra_round', null=True, blank=True)
-
-    submit = models.BooleanField(default=False)
-
     @property
     def judges(self):
         if self.extra_judge != None:
