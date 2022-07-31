@@ -68,9 +68,6 @@ class PairingSubmitForm(forms.ModelForm):
     class Meta:
         model = Pairing
         fields = ['submit']
-        widgets = {
-            'submit': forms.Select(choices=BOOL_CHOICES)
-        }
 
 
 
@@ -79,7 +76,7 @@ class RoundForm(forms.ModelForm):
     class Meta:
         model = Round
         fields = '__all__'
-        exclude = ['pairing','extra_judge','courtroom','submit']
+        exclude = ['pairing','courtroom','extra_judge']
         # widgets = {'courtroom': forms.HiddenInput()}
 
     def __init__(self, pairing, *args, **kwargs):
@@ -180,11 +177,14 @@ class UpdateJudgeFriendForm(forms.ModelForm):
 class BallotForm(forms.ModelForm):
     class Meta:
         model = Ballot
-        labels =  {'p_open': 'P Opening', 'p_open_comment': 'Comment', 'd_open': 'D Opening','d_open_comment': 'Comment'}
+        labels =  {'p_open': 'Prosecution Opening',
+                   'd_open': 'Defense Opening',
+                   'p_close': 'Prosecution Closing',
+                   'd_close': 'Defense Closing',
+                   }
         fields = '__all__'
         exclude = ['round','judge']
         widgets = {
-            'submit': forms.Select(choices=BOOL_CHOICES),
             'p_open': forms.Select(choices=INT_CHOICES),
             'd_open': forms.Select(choices=INT_CHOICES),
             'p_wit1_wit_direct': forms.Select(choices=INT_CHOICES),

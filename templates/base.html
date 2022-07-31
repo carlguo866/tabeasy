@@ -26,7 +26,6 @@
 	<link rel="stylesheet" href="https://use.typekit.net/fiy6cyf.css">
   <link rel="stylesheet" href="{% static "styles/main.css" %}?v=0.1.0">
 	<link rel="stylesheet" type="text/css" href="{% static 'styles/mdb.min.css' %}"/>
-
 	<link rel="shortcut icon" href="{% static "img/base/favicon.ico" %}"/>
 	<title>{% block title %}Tabeasy{% endblock title %}</title>
 	{% block css %}{% endblock css %}
@@ -39,9 +38,9 @@
   <div class="card-container" id="navbar-container">
     <div class="main-content-container" id="main-navbar">
 
-		<a class="navbar-brand nav-link" target="_blank" href="{% url 'index' %} ">
-			<img src="{% static "img/base/logo.png" %}" alt='' width="40" height="38" class="me-2 d-inline-block align-text-top">
-			<div id="header-title">Tabeasy</div>
+		<a class="navbar-brand navbar-link" target="_blank" href="{% url 'index' %}" id="header-title">
+			<img src="{% static "img/base/logo.png" %}" alt='' width="40" height="38" class="ms-4 me-2 d-inline-block align-text-center">
+			Tabeasy
 		</a>
 
 		{% if user.is_authenticated %}

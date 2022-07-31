@@ -428,7 +428,7 @@ ul{
 
 #header-title{
     color: white;
-    transform: scale(1.2);
+    transform: scale(1.1);
 }
 /***********************************
   Footer
@@ -559,6 +559,11 @@ ul{
     border: none;
 }
 
+.btn-secondary{
+    color: white !important;
+    background-color: var(--main-theme-color) !important;
+    border-color: var(--main-theme-color) !important;
+}
 /***********************************
   Input Boxes
 ***********************************/

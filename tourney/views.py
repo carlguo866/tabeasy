@@ -6,9 +6,9 @@ from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView, DetailView
 
 from accounts.models import User
@@ -137,13 +137,14 @@ def edit_pairing(request, pairing_id):
                         formset[i].instance.courtroom = random_choice[i]
                         formset[i].save()
 
-
                 formset.save()
                 return redirect('tourney:pairing_index')
         else:
             formset = RoundFormSet(instance=pairing, form_kwargs={'pairing': pairing})
             submit_form = PairingSubmitForm(instance=pairing)
-        return render(request, 'tourney/pairing/edit.html', {'formset': formset, 'submit_form':submit_form})
+        return render(request, 'tourney/pairing/edit.html', {'formset': formset,
+                                                             'submit_form':submit_form,
+                                                             'pairing': pairing})
     else:
         if request.method == 'POST':
             pairing_form = PairingForm(request.POST, prefix='pairing')
@@ -227,7 +228,7 @@ class BallotUpdateView(JudgeOnlyMixin, UpdateView):
         return True
 
     def get_success_url(self):
-        return reverse_lazy('index')
+        return self.request.path
 
 class CaptainsMeetingUpdateView(PassRequestToFormViewMixin, LoginRequiredMixin, UpdateView):
     model = CaptainsMeeting
