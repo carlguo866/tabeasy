@@ -16,12 +16,3 @@ class User(AbstractUser):
     is_tab = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.username}"
-
-class Tab(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE,
-                                primary_key=True, related_name='tab')
-    available_rounds = models.IntegerField(default=1,validators=[MinValueValidator(1), MaxValueValidator(5)])
-
-
-    def __str__(self):
-        return f"Tab: {self.user.username}"

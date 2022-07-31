@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
-from accounts.models import User, Tab
+from accounts.models import User
 from tabeasy_secrets.secret import JUDGE_VERIFICATION_CODE
 from django.utils.translation import gettext_lazy as _
 
@@ -34,10 +34,4 @@ class SignUpForm(UserCreationForm):
         if cleaned_data.get('verification_code') != JUDGE_VERIFICATION_CODE:
             raise ValidationError(
                         f"Wrong validation code, or ... you are not a judge?")
-
-
-class TabForm(forms.ModelForm):
-    class Meta:
-        model = Tab
-        fields = []
 

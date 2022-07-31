@@ -35,15 +35,17 @@
 								</tbody>
 							</table>
 							{% endif %}
-							<a href="{% url 'tourney:edit_pairing' div_pairing.pk %}">
-								<button type="button" class="button button-primary m-2">Edit {{ div_pairing }} Pairing</button>
-							</a>
 						</div>
 					{% endfor %}
 				</div>
+				<div class="row">
+					<a href="{% url 'tourney:edit_pairing' pairing.0.round_num %}">
+								<button type="button" class="button button-primary m-2">Edit Round {{ pairing.0.round_num }} Pairing</button>
+					</a>
+				</div>
 			{% endfor %}
 
-	<a href="{% url 'tourney:edit_pairing' 999 %}">
+	<a href="{% url 'tourney:edit_pairing' next_round %}">
 		<button type="button" class="button button-primary">Add</button>
 	</a>
 

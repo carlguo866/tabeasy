@@ -7,7 +7,7 @@ urlpatterns = [
          views.CaptainsMeetingUpdateView.as_view(),
          name='captains_meeting'),
     path('tab/pairing', views.pairing_index, name='pairing_index'),
-    path('tab/pairing/<int:pairing_id>', views.edit_pairing, name='edit_pairing'),
+    path('tab/pairing/<int:round_num>', views.edit_pairing, name='edit_pairing'),
     path('tab/next_pairing', views.next_pairing, name='next_pairing'),
     path('tab/results', views.results, name='results'),
     path('tab/individual_awards', views.individual_awards, name='individual_awards'),

@@ -5,82 +5,77 @@
 
 
 {% block content %}
-	<div class="container-md center">
-		{% if formset %}
-			<h3>Edit {{ pairing }} Pairing</h3>
-			{% if formset.errors %}
-				{% for formerror in formset.errors %}
-					{% if formerror %}
-						{% for key, value in formerror.items %}
+	<div class="container-fluid center">
+			<h3>Edit Round {{ pairing.round_num }} Pairing</h3>
+			{% for formset in formsets %}
+				{% if formset.errors %}
+					{% for formerror in formset.errors %}
+						{% if formerror %}
+							{% for key, value in formerror.items %}
+								<div class="alert alert-danger" role="alert">{{ value }}</div>
+							{% endfor %}
+						{% endif %}
+					{% endfor %}
+				{% endif %}
+				{% if formset.non_form_errors %}
+					{% for key, value in formset.non_form_errors.items %}
+						{% if value %}
 							<div class="alert alert-danger" role="alert">{{ value }}</div>
-						{% endfor %}
-					{% endif %}
-				{% endfor %}
-			{% endif %}
-			{% if formset.non_form_errors %}
-				{% for key, value in formset.non_form_errors.items %}
-					{% if value %}
-						<div class="alert alert-danger" role="alert">{{ value }}</div>
-					{% endif %}
-				{% endfor %}
-			{% endif %}
+						{% endif %}
+					{% endfor %}
+				{% endif %}
+			{% endfor %}
+	
 			<form method="post">
 				{% csrf_token %}
-				{{ formset.management_form }}
+				<div class="row gx-2 pb-2">
+					{% for formset in formsets %}
+						<div class="col-md-6">
+							<h4>{{ formset.instance }}</h4>
+							{{ formset.management_form }}
+							<table class="table table-striped table-bordered">
+								<thead class="table-light">
+									<tr>
+										<th scope="col">Prosecution Team</th>
+										<th scope="col">Defense Team</th>
+										<th scope="col">Presiding Judge</th>
+										<th scope="col">Scoring Judge</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for form in formset %}
+										<tr>
+											<td>{% render_field form.p_team class="form-select" name="p_team" %}</td>
+											<td>{% render_field form.d_team class="form-select" name="d_team" %}</td>
+											<td>{% render_field form.presiding_judge class="form-select" name="presiding_judge" %}</td>
+											<td>{% render_field form.scoring_judge class="form-select" name="scoring_judge" %}</td>
+										</tr>
+										{% for hidden in form.hidden_fields %}
+												{{ hidden }}
+										{% endfor %}
+									{% endfor %}
+								</tbody>
+							</table>
 
-				<table class="table table-striped table-bordered">
-					<thead class="table-light">
-						<tr>
-							<th scope="col">Prosecution Team</th>
-							<th scope="col">Defense Team</th>
-							<th scope="col">Presiding Judge</th>
-							<th scope="col">Scoring Judge</th>
-							<th scope="col">Extra Judge</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for form in formset %}
-							<tr>
-								<td>{% render_field form.p_team class="form-select" name="p_team" %}</td>
-								<td>{% render_field form.d_team class="form-select" name="d_team" %}</td>
-								<td>{% render_field form.presiding_judge class="form-select" name="presiding_judge" %}</td>
-								<td>{% render_field form.scoring_judge class="form-select" name="scoring_judge" %}</td>
-							</tr>
-							{% for hidden in form.hidden_fields %}
-									{{ hidden }}
-							{% endfor %}
-						{% endfor %}
-					</tbody>
-				</table>
+						</div>
+					{% endfor %}
+				</div>
+
 
 				<input class="button btn-secondary" type="submit" value="Save"
 						style="position:fixed; top: 100px; right: 20px">
 				<div class="form-check" style="position:fixed; top: 150px; right: 20px">
-					<span class="form-check-label" style="padding-bottom: 20px"> Submit </span>
-					{% render_field submit_form.submit class='form-check-input' name="submit" %}
+					<span class="form-check-label" style="padding-bottom: 20px"> Submit Disney</span>
+					{% render_field div1_submit_form.submit class='form-check-input' name="submit" %}
+				</div>
+				<div class="form-check" style="position:fixed; top: 180px; right: 20px">
+					<span class="form-check-label" style="padding-bottom: 20px"> Submit Universal</span>
+					{% render_field div2_submit_form.submit class='form-check-input' name="submit" %}
 				</div>
 			</form>
-{#			<form method="post" enctype="multipart/form-data">#}
-{#			<!-- Notice how the formset (below) and thus its submit button#}
-{#					 is INSIDE the form (above) -->#}
-{#				{% csrf_token %}#}
-{#				{{ formset.management_form }}#}
-{#				{% for form in formset.forms %}#}
-{#					{{ form.as_p }}#}
-{#				{% endfor %}#}
-{#				<input class="button btn-secondary" type="submit" value="Save"#}
-{#						style="position:fixed; top: 100px; right: 20px">#}
-{#			</form>#}
 
 
-
-		{% else %}
-			<form method="post">
-				{% csrf_token %}
-				{{ pairing_form.as_p }}
-				<input class="button button-primary" type="submit" value="Save">
-			</form>
-		{% endif %}
+	
 
 	</div>
 
