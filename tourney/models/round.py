@@ -16,7 +16,8 @@ class Pairing(models.Model):
         choices=division_choices
     )
     round_num = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    submit = models.BooleanField(default=False)
+    team_submit = models.BooleanField(default=False)
+    final_submit = models.BooleanField(default=False)
 
     def get_rounds(self):
         return self.rounds.order_by('courtroom')
@@ -59,7 +60,8 @@ class Round(models.Model):
     def clean(self):
         super().clean()
         errors = []
-        if self.pairing.submit:
+
+        if self.pairing.team_submit or self.pairing.final_submit:
             if self.p_team == self.d_team:
                 errors.append('one team cant compete against itself')
             if self.p_team.next_side(self.pairing.round_num) == 'd':
@@ -72,9 +74,10 @@ class Round(models.Model):
             for round in self.p_team.d_rounds.all():
                 if round != self and round.p_team == self.d_team:
                     errors.append(f"{self.p_team} and {self.d_team} played each other before")
+
+        if self.pairing.final_submit:
             if self.presiding_judge == self.scoring_judge:
                 errors.append('assigning one judge for two roles')
-
             if self.presiding_judge.preside == 0:
                 errors.append(f'{self.presiding_judge} can\'t preside')
 
@@ -119,9 +122,9 @@ class Round(models.Model):
         super(Round, self).save()
         if is_new:
             CaptainsMeeting.objects.create(round=self)
-        if self.pairing.submit:
+        if self.pairing.final_submit:
             if Ballot.objects.filter(round=self).exists():
-                Ballot.objects.filter(round=self).delete()
+                Ballot.objects.filter(round=self).delete() #there is definitely a better way to do this
             Ballot.objects.create(round=self, judge=self.presiding_judge)
             Ballot.objects.create(round=self, judge=self.scoring_judge)
             if self.extra_judge != None:

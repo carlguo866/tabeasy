@@ -59,15 +59,15 @@ class JudgeForm(forms.ModelForm):
 
 
 
-class PairingForm(forms.ModelForm):
-    class Meta:
-        model = Pairing
-        fields = ('round_num', 'division','submit')
+# class PairingForm(forms.ModelForm):
+#     class Meta:
+#         model = Pairing
+#         fields = ('round_num', 'division','submit')
 
 class PairingSubmitForm(forms.ModelForm):
     class Meta:
         model = Pairing
-        fields = ['submit']
+        fields = ['team_submit', 'final_submit']
 
 
 
@@ -86,7 +86,7 @@ class RoundForm(forms.ModelForm):
             self.fields['d_team'].queryset = Team.objects.all()
             self.fields['presiding_judge'].queryset = Judge.objects.filter(preside__gt=0)
         else:
-            if not pairing.submit:
+            if not pairing.team_submit and not pairing.final_submit:
                 for field in self.fields:
                     self.fields[field].required = False
             self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)
@@ -94,9 +94,8 @@ class RoundForm(forms.ModelForm):
             available_judges_pk = [judge.pk for judge in Judge.objects.all()
                                    if judge.get_availability(pairing.round_num)]
             self.fields['presiding_judge'].queryset = \
-                Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0)
-            self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk)
-            self.instance.submit = pairing.submit
+                Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0).order_by('user__username')
+            self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk).order_by('user__username')
 
     def save(self, commit=True):
         would_save = False
@@ -116,22 +115,29 @@ class PairingFormSet(BaseInlineFormSet):
         existing_judges = []
         existing_teams = []
         errors = []
-        if self.instance.submit:
+        if self.instance.team_submit or self.instance.final_submit:
             for form in self.forms:
                 if self.can_delete and self._should_delete_form(form):
                     continue
                 if form.cleaned_data == {}:
                     continue
-                form_judges = [form.cleaned_data.get('presiding_judge'),form.cleaned_data.get('scoring_judge')]
-                for judge in form_judges:
-                    if judge in existing_judges:
-                        errors.append(f'{judge} used twice!')
-                    existing_judges.append(judge)
                 teams = [form.cleaned_data.get('p_team'),form.cleaned_data.get('d_team')]
                 for team in teams:
                     if team in existing_teams:
                         errors.append(f'{team} used twice!')
                     existing_teams.append(team)
+
+        if self.instance.final_submit:
+            for form in self.forms:
+                if self.can_delete and self._should_delete_form(form):
+                    continue
+                if form.cleaned_data == {}:
+                    continue
+                form_judges = [form.cleaned_data.get('presiding_judge'), form.cleaned_data.get('scoring_judge')]
+                for judge in form_judges:
+                    if judge in existing_judges:
+                        errors.append(f'{judge} used twice!')
+                    existing_judges.append(judge)
 
         if errors != []:
             raise ValidationError(errors)

@@ -60,22 +60,39 @@
 						</div>
 					{% endfor %}
 				</div>
-
+				<div class="row">
+					<div class="col-md-3 form-check">
+							<span class="form-check-label" style="padding-bottom: 20px"> Submit Disney Team</span>
+							{% render_field div1_submit_form.team_submit class='form-check-input' name="submit" %}
+					</div>
+					<div class="col-md-3 form-check">
+						<span class="form-check-label" style="padding-bottom: 20px"> Submit Universal Team</span>
+						{% render_field div2_submit_form.team_submit class='form-check-input' name="submit" %}
+					</div>
+					<div class="col-md-3 form-check">
+						<span class="form-check-label" style="padding-bottom: 20px"> Submit Disney Final</span>
+						{% render_field div1_submit_form.final_submit class='form-check-input' name="submit" %}
+					</div>
+					<div class="col-md-3 form-check">
+						<span class="form-check-label" style="padding-bottom: 20px"> Submit Universal Final</span>
+						{% render_field div2_submit_form.final_submit class='form-check-input' name="submit" %}
+					</div>
+				</div>
 
 				<input class="button btn-secondary" type="submit" value="Save"
 						style="position:fixed; top: 100px; right: 20px">
-				<div class="form-check" style="position:fixed; top: 150px; right: 20px">
-					<span class="form-check-label" style="padding-bottom: 20px"> Submit Disney</span>
-					{% render_field div1_submit_form.submit class='form-check-input' name="submit" %}
-				</div>
-				<div class="form-check" style="position:fixed; top: 180px; right: 20px">
-					<span class="form-check-label" style="padding-bottom: 20px"> Submit Universal</span>
-					{% render_field div2_submit_form.submit class='form-check-input' name="submit" %}
-				</div>
+
 			</form>
-
-
-	
+	<br>
+	{% for judge in judges.all %}
+		{% if judge.judge_friends.all %}
+			{{ judge }}:
+			{% for friend in judge.judge_friends.all %}
+			{{ friend }},
+			{% endfor %}
+			<br>
+		{% endif %}
+	{% endfor %}
 
 	</div>
 

@@ -14,7 +14,7 @@ from django.views.generic import CreateView, UpdateView, DetailView
 from accounts.models import User
 from tabeasy.utils.mixins import JudgeOnlyMixin, TeamOnlyMixin, AuthorizedJudgeOnlyMixin, PassRequestToFormViewMixin
 from tabeasy_secrets.secret import DIVISION_ROUND_NUM, IS_DEV
-from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, PairingForm, \
+from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, \
     CaptainsMeetingForm, PairingSubmitForm, JudgeForm
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
@@ -178,10 +178,13 @@ def edit_pairing(request, round_num):
         div2_formset = RoundFormSet(instance=div2_pairing,prefix='div2', form_kwargs={'pairing': div2_pairing})
         div1_submit_form = PairingSubmitForm(instance=div1_pairing, prefix='div1')
         div2_submit_form = PairingSubmitForm(instance=div2_pairing, prefix='div2')
+    available_judges_pk = [judge.pk for judge in Judge.objects.all()
+                           if judge.get_availability(div1_pairing.round_num)]
     return render(request, 'tourney/pairing/edit.html', {'formsets': [div1_formset, div2_formset],
                                                          'div1_submit_form': div1_submit_form,
                                                          'div2_submit_form': div2_submit_form,
-                                                         'pairing': div1_pairing})
+                                                         'pairing': div1_pairing,
+                                                         'judges': Judge.objects.filter(pk__in=available_judges_pk)})
 
 
 
