@@ -119,7 +119,7 @@ class Round(models.Model):
         super(Round, self).save()
         if is_new:
             CaptainsMeeting.objects.create(round=self)
-        if self.submit:
+        if self.pairing.submit:
             if Ballot.objects.filter(round=self).exists():
                 Ballot.objects.filter(round=self).delete()
             Ballot.objects.create(round=self, judge=self.presiding_judge)

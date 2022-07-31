@@ -1,36 +1,105 @@
 {% load static %}
 {% load mytags %}
-<h1>Welcome, {{ request.user }}!</h1>
+<div class="container-md">
+	<h2>Welcome, {{ request.user }}!</h2>
 
-<br>
-<a href="{% url 'tourney:update_conflict' %}">
-	<button type="button" class="btn btn-secondary">Update Conflict</button>
-</a>
+	<div class="card my-5">
+		<h4 class="card-header">Profile</h4>
+		<div class="card-body">
+			<div class="card-group my-3">
+				<div class="card border gx-2">
+					<div class="card-header">
+						Conflicted Teams
+					</div>
+					<div class="card-body text-start">
+						<a class="button button-primary py-2 mb-4" href="{% url 'tourney:update_conflict' %}">
+							Update Conflict
+						</a>
+						<ul class="list-group mt-3">
+							{% for team in request.user.judge.conflicts.all %}
+								<li class="list-group-item">{{ team }}</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+				<div class="card border gx-2">
+					<div class="card-header">
+						Judge Friends
+					</div>
+					<div class="card-body text-start">
+						<a class="button button-primary py-2 my-2" href="{% url 'tourney:judge_friend' %}">
+							Update Judge Friends
+						</a>
+						<ul class="list-group mt-3">
+							{% for friend in request.user.judge.judge_friends.all %}
+								<li class="list-group-item">{{ friend }}</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
 
-<br>Conflicted Teams:<br>
-{% for team in request.user.judge.conflicts.all %}
-{{ team }}<br>
-{% endfor %}
+				<div class="card border gx-2">
+					<div class="card-header">
+						Preference
+					</div>
+					<div class="card-body text-start">
+						<a class='button button-primary py-2' href="{% url 'tourney:edit_preference'%}">
+							Edit Preference
+						</a>
+						<div class="card-text mt-3 mb-2">Can preside? {{ request.user.judge.get_preside_preference }}</div>
+						<div class="card-text my-2">Availability:</div>
+						<ul class="list-group">
+							{% if request.user.judge.available_round1 %}
+							<li class="list-group-item">Round 1</li>
+							{% endif %}
+							{% if request.user.judge.available_round2 %}
+							<li class="list-group-item">Round 2</li>
+							{% endif %}
+							{% if request.user.judge.available_round3 %}
+							<li class="list-group-item">Round 3</li>
+							{% endif %}
+							{% if request.user.judge.available_round4 %}
+							<li class="list-group-item">Round 4</li>
+							{% endif %}
+							{% if request.user.judge.available_round5 %}
+							<li class="list-group-item">Round 5</li>
+							{% endif %}
+						</ul>
+					</div>
+				</div>
+
+				<div class="card border gx-2">
+					<div class="card-header">
+						Ballots
+					</div>
+					<div class="card-body text-start center">
+
+						{% for ballot in request.user.judge.ballots.all %}
+							<div class="card-text mb-4">
+								<a class="button button-primary py-2" href="{% url 'tourney:submit_ballot' ballot.pk %}">
+									{{ ballot.round }}
+								</a>
+							</div>
+
+						{% endfor %}
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 
-<a href="{% url 'tourney:judge_friend' %}">
-	<button type="button" class="btn btn-secondary">Add/Update Judge Friends</button>
-</a>
+</div>
 
-<br>Judge Friends:<br>
-{% for friend in request.user.judge.judge_friends.all %}
-{{ friend }}<br>
-{% endfor %}
-<br>Can preside?: {{ request.user.judge.get_preside_preference }}<br>
 
-<a class='button button-primary' href="{% url 'tourney:edit_preference'%}">Edit Preference</a>
 
-Ballots:
-{% for ballot in request.user.judge.ballots.all %}
-<a href="{% url 'tourney:submit_ballot' ballot.pk %}">
-{#round#}
-	<button type="button" class="btn btn-secondary">{{ ballot.round }}</button>
-</a>
-{% endfor %}
+
+
+
+
+
+
+
 
 

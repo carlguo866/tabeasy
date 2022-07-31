@@ -1,0 +1,71 @@
+{% load static %}
+<div class="container-md">
+
+	<h2>Welcome, Team {{ user.team.team_name }}!</h2>
+
+
+	<div class="card my-5">
+		<h4 class="card-header">Profile</h4>
+		<div class="card-body">
+			<div class="card-group my-3">
+				<div class="card border gx-2">
+					<div class="card-header">
+						Team Members
+					</div>
+					<div class="card-body text-start">
+						<ul class="list-group">
+							{% for member in user.team.members.all %}
+								<li class="list-group-item">{{ member }}</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+				<div class="card border gx-2">
+					<div class="card-header">
+						Prosecution Rounds
+					</div>
+					<div class="card-body text-start">
+						{% if user.team.p_rounds.exists %}
+							{% for round in  user.team.p_rounds.all %}
+								<div class="card-text mb-4">
+									<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' round.captains_meeting.pk %}">
+										{{ round }}
+									</a>
+								</div>
+							{% endfor %}
+						{% else %}
+							<div class="card-text">You don't have a prosecution round yet. </div>
+						{% endif %}
+					</div>
+				</div>
+
+				<div class="card border gx-2">
+					<div class="card-header">
+						Defense Rounds
+					</div>
+					<div class="card-body text-start">
+						{% if user.team.d_rounds.exists %}
+							{% for round in  user.team.d_rounds.all %}
+								<div class="card-text mb-4">
+									<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' round.captains_meeting.pk %}">
+										{{ round }}
+									</a>
+								</div>
+							{% endfor %}
+						{% else %}
+							<div class="card-text">You don't have a defense round yet. </div>
+						{% endif %}
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+</div>
+

@@ -261,10 +261,6 @@ class CaptainsMeetingForm(forms.ModelForm):
         model = CaptainsMeeting
         fields = '__all__'
         exclude = ['round']
-        widgets = {
-            'submit': forms.Select(choices=BOOL_CHOICES),
-        }
-
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(CaptainsMeetingForm, self).__init__(*args, **kwargs)

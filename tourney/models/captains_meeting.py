@@ -149,14 +149,13 @@ class CaptainsMeeting(models.Model):
         ('ze','Ze/Hir')
     ]
 
-    longstreet_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='J.C. Longstreet Pronoun')
-    kimball_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Francis Kimball Pronoun')
-    bowman_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Whit Bowman Pronoun')
-    hunter_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Jackie Hunter Pronoun')
-    kaminsky_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Charlie Kaminsky Pronoun')
-    isaacs_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Billie Issacs Pronoun')
-    floyd_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Haley Floyd Pronoun')
-    poole_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Cameron Poole Pronoun')
+    longstreet_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='J.C. Longstreet')
+    kimball_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Francis Kimball')
+    bowman_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Whit Bowman')
+    hunter_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Jackie Hunter')
+    kaminsky_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Charlie Kaminsky')
+    isaacs_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Billie Issacs')
+    floyd_pronoun = models.CharField(max_length=30, choices=pronouns, null=True, help_text='Haley Floyd')
 
     demo = models.BooleanField(default=False, help_text='Were all exhibits/demonstratives shown to opposing counsel?')
     submit =  models.BooleanField(default=False, help_text='Submit')
