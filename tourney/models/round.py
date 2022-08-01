@@ -18,6 +18,7 @@ class Pairing(models.Model):
     round_num = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     team_submit = models.BooleanField(default=False)
     final_submit = models.BooleanField(default=False)
+    publish = models.BooleanField(default=False)
 
     def get_rounds(self):
         return self.rounds.order_by('courtroom')
@@ -122,7 +123,7 @@ class Round(models.Model):
         super(Round, self).save()
         if is_new:
             CaptainsMeeting.objects.create(round=self)
-        if self.pairing.final_submit:
+        if self.pairing.final_submit and not self.pairing.publish:
             if Ballot.objects.filter(round=self).exists():
                 Ballot.objects.filter(round=self).delete() #there is definitely a better way to do this
             Ballot.objects.create(round=self, judge=self.presiding_judge)

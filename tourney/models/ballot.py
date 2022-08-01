@@ -114,7 +114,7 @@ class Ballot(models.Model):
 
 
     def __str__(self):
-        return f"{self.round} {self.judge.user} Ballot"
+        return f"Round {self.round.pairing.round_num} {self.judge}"
 
     def calculate_win(self):
         if self.submit:

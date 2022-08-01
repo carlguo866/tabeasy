@@ -59,15 +59,10 @@ class JudgeForm(forms.ModelForm):
 
 
 
-# class PairingForm(forms.ModelForm):
-#     class Meta:
-#         model = Pairing
-#         fields = ('round_num', 'division','submit')
-
 class PairingSubmitForm(forms.ModelForm):
     class Meta:
         model = Pairing
-        fields = ['team_submit', 'final_submit']
+        fields = ['team_submit', 'final_submit', 'publish']
 
 
 
@@ -223,10 +218,14 @@ class BallotForm(forms.ModelForm):
 
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
         super(BallotForm, self).__init__(*args, **kwargs)
         if not self.instance.submit:
             for field in self.fields:
                 self.fields[field].required = False
+        if self.request.user.is_team:
+            for field in self.fields:
+                self.fields[field].widget.attrs['readonly'] = True
 
         if self.instance.round.captains_meeting.submit == True:
             att_list = TeamMember.objects.filter(pk__in=[att.pk for att in self.instance.round.captains_meeting.atts])

@@ -54,14 +54,23 @@
 					{% if user.is_staff %}
 						<li><a class="dropdown-item" href="{% url "admin:index" %}">Django Admin</a></li>
 					{% endif %}
+						<li><a class="dropdown-item" href="{% url "index" %}">Profile</a></li>
 						<li><a class="dropdown-item" href="{% url "accounts:logout" %}">Logout</a></li>
 				</ul>
 			</div>
 
 		{% else %}
-        <div class="navbar-item" id="menu">
-          <a class="button button-text-only" href="{% url "index" %}">Login</a>
-        </div>
+			<div class="navbar-item dropdown" id="menu">
+				<a class="button button-text-only dropdown-toggle" href="{% url "index" %}" role="button"
+					 id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+					Account
+				</a>
+
+				<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+						<li><a class="dropdown-item" href="{% url "index" %}">Login</a></li>
+						<li><a class="dropdown-item" href="{% url "accounts:signup" %}">Judge Signup</a></li>
+				</ul>
+			</div>
 
 		{% endif %}
     </div>

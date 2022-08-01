@@ -724,23 +724,17 @@
 			</div>
 		</div>
 
-
-
+	{% if request.user.is_judge %}
 		<input class="button btn-secondary" type="submit" value="Save"
 					style="position:fixed; top: 100px; right: 20px">
 		<div class="form-check" style="position:fixed; top: 150px; right: 20px">
 			<span class="form-check-label" style="padding-bottom: 20px"> Submit </span>
 			{% render_field form.submit class='form-check-input' name="submit" %}
 		</div>
+	{% endif %}
 	</form>
-
-
-
-{#	no need to edit above #}
-
-<div id="ballot-container">
-
-
-
 </div>
+
+
+
 {% endblock content %}

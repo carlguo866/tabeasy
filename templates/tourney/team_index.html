@@ -22,11 +22,11 @@
 				</div>
 				<div class="card border gx-2">
 					<div class="card-header">
-						Prosecution Rounds
+						Captain Meeting Forms
 					</div>
 					<div class="card-body text-start">
-						{% if user.team.p_rounds.exists %}
-							{% for round in  user.team.p_rounds.all %}
+						{% if user.team.rounds %}
+							{% for round in  user.team.rounds %}
 								<div class="card-text mb-4">
 									<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' round.captains_meeting.pk %}">
 										{{ round }}
@@ -34,27 +34,38 @@
 								</div>
 							{% endfor %}
 						{% else %}
-							<div class="card-text">You don't have a prosecution round yet. </div>
+							<div class="card-text">You are not assigned to a round yet. </div>
 						{% endif %}
 					</div>
 				</div>
 
 				<div class="card border gx-2">
 					<div class="card-header">
-						Defense Rounds
+						Ballots
 					</div>
 					<div class="card-body text-start">
-						{% if user.team.d_rounds.exists %}
-							{% for round in  user.team.d_rounds.all %}
+						{% if user.team.published_ballots %}
+							{% for ballot in user.team.published_ballots %}
 								<div class="card-text mb-4">
-									<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' round.captains_meeting.pk %}">
-										{{ round }}
+									<a class="button button-primary py-2" href="{% url 'tourney:submit_ballot' ballot.pk %}">
+										{{ ballot }}
 									</a>
 								</div>
 							{% endfor %}
 						{% else %}
-							<div class="card-text">You don't have a defense round yet. </div>
+							<div class="card-text mb-4">No ballots have been published yet</div>
 						{% endif %}
+{#						{% for round in user.team.rounds.all %}#}
+{#							{% if round.pairing.publish %}#}
+{#								{% for ballot in round.ballots.all %}#}
+{#									<div class="card-text mb-4">#}
+{#										<a class="button button-primary py-2" href="{% url 'tourney:submit_ballot' ballot.pk %}">#}
+{#											{{ ballot }}#}
+{#										</a>#}
+{#									</div>#}
+{#								{% endfor %}#}
+{#							{% endif %}#}
+{#						{% endfor %}#}
 					</div>
 				</div>
 

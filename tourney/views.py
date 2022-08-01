@@ -241,7 +241,7 @@ class JudgePreferenceUpdateView(JudgeOnlyMixin, UpdateView):
     success_url = reverse_lazy('index')
 
 
-class BallotUpdateView(JudgeOnlyMixin, UpdateView):
+class BallotUpdateView(PassRequestToFormViewMixin, LoginRequiredMixin, UpdateView):
     model = Ballot
     template_name = "tourney/ballot.html"
     form_class = BallotForm
@@ -251,7 +251,8 @@ class BallotUpdateView(JudgeOnlyMixin, UpdateView):
         if not super().test_func():
             return False
         self.ballot = get_object_or_404(Ballot, pk=self.kwargs['pk'])
-        if self.ballot.judge != self.request.user.judge:
+        if self.ballot.judge != self.request.user.judge \
+                and self.request.user.team not in self.captains_meeting.round.teams:
             return False
         return True
 

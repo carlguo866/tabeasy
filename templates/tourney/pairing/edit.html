@@ -60,22 +60,30 @@
 						</div>
 					{% endfor %}
 				</div>
-				<div class="row">
-					<div class="col-md-3 form-check">
+				<div class="d-flex justify-content-center">
+					<div class="form-check mx-3">
 							<span class="form-check-label" style="padding-bottom: 20px"> Submit Disney Team</span>
 							{% render_field div1_submit_form.team_submit class='form-check-input' name="submit" %}
 					</div>
-					<div class="col-md-3 form-check">
-						<span class="form-check-label" style="padding-bottom: 20px"> Submit Universal Team</span>
-						{% render_field div2_submit_form.team_submit class='form-check-input' name="submit" %}
-					</div>
-					<div class="col-md-3 form-check">
+					<div class="form-check mx-3">
 						<span class="form-check-label" style="padding-bottom: 20px"> Submit Disney Final</span>
 						{% render_field div1_submit_form.final_submit class='form-check-input' name="submit" %}
 					</div>
-					<div class="col-md-3 form-check">
+					<div class="form-check mx-3">
+						<span class="form-check-label" style="padding-bottom: 20px"> Publish Disney</span>
+						{% render_field div1_submit_form.publish class='form-check-input' name="submit" %}
+					</div>
+					<div class="form-check mx-3">
+						<span class="form-check-label" style="padding-bottom: 20px"> Submit Universal Team</span>
+						{% render_field div2_submit_form.team_submit class='form-check-input' name="submit" %}
+					</div>
+					<div class="form-check mx-3">
 						<span class="form-check-label" style="padding-bottom: 20px"> Submit Universal Final</span>
 						{% render_field div2_submit_form.final_submit class='form-check-input' name="submit" %}
+					</div>
+					<div class="form-check mx-3">
+						<span class="form-check-label" style="padding-bottom: 20px"> Publish Universal</span>
+						{% render_field div2_submit_form.publish class='form-check-input' name="submit" %}
 					</div>
 				</div>
 

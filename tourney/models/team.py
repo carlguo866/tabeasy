@@ -37,8 +37,23 @@ class Team(models.Model):
         return f"{self.team_name}"
 
     def rounds(self):
-        return self.p_rounds.all()+ self.d_rounds.all()
+        if self.p_rounds.exists() and self.d_rounds.exists():
+            queryset = self.p_rounds.all().union(self.d_rounds.all()).all()
+            return sorted([round for round in queryset], key=lambda x: x.pairing.round_num)
+        elif self.p_rounds.exists():
+            return self.p_rounds.order_by('pairing__round_num').all()
+        elif self.d_rounds.exists():
+            return self.d_rounds.order_by('pairing__round_num').all()
+        else:
+            return None
 
+    def published_ballots(self):
+        ballots = []
+        for round in self.rounds():
+            if round.pairing.publish:
+                for ballot in round.ballots.all():
+                    ballots.append(ballot)
+        return ballots
 
     def p_ballot(self):
         if self.p_rounds.count() > 0:
