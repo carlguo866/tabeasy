@@ -17,6 +17,7 @@ from django.conf.urls import url
 from django.views.generic.base import RedirectView
 from django.contrib import admin
 from django.urls import include, path
+from ajax_select import urls as ajax_select_urls
 
 from tourney import views
 
@@ -26,5 +27,6 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('', include('tourney.urls')),
     path('load_teams', views.load_teams),
+    url(r'^ajax_select/', include(ajax_select_urls)),
 ]
  

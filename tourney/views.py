@@ -1,6 +1,7 @@
 import random
 import string
 import openpyxl
+from ajax_select.fields import autoselect_fields_check_can_add
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -115,6 +116,7 @@ def edit_pairing(request, round_num):
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
                                              max_num=8, validate_max=True,
                                              min_num=8, validate_min=True)
+    autoselect_fields_check_can_add(RoundForm, Round, request.user)
     if not Pairing.objects.filter(round_num=round_num).exists():
         div1_pairing = Pairing.objects.create(round_num=round_num, division='Disney')
         div2_pairing = Pairing.objects.create(round_num=round_num, division='Universal')
@@ -127,6 +129,7 @@ def edit_pairing(request, round_num):
                                     form_kwargs={'pairing': div1_pairing})
         div2_formset = RoundFormSet(request.POST, request.FILES, prefix='div2', instance=div2_pairing,
                                     form_kwargs={'pairing': div2_pairing})
+
         div1_submit_form = PairingSubmitForm(request.POST, prefix='div1', instance=div1_pairing)
         div2_submit_form = PairingSubmitForm(request.POST, prefix='div2', instance=div2_pairing)
         if div1_submit_form.is_valid():

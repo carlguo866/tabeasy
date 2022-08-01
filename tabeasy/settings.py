@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_better_admin_arrayfield',
     'widget_tweaks',
+    'ajax_select',
     'accounts',
     'tourney',
 ]

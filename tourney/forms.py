@@ -11,6 +11,7 @@ from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
 from tourney.models.round import Pairing, Round, CaptainsMeeting
 from tourney.models.team import Team, TeamMember
+import ajax_select.fields as ajax_select_fields
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 INT_CHOICES = [(i,i) for i in range(11)]
@@ -76,6 +77,8 @@ class RoundForm(forms.ModelForm):
         #     'p_team': SearchableSelect(model='Round', search_field='p_team', limit=10),
         #     'd_team': SearchableSelect(model='Round', search_field='d_team', limit=10)
         # }
+    # p_team = ajax_select_fields.AutoCompleteSelectField('p_team')
+
 
     def __init__(self, pairing, *args, **kwargs):
         super(RoundForm, self).__init__(*args, **kwargs)
@@ -84,7 +87,7 @@ class RoundForm(forms.ModelForm):
             self.fields['d_team'].queryset = Team.objects.all()
             self.fields['presiding_judge'].queryset = Judge.objects.filter(preside__gt=0)
         else:
-            if not pairing.team_submit and not pairing.final_submit:
+            if not pairing.final_submit:
                 for field in self.fields:
                     self.fields[field].required = False
             self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)

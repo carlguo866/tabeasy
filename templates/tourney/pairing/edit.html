@@ -45,15 +45,13 @@
 								<tbody>
 									{% for form in formset %}
 										<tr>
+										{{ form.media }}
 {#											<td>{{ form.p_team }}</td>#}
-{#											<td>{{ form.d_team }}
+{#											<td>{{ form.d_team }}</td>#}
 											<td>{% render_field form.p_team class="form-select" name="p_team" %}</td>
-											{#
 											<td>{% render_field form.d_team class="form-select" name="d_team" %}</td>
-											{#
 											<td>{% render_field form.presiding_judge class="form-select" name="presiding_judge" %}</td>
-											{#		</td>#}
-																				<td>{% render_field form.scoring_judge class="form-select" name="scoring_judge" %}</td>
+											<td>{% render_field form.scoring_judge class="form-select" name="scoring_judge" %}</td>
 										</tr>
 										{% for hidden in form.hidden_fields %}
 												{{ hidden }}
