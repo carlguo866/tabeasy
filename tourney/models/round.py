@@ -124,11 +124,16 @@ class Round(models.Model):
         if is_new:
             CaptainsMeeting.objects.create(round=self)
         if self.pairing.final_submit and not self.pairing.publish:
-            if Ballot.objects.filter(round=self).exists():
-                Ballot.objects.filter(round=self).delete() #there is definitely a better way to do this
-            Ballot.objects.create(round=self, judge=self.presiding_judge)
-            Ballot.objects.create(round=self, judge=self.scoring_judge)
-            if self.extra_judge != None:
-                Ballot.objects.create(round=self, judge=self.extra_judge)
+            if not Ballot.objects.filter(round=self).exists():
+                for judge in self.judges:
+                    Ballot.objects.create(round=self, judge=judge)
+            else:
+                for judge in self.judges:
+                    if not Ballot.objects.filter(round=self, judge=judge).exists():
+                        Ballot.objects.create(round=self, judge=judge)
+                for ballot in Ballot.objects.filter(round=self).all():
+                    if ballot.judge not in self.judges:
+                        Ballot.objects.filter(round=self, judge=ballot.judge).delete()
+
 
 
