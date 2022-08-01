@@ -16,13 +16,18 @@
 
 {% block content%}
 	{% if user.is_authenticated %}
+		<h2>Welcome, {{ user }}!</h2>
 		{% if user.is_staff %}
-			{% include 'tourney/tab_index.html' %}
-		{% elif user.is_team%}
+			{% include 'tourney/tab/tab_index.html' %}
+		{% endif %}
+
+		{% if user.is_team%}
 			{% include 'tourney/team_index.html' %}
 		{% elif user.is_judge %}
 			{% include 'tourney/judge_index.html' %}
 		{% endif %}
+
+
 
 	{% else %}
 	<!-- Background image -->
@@ -44,7 +49,6 @@
 					<input name="password" type="password" id="form1Example2" class="form-control" />
 					<label class="form-label" for="form1Example2">Password</label>
 				</div>
-
 
 				<!-- Submit button -->
 				<button type="submit" class="btn btn-primary btn-block">Sign in</button>

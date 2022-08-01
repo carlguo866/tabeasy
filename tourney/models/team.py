@@ -3,12 +3,10 @@ import functools
 from django.db import models
 from django_better_admin_arrayfield.models.fields  import ArrayField
 
-from accounts.models import User
-
 # @functools.total_ordering
 class Team(models.Model):
     team_id = models.IntegerField(primary_key=True, help_text="enter integer only")
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='team', null=True,blank=True)
+    user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='team', null=True,blank=True)
 
     team_name = models.CharField(
         max_length=100,
@@ -34,7 +32,7 @@ class Team(models.Model):
         blank=True
     )
     def __str__(self):
-        return f"{self.team_name}"
+        return self.user.__str__()
 
     def rounds(self):
         if self.p_rounds.exists() and self.d_rounds.exists():
@@ -49,10 +47,11 @@ class Team(models.Model):
 
     def published_ballots(self):
         ballots = []
-        for round in self.rounds():
-            if round.pairing.publish:
-                for ballot in round.ballots.all():
-                    ballots.append(ballot)
+        if self.rounds() != None:
+            for round in self.rounds():
+                if round.pairing.publish:
+                    for ballot in round.ballots.all():
+                        ballots.append(ballot)
         return ballots
 
     def p_ballot(self):

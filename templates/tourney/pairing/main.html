@@ -35,12 +35,41 @@
 								</tbody>
 							</table>
 							{% endif %}
+						<div class="d-flex justify-content-center">
+							<div class="div mx-2">
+								All teams finalized?
+								{% if div_pairing.team_submit %}
+									<i class="fa-solid fa-check mx-1"></i>
+								{% else %}
+									<i class="fa-solid fa-xmark  mx-1"></i>
+								{% endif %}
+							</div>
+							<div class="div mx-2">
+								All judges finalized?
+								{% if div_pairing.final_submit %}
+									<i class="fa-solid fa-check mx-1"></i>
+								{% else %}
+									<i class="fa-solid fa-xmark mx-1"></i>
+								{% endif %}
+							</div>
+							<div class="div mx-2">
+								Published?
+								{% if div_pairing.publish %}
+									<i class="fa-solid fa-check mx-1"></i>
+								{% else %}
+									<i class="fa-solid fa-xmark mx-1"></i>
+								{% endif %}
+							</div>
+						</div>
 						</div>
 					{% endfor %}
 				</div>
-				<div class="row">
+				<div class="d-flex justify-content-center">
 					<a href="{% url 'tourney:edit_pairing' pairing.0.round_num %}">
-								<button type="button" class="button button-primary m-2">Edit Round {{ pairing.0.round_num }} Pairing</button>
+						<button type="button" class="button button-primary m-2">Edit Round {{ pairing.0.round_num }} Pairing</button>
+					</a>
+					<a href="{% url 'tourney:delete_pairing' pairing.0.round_num %}">
+						<button type="button" class="button button-primary m-2">Delete Round {{ pairing.0.round_num }} Pairing</button>
 					</a>
 				</div>
 			{% endfor %}
@@ -55,6 +84,5 @@
 
 
 	</div>
-
 
 {% endblock content %}

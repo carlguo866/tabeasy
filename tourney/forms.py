@@ -72,7 +72,10 @@ class RoundForm(forms.ModelForm):
         model = Round
         fields = '__all__'
         exclude = ['pairing','courtroom','extra_judge']
-        # widgets = {'courtroom': forms.HiddenInput()}
+        # widgets = {
+        #     'p_team': SearchableSelect(model='Round', search_field='p_team', limit=10),
+        #     'd_team': SearchableSelect(model='Round', search_field='d_team', limit=10)
+        # }
 
     def __init__(self, pairing, *args, **kwargs):
         super(RoundForm, self).__init__(*args, **kwargs)
@@ -224,6 +227,10 @@ class BallotForm(forms.ModelForm):
             for field in self.fields:
                 self.fields[field].required = False
         if self.request.user.is_team:
+            for field in self.fields:
+                self.fields[field].widget.attrs['readonly'] = True
+
+        if self.request.user.is_judge and self.request.user.judge != self.instance.judge:
             for field in self.fields:
                 self.fields[field].widget.attrs['readonly'] = True
 

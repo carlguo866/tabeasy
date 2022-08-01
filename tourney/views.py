@@ -35,7 +35,7 @@ def results(request):
     div2_teams = sort_teams([team for team in Team.objects.filter(division='Universal')])
     dict = {'div1_teams_ranked': div1_teams,
             'div2_teams_ranked': div2_teams}
-    return render(request, 'tourney/results.html', dict)
+    return render(request, 'tourney/tab/results.html', dict)
 
 @user_passes_test(lambda u: u.is_staff)
 def individual_awards(request):
@@ -45,7 +45,7 @@ def individual_awards(request):
                         key= lambda x: x.wit_individual_score)
     dict = {'atts_ranked': atts_ranked,
            'wits_ranked': wits_ranked,}
-    return render(request, 'tourney/individual_awards.html', dict)
+    return render(request, 'tourney/tab/individual_awards.html', dict)
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -187,8 +187,21 @@ def edit_pairing(request, round_num):
                                                          'judges': Judge.objects.filter(pk__in=available_judges_pk)})
 
 
+@user_passes_test(lambda u: u.is_staff)
+def delete_pairing(request, round_num):
+    if Pairing.objects.filter(round_num=round_num).exists():
+        Pairing.objects.filter(round_num=round_num).delete()
+    return redirect('tourney:pairing_index')
 
-
+@user_passes_test(lambda u: u.is_staff)
+def view_ballot_status(request, pairing_id):
+    pairing = Pairing.objects.get(pk=pairing_id)
+    ballots = []
+    for round in pairing.rounds.all():
+        for ballot in round.ballots.all():
+            ballots.append(ballot)
+    ballots = sorted(ballots, key=lambda x: x.round.courtroom)
+    return render(request, 'tourney/tab/view_ballots_status.html', {'ballots': ballots})
 # @login_required
 # # def add_conflict(request):
 # #     if request.method == 'POST':

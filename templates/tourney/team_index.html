@@ -1,11 +1,11 @@
 {% load static %}
 <div class="container-md">
 
-	<h2>Welcome, Team {{ user.team.team_name }}!</h2>
+
 
 
 	<div class="card my-5">
-		<h4 class="card-header">Profile</h4>
+		<h4 class="card-header">Team Profile</h4>
 		<div class="card-body">
 			<div class="card-group my-3">
 				<div class="card border gx-2">
@@ -53,7 +53,7 @@
 								</div>
 							{% endfor %}
 						{% else %}
-							<div class="card-text mb-4">No ballots have been published yet</div>
+							<div class="card-text mb-4">No ballots have been published yet.</div>
 						{% endif %}
 {#						{% for round in user.team.rounds.all %}#}
 {#							{% if round.pairing.publish %}#}
