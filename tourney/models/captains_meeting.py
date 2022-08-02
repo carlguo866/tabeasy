@@ -180,10 +180,10 @@ class CaptainsMeeting(models.Model):
             for i, character_evidence_option in enumerate(self.character_evidence_options()):
                 if character_evidence_option and \
                         getattr(self, f"character_evidence_option{i+1}_description") == '':
-                    errors.append(f'character evidence option {i+1} filled as yes but didn\'t provide description')
+                    errors.append(f'You filled out Character Evidence Option {i+1} as yes, but you didn\'t provide description.')
 
             if not self.character_evidence_submit:
-                errors.append('didn\'t submit character evidence')
+                errors.append('You didn\'t submit the Character Evidence Form!')
 
             # characters
             if len(self.characters()) !=  len(set(self.characters())):

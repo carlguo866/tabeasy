@@ -7,6 +7,8 @@ from django.db.models import QuerySet
 from django.forms import MultipleChoiceField
 from django.forms.models import ModelChoiceIterator, BaseInlineFormSet
 
+from tabeasy.settings import DEBUG
+from tabeasy_secrets.secret import DIVISION_ROUND_NUM
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
 from tourney.models.round import Pairing, Round, CaptainsMeeting
@@ -117,6 +119,9 @@ class PairingFormSet(BaseInlineFormSet):
         existing_teams = []
         errors = []
         if self.instance.team_submit or self.instance.final_submit:
+            if not DEBUG:
+                if len(self.forms) != DIVISION_ROUND_NUM:
+                    errors.append(f'you dont have {DIVISION_ROUND_NUM} rounds')
             for form in self.forms:
                 if self.can_delete and self._should_delete_form(form):
                     continue
