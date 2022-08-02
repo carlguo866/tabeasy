@@ -2,15 +2,6 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% block css %}
-
-	<style>
-
-{#label, select {#}
-{#    display: inline-block;#}
-{#    vertical-align: middle;#}
-	</style>
-{% endblock %}
 {% block content %}
 	<div class="container-md center">
 		{% if form.errors %}
@@ -734,7 +725,12 @@
 	{% endif %}
 	</form>
 </div>
-
-
-
 {% endblock content %}
+
+
+{% block js %}
+	<script type="text/javascript" src="{% static 'js/form.js' %}"></script>
+{% endblock js %}
+
+
+
