@@ -286,6 +286,7 @@ class CaptainsMeetingForm(forms.ModelForm):
         if not self.instance.submit:
             for field in self.fields:
                 self.fields[field].required = False
+
         for i, _ in enumerate(self.instance.character_evidence_options()):
             self.fields[f'character_evidence_option{i + 1}_description'].required = False
 
@@ -320,10 +321,10 @@ class CaptainsMeetingForm(forms.ModelForm):
         cleaned_data = super().clean()
         errors = []
         #after submission all fields need to be filled
-        if cleaned_data.get('submit') == True:
-            for k,v in cleaned_data.items():
-                if v == None:
-                    errors.append(f"{k} empty")
+        # if cleaned_data.get('submit') == True:
+        #     for k,v in cleaned_data.items():
+        #         if v == None:
+        #             errors.append(f"{k} empty")
 
         if errors != []:
             raise ValidationError(errors)

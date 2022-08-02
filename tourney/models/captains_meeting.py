@@ -165,7 +165,17 @@ class CaptainsMeeting(models.Model):
 
     def clean(self):
         errors = []
+
         if self.submit:
+
+            fields = [f.name for f in self._meta.get_fields()]
+            model_fields = [( getattr(self, field_name), field_name ) for field_name in fields]
+            for field, field_name in model_fields:
+                if field == None:
+                    errors.append(f"{field_name} empty")
+
+            if errors != []:
+                raise ValidationError(errors)
 
             for i, character_evidence_option in enumerate(self.character_evidence_options()):
                 if character_evidence_option and \
@@ -193,6 +203,7 @@ class CaptainsMeeting(models.Model):
                 errors.append(f"p has one attorneys for two crosses")
             if len(self.p_wits) != len(set(self.p_wits)):
                 errors.append(f"p has one person for two witnesses")
+
             if sorted(self.p_direct_atts) != sorted(self.p_cross_atts):
                 errors.append(f"{sorted(self.p_direct_atts)} cross and direct not the same three ppl")
 
@@ -205,7 +216,9 @@ class CaptainsMeeting(models.Model):
                 errors.append(f"d has one attorneys for two crosses")
             if len(self.d_wits) != len(set(self.d_wits)):
                 errors.append(f"d has one person for two witnesses")
-            if sorted(self.d_direct_atts) != sorted(self.d_cross_atts):
+            if self.d_direct_atts != None \
+                    and self.p_direct_atts != None \
+                    and sorted(self.d_direct_atts) != sorted(self.d_cross_atts):
                 errors.append(f"{sorted(self.d_direct_atts)} cross and direct not the same three ppl")
 
             for wit in self.wits:

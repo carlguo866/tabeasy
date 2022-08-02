@@ -1,12 +1,19 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
-
+{% load static %}
 
 {% block content %}
 {#	{% if form.errors %}#}
 {#		<div class="alert alert-danger" role="alert">{{ form.errors }}</div>#}
 {#	{% endif %}#}
 	<div class="container-md">
+		{% if form.errors %}
+			{% for key, value in form.errors.items %}
+				{% if value %}
+					<div class="alert alert-danger" role="alert">{{ value }}</div>
+				{% endif %}
+			{% endfor %}
+		{% endif %}
 		<h3>Captains Meeting Form</h3>
 		<div class="card-group my-3">
 				<div class="card border gx-2">
