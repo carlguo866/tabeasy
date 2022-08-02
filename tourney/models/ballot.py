@@ -190,9 +190,9 @@ class Ballot(models.Model):
         errors = []
         if self.submit:
             if len(self.att_ranks()) != len(set(self.att_ranks())):
-                errors.append('you gave one attorney two ranks')
+                errors.append('You can only rank each attorney once')
             if len(self.wit_ranks()) != len(set(self.wit_ranks())):
-                errors.append('you gave one witness two ranks')
+                errors.append('You can only rank each witness once')
 
         if errors != []:
             raise ValidationError(errors)
