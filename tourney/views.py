@@ -13,8 +13,9 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView, DetailView
 
 from accounts.models import User
+from tabeasy.settings import DEBUG
 from tabeasy.utils.mixins import JudgeOnlyMixin, TeamOnlyMixin, AuthorizedJudgeOnlyMixin, PassRequestToFormViewMixin
-from tabeasy_secrets.secret import DIVISION_ROUND_NUM, IS_DEV
+from tabeasy_secrets.secret import DIVISION_ROUND_NUM
 from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, \
     CaptainsMeetingForm, PairingSubmitForm, JudgeForm
 from tourney.models.ballot import Ballot
@@ -109,7 +110,7 @@ def pairing_index(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def edit_pairing(request, round_num):
-    if IS_DEV:
+    if DEBUG:
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
                                              max_num=8, validate_max=True)
     else:
