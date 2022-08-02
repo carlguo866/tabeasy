@@ -116,7 +116,7 @@ def edit_pairing(request, round_num):
     else:
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
                                              max_num=8, validate_max=True,
-                                             min_num=8, validate_min=True)
+                                             extra=8)
     autoselect_fields_check_can_add(RoundForm, Round, request.user)
     if not Pairing.objects.filter(round_num=round_num).exists():
         div1_pairing = Pairing.objects.create(round_num=round_num, division='Disney')

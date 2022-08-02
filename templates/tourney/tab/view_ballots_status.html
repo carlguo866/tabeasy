@@ -11,10 +11,12 @@
 				<tr>
 					<th scope="col">Courtroom</th>
 					<th scope="col">Judge Name</th>
+					<th scope="col">P Team</th>
+					<th scope="col">D Team</th>
 					<th scope="col">P PD</th>
 					<th scope="col">D PD</th>
-					<th scope="col">View Ballot</th>
-					<th scope="col">View Captains Meeting Form</th>
+					<th scope="col">Ballot</th>
+					<th scope="col">Captains Meeting Form</th>
 					<th scope="col">Submitted?</th>
 				</tr>
 			</thead>
@@ -23,19 +25,21 @@
 					<tr>
 						<th scope="row">{{ ballot.round.courtroom }}</th>
 						<td>{{ ballot.judge }}</td>
+						<td>{{ ballot.round.p_team }}</td>
+						<td>{{ ballot.round.d_team }}</td>
 						<td>{{ ballot.p_pd }}</td>
 						<td>{{ ballot.d_pd }}</td>
 						<td>
 								<div class="m-2">
 									<a class="button button-primary py-2" href="{% url 'tourney:submit_ballot' ballot.pk %}">
-										View Ballot
+										View
 									</a>
 								</div>
 						</td>
 						<td>
 								<div class="m-2">
 									<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' ballot.round.captains_meeting.pk %}">
-										View Captains Meeting Form
+										View
 									</a>
 								</div>
 						</td>
