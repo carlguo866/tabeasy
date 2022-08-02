@@ -121,7 +121,7 @@ class PairingFormSet(BaseInlineFormSet):
         if self.instance.team_submit or self.instance.final_submit:
             if not DEBUG:
                 if len(self.forms) != DIVISION_ROUND_NUM:
-                    errors.append(f'you dont have {DIVISION_ROUND_NUM} rounds')
+                    errors.append(f'You do not have {DIVISION_ROUND_NUM} rounds')
             for form in self.forms:
                 if self.can_delete and self._should_delete_form(form):
                     continue

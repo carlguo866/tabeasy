@@ -172,7 +172,7 @@ class CaptainsMeeting(models.Model):
             model_fields = [( getattr(self, field_name), field_name ) for field_name in fields]
             for field, field_name in model_fields:
                 if field == None:
-                    errors.append(f"{field_name} empty")
+                    errors.append(f"You have not entered any values in {field_name}")
 
             if errors != []:
                 raise ValidationError(errors)
@@ -187,43 +187,43 @@ class CaptainsMeeting(models.Model):
 
             # characters
             if len(self.characters()) !=  len(set(self.characters())):
-                errors.append("a character used twice")
+                errors.append("Each witness can only be called once")
             for character in self.p_characters():
                 if character not in ['J.C. Longstreet', 'Francis Kimball', 'Charlie Kaminsky','Billy Isaacs','Haley Floyd']:
-                    errors.append(f"{character} not supposed to be used by p")
+                    errors.append(f"{character} cannot be called by the Prosecution")
             for character in self.d_characters():
                 if character not in ['Whit Bowman', 'Jackie Hunter', 'Charlie Kaminsky','Billy Isaacs','Haley Floyd']:
-                    errors.append(f"{character} not supposed to be used by d")
+                    errors.append(f"{character} cannot be called by the Defense")
             #p
             if self.p_opener == self.p_closer:
-                errors.append(f"{self.p_opener} both opener and closer")
+                errors.append(f"{self.p_opener} cannot give both Opening Statement and Closing Argument")
             if len(self.p_direct_atts) != len(set(self.p_direct_atts)):
-                errors.append(f"p has one attorneys for two directs")
+                errors.append(f"Prosecution has one attorney assigned for two Direct Examinations")
             if len(self.p_cross_atts) != len(set(self.p_cross_atts)):
-                errors.append(f"p has one attorneys for two crosses")
+                errors.append(f"Prosecution has one attorney assigned for two Cross Examinations")
             if len(self.p_wits) != len(set(self.p_wits)):
-                errors.append(f"p has one person for two witnesses")
+                errors.append(f"Prosecution has one witness assigned for two characters")
 
             if sorted(self.p_direct_atts) != sorted(self.p_cross_atts):
                 errors.append(f"{sorted(self.p_direct_atts)} cross and direct not the same three ppl")
 
             #d
             if self.d_opener == self.d_closer:
-                errors.append(f"{self.d_opener} both opener and closer")
+                errors.append(f"{self.d_opener} cannot give both Opening Statement and Closing Argument")
             if len(self.d_direct_atts) != len(set(self.d_direct_atts)):
-                errors.append(f"d has one attorneys for two directs")
+                errors.append(f"Defense has one attorney assigned for two Direct Examinations")
             if len(self.d_cross_atts) != len(set(self.d_cross_atts)):
-                errors.append(f"d has one attorneys for two crosses")
+                errors.append(f"Defense has one attorney assigned for two Cross Examinations")
             if len(self.d_wits) != len(set(self.d_wits)):
-                errors.append(f"d has one person for two witnesses")
+                errors.append(f"Defense has one witness assigned for two characters")
             if self.d_direct_atts != None \
                     and self.p_direct_atts != None \
                     and sorted(self.d_direct_atts) != sorted(self.d_cross_atts):
-                errors.append(f"{sorted(self.d_direct_atts)} cross and direct not the same three ppl")
+                errors.append(f"Each team must have exactly three attorneys each round")
 
             for wit in self.wits:
                 if wit in self.atts:
-                    errors.append(f"{wit} both attorney and witness")
+                    errors.append(f"{wit} assigned as both an attorney and witness")
 
             if not self.demo:
                 errors.append('didn\'t check demo')
