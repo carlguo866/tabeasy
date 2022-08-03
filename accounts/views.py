@@ -3,6 +3,8 @@ from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404
 import django.contrib.auth.views as auth_views
+from django.urls import reverse_lazy
+
 from accounts.forms import *
 from tourney.forms import JudgeForm, TeamForm
 
@@ -33,3 +35,11 @@ class Login(auth_views.LoginView):
 
 class Logout(auth_views.LogoutView):
     next_page = 'index'
+
+class ChangePassword(auth_views.PasswordChangeView):
+    template_name = 'accounts/change_password.html'
+
+    success_url = reverse_lazy('accounts:password_change_done')
+
+class DoneChangePassword(auth_views.PasswordChangeDoneView):
+    template_name = 'accounts/done_change_password.html'

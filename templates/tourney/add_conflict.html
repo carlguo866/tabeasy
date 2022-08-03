@@ -1,24 +1,26 @@
 {% extends "base.html" %}
 {% load static %}
+{% load widget_tweaks %}
+{% load mytags %}
+
 {% block content %}
 {#	{% for team in form.conflicts %}#}
 {#		{{ team }}<br>#}
 {#	{% endfor %}#}
 
 {##}
-	{{ form.label }}
     <form method="post">
 		{% csrf_token %}
 
 		<div class="row">
-            {% for value, label, team in form.conflicts.field.choices %}
+            {% for field, choices in form %}
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                 <li>
                     <label class="checkbox-label-container">
                         <input type="checkbox" value="{{ value }}" name="conflicts">
                         <span class="checkmark"></span>
-                            <strong>{{ team.team_name }}</strong>
-                            <span>({{ team.school }})</span></a><br />
+												<strong>{{ team.team_name }}</strong>
+												<span>({{ team.school }})</span></a><br/>
                     </label>
                 </li>
             </div>

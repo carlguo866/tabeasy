@@ -5,6 +5,11 @@
 
 
 {% block content %}
+{#	{% for formset in formsets %}#}
+{#		adfnalkdnlk#}
+{#		{{ formset.non_form_errors }}#}
+{#	{% endfor %}#}
+
 	<div class="container-fluid center">
 			<h3>Edit Round {{ pairing.round_num }} Pairing</h3>
 			{% for formset in formsets %}
@@ -18,11 +23,11 @@
 					{% endfor %}
 				{% endif %}
 				{% if formset.non_form_errors %}
-					{% for key, value in formset.non_form_errors.items %}
-						{% if value %}
-							<div class="alert alert-danger" role="alert">{{ value }}</div>
-						{% endif %}
-					{% endfor %}
+{#					{% for key, value in formset.non_form_errors.items %}#}
+{#						{% if value %}#}
+							<div class="alert alert-danger" role="alert">{{ formset.non_form_errors }}</div>
+{#						{% endif %}#}
+{#					{% endfor %}#}
 				{% endif %}
 			{% endfor %}
 	

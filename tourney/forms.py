@@ -119,19 +119,20 @@ class PairingFormSet(BaseInlineFormSet):
         existing_teams = []
         errors = []
         if self.instance.team_submit or self.instance.final_submit:
-            if not DEBUG:
-                if len(self.forms) != DIVISION_ROUND_NUM:
-                    errors.append(f'You do not have {DIVISION_ROUND_NUM} rounds')
             for form in self.forms:
                 if self.can_delete and self._should_delete_form(form):
                     continue
-                if form.cleaned_data == {}:
+                if form.cleaned_data == {} and not DEBUG:
+                    raise ValidationError('you dont have enough rounds')
+                elif form.cleaned_data == {} and DEBUG:
                     continue
+
                 teams = [form.cleaned_data.get('p_team'),form.cleaned_data.get('d_team')]
                 for team in teams:
                     if team in existing_teams:
                         errors.append(f'{team} used twice!')
                     existing_teams.append(team)
+
 
         if self.instance.final_submit:
             for form in self.forms:
@@ -153,6 +154,7 @@ class CustomModelChoiceIterator(ModelChoiceIterator):
     def choice(self, obj):
         return (self.field.prepare_value(obj),
                 self.field.label_from_instance(obj), obj)
+        # return obj
 
 class CustomModelChoiceField(forms.ModelMultipleChoiceField):
     def _get_choices(self):
@@ -174,6 +176,10 @@ class UpdateConflictForm(forms.ModelForm):
         queryset=Team.objects.all(),
         widget=forms.CheckboxSelectMultiple
     )
+    # def __init__(self, *args, **kwags):
+    #     self.instance = kwags.pop('instance')
+    #     super(UpdateConflictForm, self).__init__(*args, **kwags)
+    #     self.fields['conflicts'] = self.instance.conflicts
 
 class UpdateJudgeFriendForm(forms.ModelForm):
     class Meta:
