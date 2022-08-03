@@ -78,7 +78,7 @@ class Round(models.Model):
 
         if self.pairing.final_submit:
             if self.presiding_judge == self.scoring_judge:
-                errors.append('assigning one judge for two roles')
+                errors.append(f'assigning {self.presiding_judge} to both preside and score')
             if self.presiding_judge.preside == 0:
                 errors.append(f'{self.presiding_judge} can\'t preside')
 

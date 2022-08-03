@@ -10,7 +10,10 @@ class UserAdmin(BaseUserAdmin, DynamicArrayMixin):
     fieldsets = (
         (None, {'fields': ('username', 'password', 'raw_password')}),
         (('Personal info'), {'fields': ('first_name', 'last_name', 'is_team', 'is_judge')}),
-        (('Permissions'), {'fields': ['is_staff']}),
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff',
+                       'groups', 'user_permissions'),
+        }),
         (('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
     readonly_fields = ('raw_password',) #,'sides','ballots','cs','pd'

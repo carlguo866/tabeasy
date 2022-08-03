@@ -94,12 +94,12 @@
 					{% for judge in judges.all %}
 						<div class="row">
 							<div class="col-md-2">
-									<ul class="list-group list-group-horizontal my-2">
+									<ul class="d-flex flex-wrap my-2">
 									<li class="list-group-item">{{ judge }}</li>
 								</ul>
 							</div>
 							<div class="col-md-5">
-								<ul class="list-group list-group-horizontal my-2">
+								<ul class="d-flex flex-wrap my-2">
 									<li class="list-group-item">Conflicts:</li>
 									{% for conflict in judge.conflicts.all %}
 										<li class="list-group-item">{{ conflict }}</li>
