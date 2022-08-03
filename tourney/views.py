@@ -350,3 +350,59 @@ def load_teams(request):
             list.append(message)
         return render(request, 'admin/load_excel.html', {"list": list})
 
+
+
+@user_passes_test(lambda u: u.is_staff)
+def load_judges(request):
+    if "GET" == request.method:
+        return render(request, 'admin/load_excel.html', {})
+    else:
+        excel_file = request.FILES["excel_file"]
+        wb = openpyxl.load_workbook(excel_file)
+        worksheet = wb["Sheet1"]
+        list = []
+        n = worksheet.max_row
+        m = worksheet.max_column
+        for i in range(2, n + 1):
+            username = worksheet.cell(i, 9).value
+            raw_password = worksheet.cell(i,10).value
+            preside = worksheet.cell(i,3).value
+            if preside == 'CIN':
+                preside = 2
+            elif preside == 'y':
+                preside = 1
+            else:
+                preside = 0
+            availability = []
+            for j in range(4, 8):
+                if worksheet.cell(i, j).value == 'y':
+                    availability.append(True)
+                else:
+                    availability.append(False)
+
+            message = ''
+            try:
+                if Judge.objects.filter(user__username=username).exists():
+                    message += f'update judge {username}'
+                    judge = Judge.objects.get(user__username=username)
+                    judge.preside = preside
+                    for i in range(len(availability)):
+                        setattr(judge, f'available_round{i+1}', availability[i])
+                    judge.save()
+
+                else:
+                    message += f'create judge {username}'
+                    user = User(username=username, raw_password=raw_password, is_team=False, is_judge=True)
+                    user.set_password(raw_password)
+                    user.save()
+                    judge = Judge(user=user, preside=preside)
+                    for i in range(len(availability)):
+                        setattr(judge, f'available_round{i+1}', availability[i])
+                    judge.save()
+
+            except Exception as e:
+                message += str(e)
+            else:
+                message += 'success'
+            list.append(message)
+        return render(request, 'admin/load_excel.html', {"list": list})

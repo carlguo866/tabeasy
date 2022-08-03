@@ -93,17 +93,18 @@ class Round(models.Model):
 
                     #check if judged
                     judged = None
-                    for round in judge.rounds:
-                        if round != self:
-                            if judged == None:
-                                judged = Team.objects.filter(pk=round.p_team.pk)
-                            else:
-                                judged |= Team.objects.filter(pk=round.p_team.pk)
-                            judged |= Team.objects.filter(pk=round.d_team.pk)
-                    if judged != None:
-                        for team in self.teams:
-                            if team in judged:
-                                errors.append(f"{judge} has judged p_team {team}")
+                    if judge.rounds != None:
+                        for round in judge.rounds:
+                            if round != self:
+                                if judged == None:
+                                    judged = Team.objects.filter(pk=round.p_team.pk)
+                                else:
+                                    judged |= Team.objects.filter(pk=round.p_team.pk)
+                                judged |= Team.objects.filter(pk=round.d_team.pk)
+                        if judged != None:
+                            for team in self.teams:
+                                if team in judged:
+                                    errors.append(f"{judge} has judged p_team {team}")
 
                     # #check if assigned in another division
                     pairings = Pairing.objects.filter(round_num=self.pairing.round_num)

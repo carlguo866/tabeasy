@@ -27,6 +27,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('', include('tourney.urls')),
     path('load_teams', views.load_teams),
+    path('load_judges', views.load_judges),
     url(r'^ajax_select/', include(ajax_select_urls)),
 ]
  
