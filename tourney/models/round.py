@@ -107,15 +107,6 @@ class Round(models.Model):
                             if team in judged:
                                 errors.append(f"{judge} has judged p_team {team}")
 
-                    # #check if assigned in another division this should be done on the form level
-                    pairings = Pairing.objects.filter(round_num=self.pairing.round_num)
-                    if pairings.exists():
-                        for pairing in pairings.all():
-                            if pairing.final_submit and pairing != self.pairing:
-                                for round in pairing.rounds.all():
-                                    if judge in [round.presiding_judge,round.scoring_judge]:
-                                        errors.append(f"{judge} already assigned in {pairing.division}")
-
         if errors != []:
             raise ValidationError(errors)
 

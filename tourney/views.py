@@ -127,9 +127,9 @@ def edit_pairing(request, round_num):
 
     if request.method == "POST":
         div1_formset = RoundFormSet(request.POST, request.FILES, prefix='div1', instance=div1_pairing,
-                                    form_kwargs={'pairing': div1_pairing})
+                                    form_kwargs={'pairing': div1_pairing, 'other_formset':None})
         div2_formset = RoundFormSet(request.POST, request.FILES, prefix='div2', instance=div2_pairing,
-                                    form_kwargs={'pairing': div2_pairing})
+                                    form_kwargs={'pairing': div2_pairing, 'other_formset':div1_formset})
 
         div1_submit_form = PairingSubmitForm(request.POST, prefix='div1', instance=div1_pairing)
         div2_submit_form = PairingSubmitForm(request.POST, prefix='div2', instance=div2_pairing)
@@ -188,8 +188,8 @@ def edit_pairing(request, round_num):
         if both_true:
             return redirect('tourney:pairing_index')
     else:
-        div1_formset = RoundFormSet(instance=div1_pairing,prefix='div1', form_kwargs={'pairing': div1_pairing})
-        div2_formset = RoundFormSet(instance=div2_pairing,prefix='div2', form_kwargs={'pairing': div2_pairing})
+        div1_formset = RoundFormSet(instance=div1_pairing,prefix='div1', form_kwargs={'pairing': div1_pairing, 'other_formset':None})
+        div2_formset = RoundFormSet(instance=div2_pairing,prefix='div2', form_kwargs={'pairing': div2_pairing, 'other_formset':div1_formset})
         div1_submit_form = PairingSubmitForm(instance=div1_pairing, prefix='div1')
         div2_submit_form = PairingSubmitForm(instance=div2_pairing, prefix='div2')
     available_judges_pk = [judge.pk for judge in Judge.objects.all()

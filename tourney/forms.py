@@ -82,8 +82,9 @@ class RoundForm(forms.ModelForm):
     # p_team = ajax_select_fields.AutoCompleteSelectField('p_team')
 
 
-    def __init__(self, pairing, *args, **kwargs):
+    def __init__(self, pairing, other_formset, *args, **kwargs):
         super(RoundForm, self).__init__(*args, **kwargs)
+        self.other_formset = other_formset
         if pairing == None:
             self.fields['p_team'].queryset = Team.objects.all()
             self.fields['d_team'].queryset = Team.objects.all()
@@ -100,6 +101,29 @@ class RoundForm(forms.ModelForm):
                 Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0).order_by('user__username')
             self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk).order_by('user__username')
 
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = []
+
+        #check for judges
+        if self.other_formset != None and self.instance.pairing.final_submit:
+            for form in self.other_formset:
+                if form.cleaned_data == {} and not DEBUG:
+                    raise ValidationError('You don\'t have enough rounds.')
+                elif form.cleaned_data == {} and DEBUG:
+                    continue
+
+                other_form_judges = [form.cleaned_data.get('presiding_judge'),form.cleaned_data.get('scoring_judge')]
+                # #check if assigned in another division this should be done on the form level
+                form_judges = [cleaned_data.get('presiding_judge'),cleaned_data.get('scoring_judge') ]
+                for judge in form_judges:
+                    if judge in other_form_judges:
+                        errors.append(f"{judge} already assigned in {form.instance.pairing.division}")
+
+        if errors != []:
+            raise ValidationError(errors)
+
+
     def save(self, commit=True):
         would_save = False
         for k, v in self.instance.__dict__.items():
@@ -111,6 +135,12 @@ class RoundForm(forms.ModelForm):
 
 
 class PairingFormSet(BaseInlineFormSet):
+
+    # def __init__(self, *args, **kwargs):
+    #     self.other_form = kwargs.pop('other_form')
+    #     super(PairingFormSet, self).__init__(*args, **kwargs)
+
+
     def clean(self):
         super().clean()
         if any(self.errors):
@@ -123,7 +153,7 @@ class PairingFormSet(BaseInlineFormSet):
                 if self.can_delete and self._should_delete_form(form):
                     continue
                 if form.cleaned_data == {} and not DEBUG:
-                    raise ValidationError('you dont have enough rounds')
+                    raise ValidationError('You don\'t have enough rounds.')
                 elif form.cleaned_data == {} and DEBUG:
                     continue
 

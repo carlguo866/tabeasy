@@ -94,23 +94,23 @@
 					{% for judge in judges.all %}
 						<div class="row">
 							<div class="col-md-2">
-									<ul class="d-flex flex-wrap my-2">
-									<li class="list-group-item">{{ judge }}</li>
-								</ul>
+									<ul class="list-group my-2">
+										<li class="list-group-item">{{ judge }}</li>
+									</ul>
 							</div>
 							<div class="col-md-5">
 								<ul class="d-flex flex-wrap my-2">
-									<li class="list-group-item">Conflicts:</li>
+									<li class="list-group-item border">Conflicts:</li>
 									{% for conflict in judge.conflicts.all %}
-										<li class="list-group-item">{{ conflict }}</li>
+										<li class="list-group-item border">{{ conflict }}</li>
 									{% endfor %}
 								</ul>
 							</div>
 							<div class="col-md-5">
-								<ul class="list-group list-group-horizontal my-2">
-									<li class="list-group-item">Friends:</li>
+								<ul class="d-flex flex-wrap my-2">
+									<li class="list-group-item border">Friends:</li>
 									{% for friend in judge.judge_friends.all %}
-										<li class="list-group-item">{{ friend }}</li>
+										<li class="list-group-item border">{{ friend }}</li>
 									{% endfor %}
 								</ul>
 							</div>
