@@ -25,10 +25,31 @@
 							<li class="list-group-item">Division: {{ object.round.pairing.division }}</li>
 							<li class="list-group-item">Judge Name: {{ object.judge }}</li>
 							<li class="list-group-item">
-								Click to View:
-								<a href="{% url 'tourney:captains_meeting' object.round.captains_meeting.pk %}">
-									<button class="button button-primary">Captains Meeting Form</button>
-								</a>
+								<div>Click for:</div>
+								<div class="row my-2 px-3">
+									<a class="button button-primary"
+										href="{% url 'tourney:captains_meeting' object.round.captains_meeting.pk %}">
+									Captains Meeting Form
+									</a>
+								</div>
+								<div class="row my-2 px-3">
+									<a class="button button-primary"
+											href="https://drive.google.com/file/d/1bB7JTcoNOuLuxt9sq9C9Bt9eCFid1kyr/view">
+										Case
+									</a>
+								</div>
+								<div class="row my-2 px-3">
+									<a class="button button-primary"
+											href="https://drive.google.com/file/d/175kWK9MYN5SDuYXpS7-4tNE-8vyHOL0Q/view">
+										Rules of Evidence
+									</a>
+								</div>
+								<div class="row my-2 px-3">
+									<a class="button button-primary"
+											href="#">
+										Zoom Meeting
+									</a>
+								</div>
 							</li>
 							<li class="list-group-item">Captains Meeting Form Status:<br>
 								{% if object.round.captains_meeting.submit %}
@@ -37,8 +58,8 @@
 									Not Submitted
 								{% endif %}
 							</li>
-						<li class="list-group-item"><span class="text-primary">Blue</span> denotes Prosecution,
-							and <span class="text-secondary">Purple</span> denotes Defense</li>
+							<li class="list-group-item"><span class="text-primary">Blue</span> denotes Prosecution,
+								and <span class="text-secondary">Purple</span> denotes Defense</li>
 						</ul>
 					</div>
 				</div>
