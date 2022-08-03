@@ -70,10 +70,10 @@ class Round(models.Model):
             if self.d_team.next_side(self.pairing.round_num) == 'p':
                 errors.append(f"{self.d_team} is supposed to play p this round")
             for round in self.p_team.p_rounds.all():
-                if round != self and round.d_team == self.d_team:
+                if round != self and round.pairing != self.pairing and round.d_team == self.d_team:
                     errors.append(f"{self.p_team} and {self.d_team} played each other before")
             for round in self.p_team.d_rounds.all():
-                if round != self and round.p_team == self.d_team:
+                if round != self and round.pairing != self.pairing and round.p_team == self.d_team:
                     errors.append(f"{self.p_team} and {self.d_team} played each other before")
 
         if self.pairing.final_submit:
@@ -93,24 +93,25 @@ class Round(models.Model):
 
                     #check if judged
                     judged = None
-                    if judge.rounds != None:
-                        for round in judge.rounds:
-                            if round != self:
-                                if judged == None:
-                                    judged = Team.objects.filter(pk=round.p_team.pk)
-                                else:
-                                    judged |= Team.objects.filter(pk=round.p_team.pk)
-                                judged |= Team.objects.filter(pk=round.d_team.pk)
-                        if judged != None:
-                            for team in self.teams:
-                                if team in judged:
-                                    errors.append(f"{judge} has judged p_team {team}")
+                    for round in judge.rounds:
+                        if round == None or round.p_team == None or round.d_team == None:
+                            continue
+                        if round != self:
+                            if judged == None:
+                                judged = Team.objects.filter(pk=round.p_team.pk)
+                            else:
+                                judged |= Team.objects.filter(pk=round.p_team.pk)
+                            judged |= Team.objects.filter(pk=round.d_team.pk)
+                    if judged != None:
+                        for team in self.teams:
+                            if team in judged:
+                                errors.append(f"{judge} has judged p_team {team}")
 
-                    # #check if assigned in another division
+                    # #check if assigned in another division this should be done on the form level
                     pairings = Pairing.objects.filter(round_num=self.pairing.round_num)
                     if pairings.exists():
                         for pairing in pairings.all():
-                            if pairing != self.pairing:
+                            if pairing.final_submit and pairing != self.pairing:
                                 for round in pairing.rounds.all():
                                     if judge in [round.presiding_judge,round.scoring_judge]:
                                         errors.append(f"{judge} already assigned in {pairing.division}")

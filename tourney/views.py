@@ -140,37 +140,47 @@ def edit_pairing(request, round_num):
         both_true = True
         if div1_formset.is_valid():
             # get courtroom
-            round_num = len(div1_formset)
+            actual_round_num = len(div1_formset)
             for form in div1_formset:
                 if form.instance.p_team == None or form.instance.d_team == None:
-                    round_num -= 1
+                    actual_round_num -= 1
             if div1_formset[0].instance.pairing.division == 'Disney':
-                random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:round_num]
+                random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
             else:
-                random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:round_num]
-            random_choice = random.sample(list(random_choice), round_num)
-            for i in range(len(div1_formset)):
-                if div1_formset[i].instance.p_team != None and div1_formset[i].instance.d_team != None:
-                    div1_formset[i].instance.courtroom = random_choice[i]
-                    div1_formset[i].save()
+                random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
+            for round in Pairing.objects.get(pk=div1_pairing.pk).rounds.all():
+                if round.courtroom != None:
+                    random_choice = random_choice.replace(round.courtroom, '')
+            random_choice = random.sample(list(random_choice), len(random_choice))
+            for form in div1_formset:
+                if form.instance.p_team != None and form.instance.d_team != None \
+                        and form.instance.courtroom == None:
+                    form.instance.courtroom = random_choice[0]
+                    del(random_choice[0])
+                    form.save()
             div1_formset.save()
         else:
             both_true = False
 
         if div2_formset.is_valid():
-            round_num = len(div2_formset)
+            actual_round_num = len(div2_formset)
             for form in div2_formset:
                 if form.instance.p_team == None or form.instance.d_team == None:
-                    round_num -= 1
+                    actual_round_num -= 1
             if div2_formset[0].instance.pairing.division == 'Disney':
-                random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:round_num]
+                random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
             else:
-                random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:round_num]
-            random_choice = random.sample(list(random_choice), round_num)
-            for i in range(len(div2_formset)):
-                if div2_formset[i].instance.p_team != None and div2_formset[i].instance.d_team != None:
-                    div2_formset[i].instance.courtroom = random_choice[i]
-                    div2_formset[i].save()
+                random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
+            for round in Pairing.objects.get(pk=div2_pairing.pk).rounds.all():
+                if round.courtroom != None:
+                    random_choice = random_choice.replace(round.courtroom, '')
+            random_choice = random.sample(list(random_choice), len(random_choice))
+            for form in div2_formset:
+                if form.instance.p_team != None and form.instance.d_team != None \
+                        and form.instance.courtroom == None:
+                    form.instance.courtroom = random_choice[0]
+                    del(random_choice[0])
+                    form.save()
             div2_formset.save()
         else:
             both_true = False
@@ -185,8 +195,7 @@ def edit_pairing(request, round_num):
     available_judges_pk = [judge.pk for judge in Judge.objects.all()
                            if judge.get_availability(div1_pairing.round_num)]
     return render(request, 'tourney/pairing/edit.html', {'formsets': [div1_formset, div2_formset],
-                                                         'div1_submit_form': div1_submit_form,
-                                                         'div2_submit_form': div2_submit_form,
+                                                         'submit_forms': [div1_submit_form,div2_submit_form],
                                                          'pairing': div1_pairing,
                                                          'judges': Judge.objects.filter(pk__in=available_judges_pk)})
 
