@@ -276,7 +276,13 @@ class BallotForm(forms.ModelForm):
         if cleaned_data.get('submit'):
             for k,v in cleaned_data.items():
                 if k.find('comment') == -1 and v == None:
-                    errors.append(f"{k} empty")
+                    if k.find('att') != -1:
+                        error = k.replace('att', 'Attorney').replace('rank','Rank')
+                    else:
+                        error = k.replace('wit', 'Witness').replace('rank','Rank')
+                    error = ' '.join(error.split('_'))
+                    errors.append(f"You have not assigned a competitor for {error}")
+
         if errors != []:
             raise ValidationError(errors)
 
