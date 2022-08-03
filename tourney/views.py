@@ -410,7 +410,7 @@ def load_judges(request):
 
                 else:
                     message += f'create judge {username}'
-                    user = User(username=username, raw_password=raw_password,
+                    user = User(username=username,
                                 first_name=first_name, last_name=last_name,
                                 is_team=False, is_judge=True)
                     user.set_password(raw_password)
