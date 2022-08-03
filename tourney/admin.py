@@ -29,7 +29,7 @@ class PairingAdmin(admin.ModelAdmin, DynamicArrayMixin):
 
 @admin.register(Ballot)
 class BallotAdmin(admin.ModelAdmin, DynamicArrayMixin):
-    list_display = ['pk', 'round', 'judge', 'p_pd', 'd_pd', 'submit']
+    list_display = ['pk', 'round', 'judge', 'p_pd', 'd_pd','d_total_score','p_total_score', 'submit']
     list_filter = ['round__pairing', 'judge']
     search_fields = ['judge']
     model = Ballot

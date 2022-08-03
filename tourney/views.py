@@ -365,6 +365,10 @@ def load_judges(request):
         m = worksheet.max_column
         for i in range(2, n + 1):
             username = worksheet.cell(i, 9).value
+            first_name = worksheet.cell(i, 1).value
+            last_name = worksheet.cell(i, 2).value
+            if last_name == None or last_name == '':
+                last_name = ' '
             raw_password = worksheet.cell(i,10).value
             preside = worksheet.cell(i,3).value
             if preside == 'CIN':
@@ -385,6 +389,11 @@ def load_judges(request):
                 if Judge.objects.filter(user__username=username).exists():
                     message += f'update judge {username}'
                     judge = Judge.objects.get(user__username=username)
+                    user = judge.user
+                    user.first_name = first_name
+                    user.last_name = last_name
+                    user.save()
+
                     judge.preside = preside
                     for i in range(len(availability)):
                         setattr(judge, f'available_round{i+1}', availability[i])
@@ -392,7 +401,9 @@ def load_judges(request):
 
                 else:
                     message += f'create judge {username}'
-                    user = User(username=username, raw_password=raw_password, is_team=False, is_judge=True)
+                    user = User(username=username, raw_password=raw_password,
+                                first_name=first_name, last_name=last_name,
+                                is_team=False, is_judge=True)
                     user.set_password(raw_password)
                     user.save()
                     judge = Judge(user=user, preside=preside)

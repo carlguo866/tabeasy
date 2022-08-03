@@ -172,7 +172,6 @@ class UpdateConflictForm(forms.ModelForm):
     # user = forms.Select()
     # conflicts_queryset = ( (team, team.school) for team in Team.objects.all() )
     conflicts = CustomModelChoiceField(
-        # queryset=conflicts_queryset,
         queryset=Team.objects.all(),
         widget=forms.CheckboxSelectMultiple
     )

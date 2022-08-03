@@ -13,6 +13,8 @@
 					<th scope="col">Judge Name</th>
 					<th scope="col">P Team</th>
 					<th scope="col">D Team</th>
+					<th scope="col">P Score</th>
+					<th scope="col">D Score</th>
 					<th scope="col">P PD</th>
 					<th scope="col">D PD</th>
 					<th scope="col">Ballot</th>
@@ -27,6 +29,8 @@
 						<td>{{ ballot.judge }}</td>
 						<td>{{ ballot.round.p_team }}</td>
 						<td>{{ ballot.round.d_team }}</td>
+						<td>{{ ballot.p_total_score }}</td>
+						<td>{{ ballot.d_total_score }}</td>
 						<td>{{ ballot.p_pd }}</td>
 						<td>{{ ballot.d_pd }}</td>
 						<td>
