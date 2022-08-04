@@ -401,6 +401,8 @@ def load_judges(request):
         m = worksheet.max_column
         for i in range(2, n + 1):
             username = worksheet.cell(i, 9).value
+            if username == None or username == '':
+                continue
             first_name = worksheet.cell(i, 1).value
             last_name = worksheet.cell(i, 2).value
             if last_name == None or last_name == '':
@@ -414,11 +416,15 @@ def load_judges(request):
             else:
                 preside = 0
             availability = []
-            for j in range(4, 8):
+            for j in range(4, 9):
                 if worksheet.cell(i, j).value == 'y':
                     availability.append(True)
                 else:
                     availability.append(False)
+
+            judge_friends = worksheet.cell(i, 11).value
+            if judge_friends != None:
+                judge_friends = judge_friends.split(',')
 
             message = ''
             try:
@@ -430,11 +436,17 @@ def load_judges(request):
                     user.last_name = last_name
                     user.save()
 
+                    if judge_friends:
+                        for friend in judge_friends:
+                            first = friend.split(' ')[0]
+                            last = friend.split(' ')[1]
+                            if Judge.objects.filter(user__first_name=first, user__last_name=last).exists():
+                                judge.judge_friends.add(Judge.objects.get(user__first_name=first, user__last_name=last))
+
                     judge.preside = preside
                     for i in range(len(availability)):
                         setattr(judge, f'available_round{i+1}', availability[i])
                     judge.save()
-
                 else:
                     message += f'create judge {username}'
                     user = User(username=username,
@@ -445,6 +457,13 @@ def load_judges(request):
                     judge = Judge(user=user, preside=preside)
                     for i in range(len(availability)):
                         setattr(judge, f'available_round{i+1}', availability[i])
+
+                    if judge_friends:
+                        for friend in judge_friends:
+                            first = friend.split(' ')[0]
+                            last = friend.split(' ')[1]
+                            if Judge.objects.filter(user__first_name=first, user__last_name=last).exists():
+                                judge.judge_friends.add(Judge.objects.get(user__first_name=first, user__last_name=last))
                     judge.save()
 
             except Exception as e:
