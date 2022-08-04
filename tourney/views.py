@@ -219,11 +219,18 @@ def checkin_judges(request, round_num):
     else:
         form = CheckinJudgeForm(round_num=round_num)
 
-    return render(request, 'utils/generic_form.html',{'form':form})
+    return render(request, 'tourney/tab/checkin_judges.html',{'form':form, 'round_num':round_num})
 
 @user_passes_test(lambda u: u.is_staff)
 def clear_checkin(request):
     Judge.objects.update(checkin=False)
+    return redirect('tourney:pairing_index')
+
+@user_passes_test(lambda u: u.is_staff)
+def checkin_all_judges(request, round_num):
+    available_judges_pk = [judge.pk for judge in Judge.objects.all()
+                           if judge.get_availability(round_num)]
+    Judge.objects.filter(pk__in=available_judges_pk).update(checkin=True)
     return redirect('tourney:pairing_index')
 
 @user_passes_test(lambda u: u.is_staff)

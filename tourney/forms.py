@@ -96,8 +96,8 @@ class RoundForm(forms.ModelForm):
             available_judges_pk = [judge.pk for judge in Judge.objects.all()
                                    if judge.get_availability(pairing.round_num)]
             self.fields['presiding_judge'].queryset = \
-                Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0, checkin=True).order_by('user__username')
-            self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk, checkin=True).order_by('user__username')
+                Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0, checkin=True).order_by('checkin','user__username')
+            self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk, checkin=True).order_by('checkin','user__username')
 
     def clean(self):
         cleaned_data = super().clean()

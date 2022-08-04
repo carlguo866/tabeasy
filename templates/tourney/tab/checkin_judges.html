@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+		{% if form.errors %}
+			{% for key, value in form.errors.items %}
+				<div class="alert alert-danger" role="alert">{{ value }}</div>
+			{% endfor %}
+		{% endif %}
+
+		<h2>Judge Checkin</h2>
+		<form method="post">
+			{% csrf_token %}
+			{% include "utils/form_content.html" with form=form %}
+
+			<button class='button button-primary' type="submit">Save</button>
+		 	<input type="hidden" name="next" value="{{ next }}"/>
+		</form>
+		<br>
+		<br>
+
+		<div class="d-flex flex-row-reverse">
+			<a href="{% url 'tourney:clear_checkin' %}">
+			<button type="button" class="btn btn-outline-danger mx-2">Clear All Checkin</button>
+			</a>
+			<a href="{% url 'tourney:checkin_all_judges' round_num %}">
+				<button type="button" class="btn btn-outline-darks mx-2">Check All In</button>
+			</a>
+		</div>
+
+{% endblock content %}
