@@ -55,7 +55,8 @@
 					<li><a class="dropdown-item" href="{% url "index" %}">Profile</a></li>
 					{% if user.is_staff %}
 						<li><a class="dropdown-item" href="{% url "admin:index" %}">Django Admin</a></li>
-					{% elif user.is_judge %}
+					{% endif %}
+					{% if user.is_team == False %}
 						<li><a class="dropdown-item" href="{% url "accounts:change_password" %}">Change Password</a></li>
 					{% endif %}
 						<li><a class="dropdown-item" href="{% url "accounts:logout" %}">Logout</a></li>

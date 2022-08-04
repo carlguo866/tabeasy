@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
@@ -17,7 +17,7 @@ from tabeasy.settings import DEBUG
 from tabeasy.utils.mixins import JudgeOnlyMixin, TeamOnlyMixin, AuthorizedJudgeOnlyMixin, PassRequestToFormViewMixin
 from tabeasy_secrets.secret import DIVISION_ROUND_NUM
 from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, \
-    CaptainsMeetingForm, PairingSubmitForm, JudgeForm
+    CaptainsMeetingForm, PairingSubmitForm, JudgeForm, CheckinJudgeForm
 from tourney.models.ballot import Ballot
 from tourney.models.judge import Judge
 from tourney.models.round import Round, Pairing, CaptainsMeeting
@@ -117,13 +117,16 @@ def edit_pairing(request, round_num):
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
                                              max_num=8, validate_max=True,
                                              extra=8)
-    autoselect_fields_check_can_add(RoundForm, Round, request.user)
     if not Pairing.objects.filter(round_num=round_num).exists():
         div1_pairing = Pairing.objects.create(round_num=round_num, division='Disney')
         div2_pairing = Pairing.objects.create(round_num=round_num, division='Universal')
     else:
         div1_pairing = Pairing.objects.filter(round_num=round_num).get(division='Disney')
         div2_pairing = Pairing.objects.filter(round_num=round_num).get(division='Universal')
+
+    available_judges_pk = [judge.pk for judge in Judge.objects.all()
+                           if judge.get_availability(div1_pairing.round_num)]
+    judges = Judge.objects.filter(pk__in=available_judges_pk).all()
 
     if request.method == "POST":
         div1_formset = RoundFormSet(request.POST, request.FILES, prefix='div1', instance=div1_pairing,
@@ -133,6 +136,7 @@ def edit_pairing(request, round_num):
 
         div1_submit_form = PairingSubmitForm(request.POST, prefix='div1', instance=div1_pairing)
         div2_submit_form = PairingSubmitForm(request.POST, prefix='div2', instance=div2_pairing)
+
         if div1_submit_form.is_valid():
             div1_submit_form.save()
         if div2_submit_form.is_valid():
@@ -192,18 +196,34 @@ def edit_pairing(request, round_num):
         div2_formset = RoundFormSet(instance=div2_pairing,prefix='div2', form_kwargs={'pairing': div2_pairing, 'other_formset':div1_formset})
         div1_submit_form = PairingSubmitForm(instance=div1_pairing, prefix='div1')
         div2_submit_form = PairingSubmitForm(instance=div2_pairing, prefix='div2')
-    available_judges_pk = [judge.pk for judge in Judge.objects.all()
-                           if judge.get_availability(div1_pairing.round_num)]
     return render(request, 'tourney/pairing/edit.html', {'formsets': [div1_formset, div2_formset],
                                                          'submit_forms': [div1_submit_form,div2_submit_form],
                                                          'pairing': div1_pairing,
-                                                         'judges': Judge.objects.filter(pk__in=available_judges_pk)})
-
-
+                                                         'judges': judges})
 @user_passes_test(lambda u: u.is_staff)
 def delete_pairing(request, round_num):
     if Pairing.objects.filter(round_num=round_num).exists():
         Pairing.objects.filter(round_num=round_num).delete()
+    return redirect('tourney:pairing_index')
+
+@user_passes_test(lambda u: u.is_staff)
+def checkin_judges(request, round_num):
+
+    if request.method == "POST":
+        form = CheckinJudgeForm(request.POST, round_num=round_num)
+        if form.is_valid():
+            for judge in form.cleaned_data['checkins']:
+                judge.checkin = True
+                judge.save()
+        return redirect('tourney:pairing_index')
+    else:
+        form = CheckinJudgeForm(round_num=round_num)
+
+    return render(request, 'utils/generic_form.html',{'form':form})
+
+@user_passes_test(lambda u: u.is_staff)
+def clear_checkin(request):
+    Judge.objects.update(checkin=False)
     return redirect('tourney:pairing_index')
 
 @user_passes_test(lambda u: u.is_staff)

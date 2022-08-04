@@ -28,6 +28,8 @@ class Judge(models.Model):
     available_round4 = models.BooleanField(default=False)
     available_round5 = models.BooleanField(default=False)
 
+    checkin = models.BooleanField(default=False)
+
     def get_availability(self, round_num):
         return getattr(self, f"available_round{round_num}")
 

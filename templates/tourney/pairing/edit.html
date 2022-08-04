@@ -91,14 +91,14 @@
 			<div class="card">
 				<h4 class="card-header">Judge List</h4>
 				<div class="card-body">
-					{% for judge in judges.all %}
+					{% for judge in judges %}
 						<div class="row">
 							<div class="col-md-2">
 									<ul class="list-group my-2">
 										<li class="list-group-item">{{ judge }}</li>
 									</ul>
 							</div>
-							<div class="col-md-5">
+							<div class="col-md-4">
 								<ul class="d-flex flex-wrap my-2">
 									<li class="list-group-item border">Conflicts:</li>
 									{% for conflict in judge.conflicts.all %}
@@ -106,12 +106,23 @@
 									{% endfor %}
 								</ul>
 							</div>
-							<div class="col-md-5">
+							<div class="col-md-4">
 								<ul class="d-flex flex-wrap my-2">
 									<li class="list-group-item border">Friends:</li>
 									{% for friend in judge.judge_friends.all %}
 										<li class="list-group-item border">{{ friend }}</li>
 									{% endfor %}
+								</ul>
+							</div>
+							<div class="col-md-2">
+								<ul class="d-flex flex-wrap my-2">
+									<li class="list-group-item border">Checkin:
+									{% if judge.checkin %}
+										<i class="fa-solid fa-check mx-1"></i>
+									{% else %}
+										<i class="fa-solid fa-xmark mx-1"></i>
+									{% endif %}
+									</li>
 								</ul>
 							</div>
 						</div>

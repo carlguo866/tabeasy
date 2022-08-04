@@ -38,10 +38,10 @@
 					<div class="card-header">
 						Ballots
 					</div>
-					<div class="card-body text-start center">
+					<div class="card-body text-start center mt-2">
 							{% if user.available_pairings %}
 								{% for pairing in  user.available_pairings %}
-									<div class="card-text my-2">
+									<div class="card-text mb-4">
 										<a class="button button-primary py-2" href="{% url 'tourney:view_ballot_status' pairing.pk %}">
 											{{ pairing }}
 										</a>

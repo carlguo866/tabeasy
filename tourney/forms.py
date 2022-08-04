@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.postgres.forms import SimpleArrayField, SplitArrayField
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
-from django.forms import MultipleChoiceField
+from django.forms import MultipleChoiceField, BaseFormSet
 from django.forms.models import ModelChoiceIterator, BaseInlineFormSet
 
 from tabeasy.settings import DEBUG
@@ -28,6 +28,7 @@ JUDGE_AVAILABILITY_CHOICES = [
     ('available_round3', 'Round 3'),
     ('available_round4', 'Round 4'),
 ]
+
 class JudgeForm(forms.ModelForm):
 
     availability = forms.MultipleChoiceField(
@@ -67,9 +68,6 @@ class PairingSubmitForm(forms.ModelForm):
         model = Pairing
         fields = ['team_submit', 'final_submit', 'publish']
 
-
-
-
 class RoundForm(forms.ModelForm):
     class Meta:
         model = Round
@@ -98,8 +96,8 @@ class RoundForm(forms.ModelForm):
             available_judges_pk = [judge.pk for judge in Judge.objects.all()
                                    if judge.get_availability(pairing.round_num)]
             self.fields['presiding_judge'].queryset = \
-                Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0).order_by('user__username')
-            self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk).order_by('user__username')
+                Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0, checkin=True).order_by('user__username')
+            self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk, checkin=True).order_by('user__username')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -205,10 +203,7 @@ class UpdateConflictForm(forms.ModelForm):
         queryset=Team.objects.all(),
         widget=forms.CheckboxSelectMultiple
     )
-    # def __init__(self, *args, **kwags):
-    #     self.instance = kwags.pop('instance')
-    #     super(UpdateConflictForm, self).__init__(*args, **kwags)
-    #     self.fields['conflicts'] = self.instance.conflicts
+
 
 class UpdateJudgeFriendForm(forms.ModelForm):
     class Meta:
@@ -219,6 +214,22 @@ class UpdateJudgeFriendForm(forms.ModelForm):
         queryset=Judge.objects.all(),
         widget=forms.CheckboxSelectMultiple
     )
+
+
+class CheckinJudgeForm(forms.Form):
+
+    checkins = forms.ModelMultipleChoiceField(
+        queryset=Judge.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        round_num = kwargs.pop('round_num')
+        super(CheckinJudgeForm, self).__init__(*args, **kwargs)
+        available_judges_pk = [judge.pk for judge in Judge.objects.all()
+                               if judge.get_availability(round_num)]
+        self.fields['checkins'].queryset = Judge.objects.filter(checkin=False, pk__in=available_judges_pk)
+
 
 
 class BallotForm(forms.ModelForm):
