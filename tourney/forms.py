@@ -110,6 +110,8 @@ class RoundForm(forms.ModelForm):
 
         #check for judges
         if self.other_formset != None and self.instance.pairing.final_submit:
+            form_judges = [cleaned_data.get('presiding_judge'), cleaned_data.get('scoring_judge'),
+                           cleaned_data.get('extra_judge')]
             for form in self.other_formset:
                 if form.cleaned_data == {} and not DEBUG:
                     raise ValidationError('You don\'t have enough rounds.')
@@ -119,11 +121,9 @@ class RoundForm(forms.ModelForm):
                 other_form_judges = [form.cleaned_data.get('presiding_judge'),
                                      form.cleaned_data.get('scoring_judge'), form.cleaned_data.get('extra_judge')]
                 # #check if assigned in another division this should be done on the form level
-                form_judges = [cleaned_data.get('presiding_judge'),cleaned_data.get('scoring_judge'),
-                               form.cleaned_data.get('extra_judge')]
                 for judge in form_judges:
                     if judge and judge in other_form_judges:
-                        errors.append(f"{judge} already assigned in {form.instance.pairing.division}")
+                        errors.append(f"{other_form_judges} {form_judges} {judge} already assigned in {form.instance.pairing.division}")
 
         if errors != []:
             raise ValidationError(errors)
