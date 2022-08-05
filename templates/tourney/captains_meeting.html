@@ -25,12 +25,16 @@
 							<li class="list-group-item"> {{ object.round }}</li>
 							<li class="list-group-item">Division: {{ object.round.pairing.division }}</li>
 							<li class="list-group-item">Judges Name:
-								{% for judge in object.round.judges %}
-									{{ judge }}
-									{% if not forloop.last %}
-									,
-									{% endif %}
-								{% endfor %}
+								{% if object.round.pairing.final_submit %}
+									{% for judge in object.round.judges %}
+										{{ judge }}
+										{% if not forloop.last %}
+										,
+										{% endif %}
+									{% endfor %}
+								{% else %}
+									Not Assigned
+								{% endif %}
 							</li>
 							<li class="list-group-item"><span class="text-primary">Blue</span> denotes Prosecution,
 								and <span class="text-secondary">Purple</span> denotes Defense</li>

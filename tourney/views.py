@@ -189,6 +189,21 @@ def edit_pairing(request, round_num):
         else:
             both_true = False
 
+        pairings = [div1_pairing, div2_pairing]
+        for pairing in pairings:
+            if pairing.final_submit and not pairing.publish:
+                for round in pairing.rounds.all():
+                    if not Ballot.objects.filter(round=round).exists():
+                        for judge in round.judges:
+                            Ballot.objects.create(round=round, judge=judge)
+                    else:
+                        for judge in round.judges:
+                            if not Ballot.objects.filter(round=round, judge=judge).exists():
+                                Ballot.objects.create(round=round, judge=judge)
+                        for ballot in Ballot.objects.filter(round=round).all():
+                            if ballot.judge not in round.judges:
+                                Ballot.objects.filter(round=round, judge=ballot.judge).delete()
+
         if both_true:
             return redirect('tourney:pairing_index')
     else:
