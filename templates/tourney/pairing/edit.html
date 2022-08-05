@@ -107,6 +107,10 @@
 									{% for conflict in judge.conflicts.all %}
 										<li class="list-group-item border">{{ conflict }}</li>
 									{% endfor %}
+									{% for round in judge.rounds  %}
+										<li class="list-group-item border">{{ round.p_team }}</li>
+										<li class="list-group-item border">{{ round.d_team }}</li>
+									{% endfor %}
 								</ul>
 							</div>
 							<div class="col-md-3">

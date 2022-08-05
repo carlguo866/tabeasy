@@ -96,21 +96,11 @@ class Round(models.Model):
                             errors.append(f"{judge} conflicted with p_team {team}")
 
                     #check if judged
-                    judged = None
-                    if judge.rounds:
-                        for round in judge.rounds:
-                            if round == None or round.p_team == None or round.d_team == None:
-                                continue
-                            if round != self:
-                                if judged == None:
-                                    judged = Team.objects.filter(pk=round.p_team.pk)
-                                else:
-                                    judged |= Team.objects.filter(pk=round.p_team.pk)
-                                judged |= Team.objects.filter(pk=round.d_team.pk)
-                    if judged != None:
+                    judged = judge.judged(self.pairing.round_num)
+                    if judged != []:
                         for team in self.teams:
                             if team in judged:
-                                errors.append(f"{judge} has judged p_team {team}")
+                                errors.append(f"{judge} has judged team {team}")
 
         if errors != []:
             raise ValidationError(errors)
