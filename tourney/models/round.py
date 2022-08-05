@@ -49,7 +49,7 @@ class Round(models.Model):
     @property
     def judges(self):
         if self.judge_panel:
-            return [self.presiding_judge, self.scoring_judge] + [judge for judge in self.judge_panel.all()]
+            return [self.presiding_judge] + [judge for judge in self.judge_panel.all()]
         elif self.extra_judge != None:
             return [self.presiding_judge, self.scoring_judge, self.extra_judge]
         else:
@@ -83,13 +83,10 @@ class Round(models.Model):
 
         if self.pairing.final_submit:
 
-            if self.judge_panel and self.pairing.round_num != 5:
-                raise ValidationError(f'you are using a judge panel but this is not a final')
-            elif not self.judge_panel:
-                if self.presiding_judge == self.scoring_judge:
-                    errors.append(f'assigning {self.presiding_judge} to both preside and score')
-                if self.presiding_judge.preside == 0:
-                    errors.append(f'{self.presiding_judge} can\'t preside')
+            if self.presiding_judge == self.scoring_judge:
+                errors.append(f'assigning {self.presiding_judge} to both preside and score')
+            if self.presiding_judge.preside == 0:
+                errors.append(f'{self.presiding_judge} can\'t preside')
 
             for judge in self.judges:
                 if judge != None:
