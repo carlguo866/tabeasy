@@ -24,10 +24,10 @@
 					</div>
 					<div class="card-body text-start">
 						<a href="{% url 'tourney:results' %}">
-							<button type="button" class="button button-primary">Teams</button>
+							<button type="button" class="button button-primary mb-2">Teams</button>
 						</a>
 						<a href="{% url 'tourney:individual_awards' %}">
-							<button type="button" class="button button-primary">Individual Awards</button>
+							<button type="button" class="button button-primary mb-2">Individual Awards</button>
 						</a>
 
 					</div>
@@ -52,6 +52,26 @@
 							{% endif %}
 					</div>
 				</div>
+
+				<div class="card border gx-2">
+					<div class="card-header">
+						Captains Meeting
+					</div>
+					<div class="card-body text-start center mt-2">
+							{% if user.available_pairings %}
+								{% for pairing in  user.available_pairings %}
+									<div class="card-text mb-4">
+										<a class="button button-primary py-2" href="{% url 'tourney:view_captains_meeting_status' pairing.pk %}">
+											{{ pairing }}
+										</a>
+									</div>
+								{% endfor %}
+							{% else %}
+								<div class="card-text">Pairings are not done yet. </div>
+							{% endif %}
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>

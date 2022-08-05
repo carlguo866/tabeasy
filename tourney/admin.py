@@ -12,10 +12,9 @@ from tourney.models.team import Team, TeamMember
 
 class RoundInline(admin.StackedInline):
     model = Round
-    # form = RoundForm
     autocomplete_fields = ['p_team', 'd_team', 'presiding_judge', 'scoring_judge']
     show_change_link = True
-    # extra = 0
+    extra = 0
 
     # def get_queryset(self, request):
     #     qs = super(RoundInline, self).get_queryset(request)

@@ -43,9 +43,14 @@ class Round(models.Model):
                                     related_query_name='scoring_round', null=True)
     extra_judge = models.ForeignKey('Judge', on_delete=models.CASCADE, related_name='extra_rounds',
                                       related_query_name='extra_round', null=True, blank=True)
+    judge_panel = models.ManyToManyField('Judge', related_name='final_rounds', related_query_name='final_round',
+                                         null=True, blank=True)
+
     @property
     def judges(self):
-        if self.extra_judge != None:
+        if self.judge_panel:
+            return [self.presiding_judge, self.scoring_judge] + [judge for judge in self.judge_panel.all()]
+        elif self.extra_judge != None:
             return [self.presiding_judge, self.scoring_judge, self.extra_judge]
         else:
             return [self.presiding_judge, self.scoring_judge]
@@ -77,10 +82,14 @@ class Round(models.Model):
                     errors.append(f"{self.p_team} and {self.d_team} played each other before")
 
         if self.pairing.final_submit:
-            if self.presiding_judge == self.scoring_judge:
-                errors.append(f'assigning {self.presiding_judge} to both preside and score')
-            if self.presiding_judge.preside == 0:
-                errors.append(f'{self.presiding_judge} can\'t preside')
+
+            if self.judge_panel and self.pairing.round_num != 5:
+                raise ValidationError(f'you are using a judge panel but this is not a final')
+            elif not self.judge_panel:
+                if self.presiding_judge == self.scoring_judge:
+                    errors.append(f'assigning {self.presiding_judge} to both preside and score')
+                if self.presiding_judge.preside == 0:
+                    errors.append(f'{self.presiding_judge} can\'t preside')
 
             for judge in self.judges:
                 if judge != None:
@@ -93,15 +102,16 @@ class Round(models.Model):
 
                     #check if judged
                     judged = None
-                    for round in judge.rounds:
-                        if round == None or round.p_team == None or round.d_team == None:
-                            continue
-                        if round != self:
-                            if judged == None:
-                                judged = Team.objects.filter(pk=round.p_team.pk)
-                            else:
-                                judged |= Team.objects.filter(pk=round.p_team.pk)
-                            judged |= Team.objects.filter(pk=round.d_team.pk)
+                    if judge.rounds:
+                        for round in judge.rounds:
+                            if round == None or round.p_team == None or round.d_team == None:
+                                continue
+                            if round != self:
+                                if judged == None:
+                                    judged = Team.objects.filter(pk=round.p_team.pk)
+                                else:
+                                    judged |= Team.objects.filter(pk=round.p_team.pk)
+                                judged |= Team.objects.filter(pk=round.d_team.pk)
                     if judged != None:
                         for team in self.teams:
                             if team in judged:

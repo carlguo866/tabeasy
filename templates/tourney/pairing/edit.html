@@ -45,6 +45,7 @@
 										<th scope="col">Defense Team</th>
 										<th scope="col">Presiding Judge</th>
 										<th scope="col">Scoring Judge</th>
+										<th scope="col">Extra Judge</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -57,6 +58,7 @@
 											<td>{% render_field form.d_team class="form-select" name="d_team" %}</td>
 											<td>{% render_field form.presiding_judge class="form-select" name="presiding_judge" %}</td>
 											<td>{% render_field form.scoring_judge class="form-select" name="scoring_judge" %}</td>
+											<td>{% render_field form.extra_judge class="form-select" name="scoring_judge" %}</td>
 										</tr>
 										{% for hidden in form.hidden_fields %}
 												{{ hidden }}

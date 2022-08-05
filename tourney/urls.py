@@ -14,6 +14,8 @@ urlpatterns = [
     path('clear_checkin/', views.clear_checkin, name='clear_checkin'),
     path('checkin_all_judges/<int:round_num>', views.checkin_all_judges, name='checkin_all_judges'),
     path('view_ballot_status/<int:pairing_id>', views.view_ballot_status, name='view_ballot_status'),
+    path('view_captains_meeting_status/<int:pairing_id>',
+         views.view_captains_meeting_status, name='view_captains_meeting_status'),
     path('results', views.results, name='results'),
     path('individual_awards', views.individual_awards, name='individual_awards'),
     path('judge/update_conflict',

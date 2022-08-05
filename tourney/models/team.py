@@ -36,8 +36,8 @@ class Team(models.Model):
 
     def rounds(self):
         if self.p_rounds.exists() and self.d_rounds.exists():
-            queryset = self.p_rounds.all().union(self.d_rounds.all()).all()
-            return sorted([round for round in queryset], key=lambda x: x.pairing.round_num)
+            queryset = [round for round in self.p_rounds.all()] + [round for round in self.d_rounds.all()]
+            return sorted(queryset, key=lambda x: x.pairing.round_num)
         elif self.p_rounds.exists():
             return self.p_rounds.order_by('pairing__round_num').all()
         elif self.d_rounds.exists():
@@ -51,7 +51,8 @@ class Team(models.Model):
             for round in self.rounds():
                 if round.pairing.publish:
                     for ballot in round.ballots.all():
-                        ballots.append(ballot)
+                        if ballot.judge != round.extra_judge:
+                            ballots.append(ballot)
         return ballots
 
     def p_ballot(self):

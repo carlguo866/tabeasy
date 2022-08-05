@@ -39,8 +39,15 @@ class Judge(models.Model):
 
     @property
     def rounds(self):
-        return self.presiding_rounds.all().union(self.scoring_rounds.all())
-
+        if self.presiding_rounds.exists() and self.scoring_rounds.exists():
+            queryset = [round for round in self.presiding_rounds.all()] + [round for round in self.scoring_rounds.all()]
+            return sorted(queryset, key=lambda x: x.pairing.round_num)
+        elif self.presiding_rounds.exists():
+            return self.presiding_rounds.order_by('pairing__round_num').all()
+        elif self.scoring_rounds.exists():
+            return self.scoring_rounds.order_by('pairing__round_num').all()
+        else:
+            return []
 
     def __str__(self):
         return self.user.__str__()

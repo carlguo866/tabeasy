@@ -72,7 +72,7 @@ class RoundForm(forms.ModelForm):
     class Meta:
         model = Round
         fields = '__all__'
-        exclude = ['pairing','courtroom','extra_judge']
+        exclude = ['pairing','courtroom']
         # widgets = {
         #     'p_team': SearchableSelect(model='Round', search_field='p_team', limit=10),
         #     'd_team': SearchableSelect(model='Round', search_field='d_team', limit=10)
@@ -96,8 +96,13 @@ class RoundForm(forms.ModelForm):
             available_judges_pk = [judge.pk for judge in Judge.objects.all()
                                    if judge.get_availability(pairing.round_num)]
             self.fields['presiding_judge'].queryset = \
-                Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0, checkin=True).order_by('checkin','user__username')
-            self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk, checkin=True).order_by('checkin','user__username')
+                Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0,
+                                     checkin=True).order_by('checkin','user__username')
+            self.fields['scoring_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk,
+                                                                         checkin=True).order_by('checkin','user__username')
+            self.fields['extra_judge'].queryset = Judge.objects.filter(pk__in=available_judges_pk,
+                                                                         checkin=True).order_by('checkin',
+                                                                                                'user__username')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -300,8 +305,9 @@ class BallotForm(forms.ModelForm):
             self.fields['wit_rank_3'].queryset = wit_list
             self.fields['wit_rank_4'].queryset = wit_list
         else:
-            individual_award_query = TeamMember.objects.filter(team=self.instance.round.p_team).union(
-                                            TeamMember.objects.filter(team=self.instance.round.d_team))
+            team_ids = [person.pk for person in TeamMember.objects.filter(team=self.instance.round.p_team)] +\
+                [person.pk for person in TeamMember.objects.filter(team=self.instance.round.d_team)]
+            individual_award_query = TeamMember.objects.filter(pk__in=team_ids)
             self.fields['att_rank_1'].queryset = individual_award_query
             self.fields['att_rank_2'].queryset = individual_award_query
             self.fields['att_rank_3'].queryset = individual_award_query

@@ -242,6 +242,17 @@ def view_ballot_status(request, pairing_id):
             ballots.append(ballot)
     ballots = sorted(ballots, key=lambda x: x.round.courtroom)
     return render(request, 'tourney/tab/view_ballots_status.html', {'ballots': ballots})
+
+@user_passes_test(lambda u: u.is_staff)
+def view_captains_meeting_status(request, pairing_id):
+    pairing = Pairing.objects.get(pk=pairing_id)
+    captains_meetings = []
+    for round in pairing.rounds.all():
+        captains_meetings.append(round.captains_meeting)
+    ballots = sorted(captains_meetings, key=lambda x: x.round.courtroom)
+    return render(request, 'tourney/tab/view_captains_meeting_status.html',
+                  {'captains_meetings': captains_meetings})
+
 # @login_required
 # # def add_conflict(request):
 # #     if request.method == 'POST':

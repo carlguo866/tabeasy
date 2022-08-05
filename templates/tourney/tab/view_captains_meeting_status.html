@@ -10,37 +10,27 @@
 			<thead class="table-light">
 				<tr>
 					<th scope="col">Courtroom</th>
-					<th scope="col">Judge Name</th>
 					<th scope="col">P Team</th>
 					<th scope="col">D Team</th>
-					<th scope="col">P Score</th>
-					<th scope="col">D Score</th>
-					<th scope="col">P PD</th>
-					<th scope="col">D PD</th>
-					<th scope="col">Ballot</th>
+					<th scope="col">View</th>
 					<th scope="col">Submitted?</th>
 				</tr>
 			</thead>
 			<tbody>
-				{% for ballot in ballots %}
+				{% for captains_meeting in captains_meetings %}
 					<tr>
-						<th scope="row">{{ ballot.round.courtroom }}</th>
-						<td>{{ ballot.judge }}</td>
-						<td>{{ ballot.round.p_team }}</td>
-						<td>{{ ballot.round.d_team }}</td>
-						<td>{{ ballot.p_total_score }}</td>
-						<td>{{ ballot.d_total_score }}</td>
-						<td>{{ ballot.p_pd }}</td>
-						<td>{{ ballot.d_pd }}</td>
+						<th scope="row">{{ captains_meeting.round.courtroom }}</th>
+						<td>{{ captains_meeting.round.p_team }}</td>
+						<td>{{ captains_meeting.round.d_team }}</td>
 						<td>
 								<div class="m-2">
-									<a class="button button-primary py-2" href="{% url 'tourney:submit_ballot' ballot.pk %}">
+									<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' captains_meeting.pk %}">
 										View
 									</a>
 								</div>
 						</td>
 						<td>
-							{% if ballot.submit %}
+							{% if captains_meeting.submit %}
 								<i class="fa-solid fa-check mx-1"></i>
 							{% else %}
 								<i class="fa-solid fa-xmark mx-1"></i>
