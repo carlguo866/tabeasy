@@ -81,10 +81,11 @@ class Round(models.Model):
 
         if self.pairing.final_submit:
 
-            if self.presiding_judge == self.scoring_judge:
-                errors.append(f'assigning {self.presiding_judge} to both preside and score')
             if self.presiding_judge.preside == 0:
                 errors.append(f'{self.presiding_judge} can\'t preside')
+            if len(self.judges) != len(set(self.judges)):
+                errors.append(f'assigning one judge for two roles in {self}')
+
 
             for judge in self.judges:
                 if judge != None:
@@ -93,7 +94,7 @@ class Round(models.Model):
                     #check conflict
                     for team in self.teams:
                         if team in judge.conflicts.all():
-                            errors.append(f"{judge} conflicted with p_team {team}")
+                            errors.append(f"{judge} conflicted with team {team}")
 
                     #check if judged
                     judged = judge.judged(self.pairing.round_num)

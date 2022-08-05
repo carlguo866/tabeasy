@@ -116,11 +116,13 @@ class RoundForm(forms.ModelForm):
                 elif form.cleaned_data == {} and DEBUG:
                     continue
 
-                other_form_judges = [form.cleaned_data.get('presiding_judge'),form.cleaned_data.get('scoring_judge')]
+                other_form_judges = [form.cleaned_data.get('presiding_judge'),
+                                     form.cleaned_data.get('scoring_judge'), form.cleaned_data.get('extra_judge')]
                 # #check if assigned in another division this should be done on the form level
-                form_judges = [cleaned_data.get('presiding_judge'),cleaned_data.get('scoring_judge') ]
+                form_judges = [cleaned_data.get('presiding_judge'),cleaned_data.get('scoring_judge'),
+                               form.cleaned_data.get('extra_judge')]
                 for judge in form_judges:
-                    if judge in other_form_judges:
+                    if judge and judge in other_form_judges:
                         errors.append(f"{judge} already assigned in {form.instance.pairing.division}")
 
         if errors != []:
@@ -173,11 +175,13 @@ class PairingFormSet(BaseInlineFormSet):
                     continue
                 if form.cleaned_data == {}:
                     continue
-                form_judges = [form.cleaned_data.get('presiding_judge'), form.cleaned_data.get('scoring_judge')]
+                form_judges = [form.cleaned_data.get('presiding_judge'),
+                               form.cleaned_data.get('scoring_judge'), form.cleaned_data.get('extra_judge')]
                 for judge in form_judges:
-                    if judge in existing_judges:
-                        errors.append(f'{judge} used twice!')
-                    existing_judges.append(judge)
+                    if judge:
+                        if judge in existing_judges:
+                            errors.append(f'{judge} used twice!')
+                        existing_judges.append(judge)
 
         if errors != []:
             raise ValidationError(errors)

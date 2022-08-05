@@ -74,11 +74,13 @@
 					<div class="card-body text-start center">
 
 						{% for ballot in request.user.judge.ballots.all %}
-							<div class="card-text mb-4">
-								<a class="button button-primary py-2" href="{% url 'tourney:submit_ballot' ballot.pk %}">
-									{{ ballot.round }}
-								</a>
-							</div>
+							{% if ballot.round.pairing.final_submit %}
+								<div class="card-text mb-4">
+									<a class="button button-primary py-2" href="{% url 'tourney:submit_ballot' ballot.pk %}">
+										{{ ballot.round }}
+									</a>
+								</div>
+							{% endif %}
 
 						{% endfor %}
 
