@@ -89,7 +89,8 @@
 			</form>
 	<br>
 	<br>
-		<div class="container-sm">
+	</div>
+	<div class="container-fluid">
 			<div class="card">
 				<h4 class="card-header">Judge List</h4>
 				<div class="card-body">
@@ -100,7 +101,7 @@
 										<li class="list-group-item">{{ judge }}</li>
 									</ul>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<ul class="d-flex flex-wrap my-2">
 									<li class="list-group-item border">Conflicts:</li>
 									{% for conflict in judge.conflicts.all %}
@@ -108,7 +109,7 @@
 									{% endfor %}
 								</ul>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<ul class="d-flex flex-wrap my-2">
 									<li class="list-group-item border">Friends:</li>
 									{% for friend in judge.judge_friends.all %}
@@ -127,11 +128,23 @@
 									</li>
 								</ul>
 							</div>
+							<div class="col-md-2">
+								<ul class="d-flex flex-wrap my-2">
+									<li class="list-group-item border">Preside:
+										{% if judge.preside == 2%}
+											CIN
+										{% elif judge.preside == 1 %}
+											Y
+										{% else %}
+											N
+										{% endif %}
+									</li>
+								</ul>
+							</div>
 						</div>
 					{% endfor %}
 				</div>
 			</div>
-		</div>
 	</div>
 {% endblock content %}
 
