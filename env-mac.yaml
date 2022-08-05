@@ -89,6 +89,8 @@ dependencies:
     - django-querysetsequence==0.13
     - django-select2==7.6.0
     - djangorestframework==3.11.1
+    - django-widget-tweaks
+    - django-ajax-selects
     - gevent==20.9.0
     - google-api-python-client==1.7.9
     - google-auth==1.6.3
