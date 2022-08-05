@@ -249,7 +249,7 @@ def view_captains_meeting_status(request, pairing_id):
     captains_meetings = []
     for round in pairing.rounds.all():
         captains_meetings.append(round.captains_meeting)
-    ballots = sorted(captains_meetings, key=lambda x: x.round.courtroom)
+    captains_meetings = sorted(captains_meetings, key=lambda x: x.round.courtroom)
     return render(request, 'tourney/tab/view_captains_meeting_status.html',
                   {'captains_meetings': captains_meetings})
 
