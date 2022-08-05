@@ -3,13 +3,13 @@
 {% load mytags %}
 
 {% block content %}
-	<div class="container-fluid center">
+	<div class="container-md center">
 		<h1>Pairings</h1>
 			{% for pairing in pairings %}
-				<div class="row gx-2 pb-3">
+
 					<h3>Round {{ pairing.0.round_num }} Pairing</h3>
 					{% for div_pairing in pairing %}
-						<div class="col-md-6">
+						<div class="row gx-2 pb-3">
 							<h4>{{ div_pairing }}</h4>
 							{% if div_pairing.rounds.exists %}
 							<table class="table table-striped table-bordered table-responsive">
@@ -19,6 +19,7 @@
 										<th scope="col">Prosecution Team</th>
 										<th scope="col">Defense Team</th>
 										<th scope="col">Presiding Judge</th>
+										<th scope="col">Scoring Judge</th>
 										<th scope="col">Scoring Judge</th>
 									</tr>
 								</thead>
@@ -30,6 +31,7 @@
 											<td>{{ round.d_team }}</td>
 											<td>{{ round.presiding_judge }}</td>
 											<td>{{ round.scoring_judge }}</td>
+											<td>{{ round.extra_judge }}</td>
 										</tr>
 									{% endfor %}
 								</tbody>
@@ -63,7 +65,7 @@
 						</div>
 						</div>
 					{% endfor %}
-				</div>
+
 				<div class="d-flex justify-content-center">
 					<a href="{% url 'tourney:edit_pairing' pairing.0.round_num %}">
 						<button type="button" class="button button-primary m-2">Edit Round {{ pairing.0.round_num }} Pairing</button>

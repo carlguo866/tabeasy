@@ -14,3 +14,10 @@ def add_array_(array1, array2):
 @register.filter(name='zip')
 def zip_lists(a, b):
   return zip(a, b)
+
+from django import template
+
+@register.simple_tag
+def call_method(obj, method_name, *args):
+    method = getattr(obj, method_name)
+    return method(*args)

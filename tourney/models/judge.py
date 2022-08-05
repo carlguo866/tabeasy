@@ -33,9 +33,16 @@ class Judge(models.Model):
     def get_availability(self, round_num):
         return getattr(self, f"available_round{round_num}")
 
-
     def get_preside_preference(self):
         return self.preside_choices[self.preside][1]
+
+    def is_assigned(self, round_num):
+        assigned = False
+        for round in self.rounds:
+            if round.pairing.round_num == round_num:
+                assigned = True
+        return assigned
+
 
     @property
     def rounds(self):

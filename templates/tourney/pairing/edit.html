@@ -97,12 +97,12 @@
 					{% for judge in judges %}
 						<div class="row">
 							<div class="col-md-2">
-									<ul class="list-group my-2">
+									<ul class="list-group my-1">
 										<li class="list-group-item">{{ judge }}</li>
 									</ul>
 							</div>
 							<div class="col-md-3">
-								<ul class="d-flex flex-wrap my-2">
+								<ul class="d-flex flex-wrap my-1">
 									<li class="list-group-item border">Conflicts:</li>
 									{% for conflict in judge.conflicts.all %}
 										<li class="list-group-item border">{{ conflict }}</li>
@@ -110,15 +110,15 @@
 								</ul>
 							</div>
 							<div class="col-md-3">
-								<ul class="d-flex flex-wrap my-2">
+								<ul class="d-flex flex-wrap my-1">
 									<li class="list-group-item border">Friends:</li>
 									{% for friend in judge.judge_friends.all %}
 										<li class="list-group-item border">{{ friend }}</li>
 									{% endfor %}
 								</ul>
 							</div>
-							<div class="col-md-2">
-								<ul class="d-flex flex-wrap my-2">
+							<div class="col-md-1">
+								<ul class="d-flex flex-wrap my-1">
 									<li class="list-group-item border">Checkin:
 									{% if judge.checkin %}
 										<i class="fa-solid fa-check mx-1"></i>
@@ -128,8 +128,8 @@
 									</li>
 								</ul>
 							</div>
-							<div class="col-md-2">
-								<ul class="d-flex flex-wrap my-2">
+							<div class="col-md-1">
+								<ul class="d-flex flex-wrap my-1">
 									<li class="list-group-item border">Preside:
 										{% if judge.preside == 2%}
 											CIN
@@ -138,6 +138,13 @@
 										{% else %}
 											N
 										{% endif %}
+									</li>
+								</ul>
+							</div>
+							<div class="col-md-1">
+								<ul class="d-flex flex-wrap my-1">
+									<li class="list-group-item border">Assigned:
+										{% call_method judge 'is_assigned' pairing.round_num %}
 									</li>
 								</ul>
 							</div>

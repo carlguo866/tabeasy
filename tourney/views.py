@@ -126,7 +126,7 @@ def edit_pairing(request, round_num):
 
     available_judges_pk = [judge.pk for judge in Judge.objects.all()
                            if judge.get_availability(div1_pairing.round_num)]
-    judges = Judge.objects.filter(pk__in=available_judges_pk).all()
+    judges = Judge.objects.filter(pk__in=available_judges_pk).order_by('checkin','preside', 'user__username').all()
 
     if request.method == "POST":
         div1_formset = RoundFormSet(request.POST, request.FILES, prefix='div1', instance=div1_pairing,
