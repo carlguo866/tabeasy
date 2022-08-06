@@ -42,9 +42,9 @@ def results(request):
 @user_passes_test(lambda u: u.is_staff)
 def individual_awards(request):
     atts_ranked = sorted([member for member in TeamMember.objects.all()],
-                        key= lambda x: x.att_individual_score()).reverse()
+                        key= lambda x: -x.att_individual_score())
     wits_ranked = sorted([member for member in TeamMember.objects.all()],
-                        key= lambda x: x.wit_individual_score()).reverse()
+                        key= lambda x: -x.wit_individual_score())
     dict = {'atts_ranked': atts_ranked,
            'wits_ranked': wits_ranked,}
     return render(request, 'tourney/tab/individual_awards.html', dict)
