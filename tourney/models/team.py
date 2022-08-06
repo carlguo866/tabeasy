@@ -120,30 +120,29 @@ class TeamMember(models.Model):
     def __str__(self):
         return self.name
 
-    @property
     def att_individual_score(self):
         total = 0
         dict = {
-            self.att_rank_1.count(): 5,
-            self.att_rank_2.count(): 4,
-            self.att_rank_3.count(): 3,
-            self.att_rank_4.count(): 2,
+            5: self.att_rank_1.count(),
+            4: self.att_rank_2.count(),
+            3: self.att_rank_3.count(),
+            2: self.att_rank_4.count(),
         }
+        print(dict)
         for k, v in dict.items():
-            total += v*k
+            total += k*v
         return total
 
-    @property
     def wit_individual_score(self):
         total = 0
         dict = {
-            self.wit_rank_1.count(): 5,
-            self.wit_rank_2.count(): 4,
-            self.wit_rank_3.count(): 3,
-            self.wit_rank_4.count(): 2,
+            5 : self.wit_rank_1.count(),
+            4 : self.wit_rank_2.count(),
+            3 : self.wit_rank_3.count(),
+            2 : self.wit_rank_4.count(),
         }
         for k, v in dict.items():
-            total += v*k
+            total += k*v
         return total
 
     def __lt__(self, other):
