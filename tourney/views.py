@@ -4,7 +4,7 @@ import openpyxl
 from ajax_select.fields import autoselect_fields_check_can_add
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory, modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect
@@ -320,35 +320,39 @@ class JudgePreferenceUpdateView(JudgeOnlyMixin, UpdateView):
     success_url = reverse_lazy('index')
 
 
-class BallotUpdateView(PassRequestToFormViewMixin, JudgeOnlyMixin, UpdateView):
+class BallotUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, UpdateView):
     model = Ballot
     template_name = "tourney/ballot.html"
     form_class = BallotForm
     permission_denied_message = 'You are not allowed to view this ballot.'
 
     def test_func(self):
-        if not super().test_func():
-            return False
         self.ballot = get_object_or_404(Ballot, pk=self.kwargs['pk'])
-        if self.ballot.judge != self.request.user.judge \
-                and self.request.user.team not in self.captains_meeting.round.teams:
+        if self.request.user.is_staff:
+            return True
+        if self.request.user.is_judge and self.ballot.judge != self.request.user.judge:
+            return False
+        if self.request.user.is_team and \
+            self.request.user.team not in self.ballot.round.teams:
             return False
         return True
 
     def get_success_url(self):
         return self.request.path
 
-class CaptainsMeetingUpdateView(PassRequestToFormViewMixin, LoginRequiredMixin, UpdateView):
+class CaptainsMeetingUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, UpdateView):
     model = CaptainsMeeting
     template_name = "tourney/captains_meeting.html"
     form_class = CaptainsMeetingForm
     permission_denied_message = 'You are not allowed to view this Captains Meeting Form.'
 
     def test_func(self):
-        if not super().test_func():
-            return False
         self.captains_meeting = get_object_or_404(CaptainsMeeting, pk=self.kwargs['pk'])
-        if self.request.user.team not in self.captains_meeting.round.teams and \
+        if self.request.user.is_staff:
+            return True
+        if self.request.user.is_team and self.request.user.team not in self.captains_meeting.round.teams:
+            return False
+        if self.request.user.is_judge and \
                 self.request.user.judge not in self.captains_meeting.round.judges:
             return False
         return True

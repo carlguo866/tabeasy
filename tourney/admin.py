@@ -66,6 +66,6 @@ class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
 
 @admin.register(CaptainsMeeting)
 class CaptainsMeetingAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'submit']
+    list_display = ['pk', '__str__', 'submit']
     list_filter = ['round__pairing']
     search_fields = ['round__pairing','__str__']
