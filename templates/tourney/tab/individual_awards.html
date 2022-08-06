@@ -10,8 +10,8 @@
 			<thead class="table-light">
 				<tr>
 					<th scope="col"></th>
-					<th colspan="4" scope="colgroup">Attorneys</th>
-					<th colspan="4" scope="colgroup">Witnesses</th>
+					<th colspan="5" scope="colgroup">Attorneys</th>
+					<th colspan="5" scope="colgroup">Witnesses</th>
 				</tr>
 				<tr>
 					<th scope="col">#</th>
@@ -19,24 +19,40 @@
 					<th>Ranks</th>
 					<th>Team</th>
 					<th>Division</th>
+					<th>Side</th>
 					<th>Name</th>
 					<th>Ranks</th>
 					<th>Team</th>
 					<th>Division</th>
+					<th>Side</th>
 				</tr>
 			</thead>
 			<tbody>
-				{% for att, wit in atts_ranked|zip:wits_ranked %}
+				{% for att, att_side, wit, wit_side in ranked %}
 					<tr>
 						<th scope="row">{{ forloop.counter }}</th>
 						<td>{{ att }}</td>
-						<td>{{ att.att_individual_score }}</td>
+						<td>
+							{% if att_side == 'P' %}
+								{{ att.att_individual_score.0 }}
+							{% else %}
+								{{ att.att_individual_score.1 }}
+							{% endif %}
+						</td>
 						<td>{{ att.team }}</td>
 						<td>{{ att.team.division }}</td>
+						<td>{{ att_side }}</td>
 						<td>{{ wit }}</td>
-						<td>{{ wit.wit_individual_score }}</td>
+						<td>
+							{% if wit_side == 'P' %}
+								{{ wit.wit_individual_score.0 }}
+							{% else %}
+								{{ wit.wit_individual_score.1 }}
+							{% endif %}
+						</td>
 						<td>{{ wit.team }}</td>
 						<td>{{ wit.team.division }}</td>
+						<td>{{ wit_side }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

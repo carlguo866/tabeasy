@@ -121,29 +121,38 @@ class TeamMember(models.Model):
         return self.name
 
     def att_individual_score(self):
-        total = 0
+        p_total = 0
+        d_total = 0
         dict = {
-            5: self.att_rank_1.count(),
-            4: self.att_rank_2.count(),
-            3: self.att_rank_3.count(),
-            2: self.att_rank_4.count(),
+            self.att_rank_1.all(): 5,
+            self.att_rank_2.all(): 4,
+            self.att_rank_3.all(): 3,
+            self.att_rank_4.all(): 2,
         }
-        print(dict)
         for k, v in dict.items():
-            total += k*v
-        return total
+            for ballot in k:
+                if ballot.round.p_team == self.team:
+                    p_total += v
+                else:
+                    d_total += v
+        return [p_total, d_total]
 
     def wit_individual_score(self):
-        total = 0
+        p_total = 0
+        d_total = 0
         dict = {
-            5 : self.wit_rank_1.count(),
-            4 : self.wit_rank_2.count(),
-            3 : self.wit_rank_3.count(),
-            2 : self.wit_rank_4.count(),
+            self.wit_rank_1.all(): 5,
+            self.wit_rank_2.all(): 4,
+            self.wit_rank_3.all(): 3,
+            self.wit_rank_4.all(): 2,
         }
         for k, v in dict.items():
-            total += k*v
-        return total
+            for ballot in k:
+                if ballot.round.p_team == self.team:
+                    p_total += v
+                else:
+                    d_total += v
+        return [p_total, d_total]
 
     def __lt__(self, other):
         return self.id < other.id
