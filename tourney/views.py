@@ -320,7 +320,7 @@ class JudgePreferenceUpdateView(JudgeOnlyMixin, UpdateView):
     success_url = reverse_lazy('index')
 
 
-class BallotUpdateView(PassRequestToFormViewMixin, LoginRequiredMixin, UpdateView):
+class BallotUpdateView(PassRequestToFormViewMixin, JudgeOnlyMixin, UpdateView):
     model = Ballot
     template_name = "tourney/ballot.html"
     form_class = BallotForm

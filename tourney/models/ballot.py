@@ -117,36 +117,30 @@ class Ballot(models.Model):
         return f"Round {self.round.pairing.round_num} {self.judge}"
 
     def p_total_score(self):
-        if self.submit:
-            assert(not None in {self.p_open, self.p_wit1_att_direct, self.p_wit1_wit_direct, self.p_wit1_wit_cross,
-                                self.p_wit2_att_direct, self.p_wit2_wit_direct, self.p_wit2_wit_cross,
-                                self.p_wit3_att_direct, self.p_wit3_wit_direct, self.p_wit3_wit_cross,
-                                self.d_wit1_att_cross, self.d_wit2_att_cross, self.d_wit3_att_cross,
-                                self.p_close}), 'None in the p_scores cant run calculate_win()'
-            p_total_score = self.p_open + self.p_wit1_att_direct + self.p_wit1_wit_direct + self.p_wit1_wit_cross + \
-                            self.p_wit2_att_direct + self.p_wit2_wit_direct + self.p_wit2_wit_cross + \
-                            self.p_wit3_att_direct + self.p_wit3_wit_direct + self.p_wit3_wit_cross + \
-                            self.d_wit1_att_cross + self.d_wit2_att_cross + self.d_wit3_att_cross + \
-                            self.p_close
-            return p_total_score
-        else:
-            return 0
+        p_total_score = 0
+        scores = [
+            self.p_open , self.p_wit1_att_direct , self.p_wit1_wit_direct , self.p_wit1_wit_cross ,
+            self.p_wit2_att_direct , self.p_wit2_wit_direct , self.p_wit2_wit_cross ,
+            self.p_wit3_att_direct , self.p_wit3_wit_direct , self.p_wit3_wit_cross ,
+            self.d_wit1_att_cross , self.d_wit2_att_cross , self.d_wit3_att_cross ,
+            self.p_close
+        ]
+        for score in scores:
+            if score:
+                p_total_score += score
+        return p_total_score
 
     def d_total_score(self):
-        if self.submit:
-            assert (not None in {self.d_open, self.d_wit1_att_direct, self.d_wit1_wit_direct, self.d_wit1_wit_cross,
-                                 self.d_wit2_att_direct, self.d_wit2_wit_direct, self.d_wit2_wit_cross,
-                                 self.d_wit3_att_direct, self.d_wit3_wit_direct, self.d_wit3_wit_cross,
-                                 self.p_wit1_att_cross, self.p_wit2_att_cross + self.p_wit3_att_cross,
-                                 self.d_close}), 'None in the d_scores cant run calculate_win()'
-            d_total_score = self.d_open + self.d_wit1_att_direct + self.d_wit1_wit_direct + self.d_wit1_wit_cross + \
-                            self.d_wit2_att_direct + self.d_wit2_wit_direct + self.d_wit2_wit_cross + \
-                            self.d_wit3_att_direct + self.d_wit3_wit_direct + self.d_wit3_wit_cross + \
-                            self.p_wit1_att_cross + self.p_wit2_att_cross + self.p_wit3_att_cross + \
-                            self.d_close
-            return d_total_score
-        else:
-            return 0
+        d_total_score = 0
+        scores = [self.d_open , self.d_wit1_att_direct , self.d_wit1_wit_direct , self.d_wit1_wit_cross ,
+                self.d_wit2_att_direct , self.d_wit2_wit_direct , self.d_wit2_wit_cross ,
+                self.d_wit3_att_direct , self.d_wit3_wit_direct , self.d_wit3_wit_cross ,
+                self.p_wit1_att_cross , self.p_wit2_att_cross , self.p_wit3_att_cross ,
+                self.d_close]
+        for score in scores:
+            if score:
+                d_total_score += score
+        return d_total_score
 
     def calculate_win(self):
         if self.submit:

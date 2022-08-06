@@ -27,11 +27,13 @@
 					<div class="card-body text-start">
 						{% if user.team.rounds %}
 							{% for round in  user.team.rounds %}
-								<div class="card-text mb-4">
-									<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' round.captains_meeting.pk %}">
-										{{ round }}
-									</a>
-								</div>
+								{% if round.pairing.team_submit %}
+									<div class="card-text mb-4">
+										<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' round.captains_meeting.pk %}">
+											{{ round }}
+										</a>
+									</div>
+								{% endif %}
 							{% endfor %}
 						{% else %}
 							<div class="card-text">You are not assigned to a round yet. </div>
