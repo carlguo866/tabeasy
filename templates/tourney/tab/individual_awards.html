@@ -18,7 +18,6 @@
 					<th>Name</th>
 					<th>Ranks</th>
 					<th>Team</th>
-					<th>Division</th>
 					<th>Side</th>
 					<th>Name</th>
 					<th>Ranks</th>
@@ -28,31 +27,23 @@
 				</tr>
 			</thead>
 			<tbody>
-				{% for att, att_side, wit, wit_side in ranked %}
+				{% for att, wit in ranked %}
 					<tr>
 						<th scope="row">{{ forloop.counter }}</th>
-						<td>{{ att }}</td>
+						<td>{{ att.0 }}</td>
 						<td>
-							{% if att_side == 'P' %}
-								{{ att.att_individual_score.0 }}
-							{% else %}
-								{{ att.att_individual_score.1 }}
-							{% endif %}
+								{{ att.2 }}
 						</td>
-						<td>{{ att.team }}</td>
-						<td>{{ att.team.division }}</td>
-						<td>{{ att_side }}</td>
-						<td>{{ wit }}</td>
+						<td>{{ att.0.team }}</td>
+						<td>{{ att.0.team.division }}</td>
+						<td>{{ att.1 }}</td>
+						<td>{{ wit.0 }}</td>
 						<td>
-							{% if wit_side == 'P' %}
-								{{ wit.wit_individual_score.0 }}
-							{% else %}
-								{{ wit.wit_individual_score.1 }}
-							{% endif %}
+							{{ wit.2 }}
 						</td>
-						<td>{{ wit.team }}</td>
-						<td>{{ wit.team.division }}</td>
-						<td>{{ wit_side }}</td>
+						<td>{{ wit.0.team }}</td>
+						<td>{{ wit.0.team.division }}</td>
+						<td>{{ wit.1 }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

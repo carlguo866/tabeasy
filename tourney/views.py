@@ -41,52 +41,18 @@ def results(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def individual_awards(request):
-    p_atts_ranked = sorted([(member, member.att_individual_score()[0])
-                            for member in TeamMember.objects.all()],
-                        key= lambda x: -x[0].att_individual_score()[0])
+    atts_ranked = [(member,'P',member.att_individual_score()[0]) for member in TeamMember.objects.all()
+                   if member.att_individual_score()[0] >= 10]+ \
+                  [(member, 'D', member.att_individual_score()[1]) for member in TeamMember.objects.all()
+                   if member.att_individual_score()[1] >= 10]
+    atts_ranked = sorted(atts_ranked, key=lambda x: -x[2])
+    wits_ranked = [(member,'P',member.wit_individual_score()[0]) for member in TeamMember.objects.all()
+                   if member.wit_individual_score()[0] >= 10]+ \
+                  [(member, 'D', member.wit_individual_score()[1]) for member in TeamMember.objects.all()
+                   if member.wit_individual_score()[1] >= 10]
+    wits_ranked = sorted(wits_ranked, key=lambda x: -x[2])
 
-    d_atts_ranked = sorted([(member, member.att_individual_score()[1])
-                            for member in TeamMember.objects.all()],
-                        key= lambda x: -x[0].att_individual_score()[1])
-    p_wits_ranked = sorted([(member, member.wit_individual_score()[0])
-                            for member in TeamMember.objects.all()],
-                        key= lambda x: -x[0].wit_individual_score()[0])
-    d_wits_ranked = sorted([(member, member.wit_individual_score()[1])
-                            for member in TeamMember.objects.all()],
-                           key=lambda x: -x[0].wit_individual_score()[1])
-
-    score = 20
-    atts_ranked = []
-    atts_side = []
-    wits_ranked = []
-    wits_side = []
-    p_i = 0
-    d_i = 0
-    while score > 0 and p_i < len(p_atts_ranked) and d_i < len(d_atts_ranked) :
-        while p_atts_ranked[p_i][1] == score:
-            atts_ranked.append(p_atts_ranked[p_i][0])
-            atts_side.append('P')
-            p_i +=1
-        while d_atts_ranked[d_i][1] == score:
-            atts_ranked.append(d_atts_ranked[d_i][0])
-            atts_side.append('D')
-            d_i += 1
-        score -= 1
-    score = 20
-    p_i = 0
-    d_i = 0
-    while score > 0 and p_i < len(p_wits_ranked) and d_i < len(d_wits_ranked):
-        while p_wits_ranked[p_i][1] == score:
-            wits_ranked.append(p_wits_ranked[p_i][0])
-            wits_side.append('P')
-            p_i +=1
-        while d_wits_ranked[d_i][1] == score:
-            wits_ranked.append(d_wits_ranked[d_i][0])
-            wits_side.append('D')
-            d_i += 1
-        score -= 1
-
-    dict = {'ranked': zip(atts_ranked, atts_side, wits_ranked, wits_side)}
+    dict = {'ranked': zip(atts_ranked,wits_ranked)}
     return render(request, 'tourney/tab/individual_awards.html', dict)
 
 
