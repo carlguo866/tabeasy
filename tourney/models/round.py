@@ -48,7 +48,9 @@ class Round(models.Model):
 
     @property
     def judges(self):
-        if self.extra_judge != None:
+        if self.judge_panel.count() > 0:
+            return [self.presiding_judge, self.scoring_judge] + [judge for judge in self.judge_panel.all()]
+        elif self.extra_judge != None:
             return [self.presiding_judge, self.scoring_judge, self.extra_judge]
         else:
             return [self.presiding_judge, self.scoring_judge]
