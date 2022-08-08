@@ -286,7 +286,8 @@ class BallotForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(BallotForm, self).__init__(*args, **kwargs)
-        if not self.instance.submit:
+
+        if self.instance.round.pairing.round_num == 5 or not self.instance.submit:
             for field in self.fields:
                 self.fields[field].required = False
         if self.request.user.is_team:
