@@ -192,7 +192,7 @@ class Ballot(models.Model):
     def clean(self):
         super().clean()
         errors = []
-        if self.submit:
+        if not self.round.pairing.round_num == 5 and self.submit:
             if len(self.att_ranks()) != len(set(self.att_ranks())):
                 errors.append('You can only rank each attorney once')
             if len(self.wit_ranks()) != len(set(self.wit_ranks())):

@@ -324,7 +324,7 @@ class BallotForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         errors = []
-        if cleaned_data.get('submit'):
+        if self.instance.round.pairing.round_num != 5 and cleaned_data.get('submit'):
             for k,v in cleaned_data.items():
                 if k.find('comment') == -1 and v == None:
                     if k.find('att') != -1:
