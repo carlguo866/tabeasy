@@ -77,9 +77,11 @@ class Team(models.Model):
     def total_cs(self):
         cs = 0
         for p_round in self.p_rounds.all():
-            cs += p_round.d_team.total_ballots()
+            if p_round.pairing.round_num != 5:
+                cs += p_round.d_team.total_ballots()
         for d_round in self.d_rounds.all():
-            cs += d_round.p_team.total_ballots()
+            if d_round.pairing.round_num != 5:
+                cs += d_round.p_team.total_ballots()
         return cs
 
     def total_pd(self):
