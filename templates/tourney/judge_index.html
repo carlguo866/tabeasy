@@ -76,7 +76,7 @@
 						{% for ballot in request.user.judge.ballots.all %}
 							{% if ballot.round.pairing.final_submit %}
 								<div class="card-text mb-4">
-									<a class="button button-primary py-2" href="{% url 'tourney:submit_ballot' ballot.pk %}">
+									<a class="button button-primary py-2" href="{% url 'ballot:view' ballot.pk|int_str %}">
 										{{ ballot.round }}
 									</a>
 								</div>

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'ajax_select',
     'accounts',
+    'ballot',
     'tourney',
 ]
 

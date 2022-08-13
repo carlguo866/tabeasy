@@ -24,7 +24,7 @@
 						<td>{{ captains_meeting.round.d_team }}</td>
 						<td>
 								<div class="m-2">
-									<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' captains_meeting.pk %}">
+									<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' captains_meeting.pk|int_str %}">
 										View
 									</a>
 								</div>

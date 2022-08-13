@@ -1,4 +1,5 @@
 {% load static %}
+{% load mytags %}
 <div class="container-md">
 
 
@@ -29,7 +30,7 @@
 							{% for round in  user.team.rounds %}
 								{% if round.pairing.team_submit %}
 									<div class="card-text mb-4">
-										<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' round.captains_meeting.pk %}">
+										<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' round.captains_meeting.pk|int_str %}">
 											{{ round }}
 										</a>
 									</div>
@@ -49,7 +50,7 @@
 						{% if user.team.published_ballots %}
 							{% for ballot in user.team.published_ballots %}
 								<div class="card-text mb-4">
-									<a class="button button-primary py-2" href="{% url 'tourney:submit_ballot' ballot.pk %}">
+									<a class="button button-primary py-2" href="{% url 'ballot:view' ballot.pk|int_str %}">
 										{{ ballot }}
 									</a>
 								</div>
@@ -57,17 +58,6 @@
 						{% else %}
 							<div class="card-text mb-4">No ballots have been published yet.</div>
 						{% endif %}
-{#						{% for round in user.team.rounds.all %}#}
-{#							{% if round.pairing.publish %}#}
-{#								{% for ballot in round.ballots.all %}#}
-{#									<div class="card-text mb-4">#}
-{#										<a class="button button-primary py-2" href="{% url 'tourney:submit_ballot' ballot.pk %}">#}
-{#											{{ ballot }}#}
-{#										</a>#}
-{#									</div>#}
-{#								{% endfor %}#}
-{#							{% endif %}#}
-{#						{% endfor %}#}
 					</div>
 				</div>
 

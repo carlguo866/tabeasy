@@ -1,13 +1,9 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-# Create your models here
-from django_better_admin_arrayfield.models.fields import ArrayField
-
-from tourney.models import Ballot
 from tourney.models.captains_meeting import CaptainsMeeting
 from tourney.models.team import Team, TeamMember
-
+import uuid
 
 class Pairing(models.Model):
     division_choices = [('Disney', 'Disney'), ('Universal', 'Universal')]
@@ -43,14 +39,15 @@ class Round(models.Model):
                                     related_query_name='scoring_round', null=True)
     extra_judge = models.ForeignKey('Judge', on_delete=models.CASCADE, related_name='extra_rounds',
                                       related_query_name='extra_round', null=True, blank=True)
-    judge_panel = models.ManyToManyField('Judge', related_name='final_rounds', related_query_name='final_round',
-                                         null=True, blank=True)
+    # judge_panel = models.ManyToManyField('Judge', related_name='final_rounds', related_query_name='final_round',
+    #                                      null=True, blank=True)
 
     @property
     def judges(self):
-        if self.judge_panel.count() > 0:
-            return [self.presiding_judge, self.scoring_judge] + [judge for judge in self.judge_panel.all()]
-        elif self.extra_judge != None:
+        # if self.judge_panel.count() > 0:
+        #     return [self.presiding_judge, self.scoring_judge] + [judge for judge in self.judge_panel.all()]
+        # elif \
+        if self.extra_judge != None:
             return [self.presiding_judge, self.scoring_judge, self.extra_judge]
         else:
             return [self.presiding_judge, self.scoring_judge]

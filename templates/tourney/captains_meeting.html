@@ -473,14 +473,14 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-								<li class="list-group-item">
-									<div>{{ form.longstreet_pronoun.help_text }}</div>
-									{% render_field form.longstreet_pronoun class='form-select mt-1' name='longstreet_pronoun' %}
-								</li>
-								<li class="list-group-item">
-									<div>{{ form.kimball_pronoun.help_text }}</div>
-									{% render_field form.kimball_pronoun class='form-select mt-1' name='kimball_pronoun' %}
-								</li>
+								{% for pronoun_form in forms %}
+									{% if pronoun_form.init_character.side == 'p' %}
+										<li class="list-group-item">
+										<div>{{ pronoun_form.init_character }}</div>
+										{% render_field pronoun_form.pronouns class='form-select mt-1' name='pronouns' %}
+										</li>
+									{% endif %}
+								{% endfor %}
 							</ul>
 						</div>
 					</div>
@@ -490,14 +490,14 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-							<li class="list-group-item">
-								<div>{{ form.bowman_pronoun.help_text }}</div>
-									{% render_field form.bowman_pronoun class='form-select mt-1' name='bowman_pronoun' %}
-								</li>
-								<li class="list-group-item">
-									<div>{{ form.hunter_pronoun.help_text }}</div>
-									{% render_field form.hunter_pronoun class='form-select mt-1' name='hunter_pronoun' %}
-								</li>
+								{% for pronoun_form in forms %}
+									{% if pronoun_form.init_character.side == 'd' %}
+										<li class="list-group-item">
+										<div>{{ pronoun_form.init_character }}</div>
+										{% render_field pronoun_form.pronouns class='form-select mt-1' name='pronouns' %}
+										</li>
+									{% endif %}
+								{% endfor %}
 							</ul>
 						</div>
 					</div>
@@ -508,18 +508,14 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-							<li class="list-group-item">
-								<div>{{ form.kaminsky_pronoun.help_text }}</div>
-									{% render_field form.kaminsky_pronoun class='form-select mt-1' name='kaminsky_pronoun' %}
-								</li>
-								<li class="list-group-item">
-									<div>{{ form.isaacs_pronoun.help_text }}</div>
-									{% render_field form.isaacs_pronoun class='form-select mt-1' name='isaacs_pronoun' %}
-								</li>
-								<li class="list-group-item">
-									<div>{{ form.floyd_pronoun.help_text }}</div>
-									{% render_field form.floyd_pronoun class='form-select mt-1' name='floyd_pronoun' %}
-								</li>
+								{% for pronoun_form in forms %}
+									{% if pronoun_form.init_character.side == 'other' %}
+										<li class="list-group-item">
+										<div>{{ pronoun_form.init_character }}</div>
+										{% render_field pronoun_form.pronouns class='form-select mt-1' name='pronouns' %}
+										</li>
+									{% endif %}
+								{% endfor %}
 							</ul>
 						</div>
 					</div>
@@ -537,6 +533,13 @@
 
 			</div>
 		</div>
+
+
+
+
+
+
+
 
 		{% if request.user.is_team %}
 			<input class="button btn-secondary" type="submit" value="Save"

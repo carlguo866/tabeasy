@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load mytags %}
 {% load widget_tweaks %}
 
 {% block content %}
@@ -28,7 +29,7 @@
 								<div>Click for:</div>
 								<div class="row my-2 px-3">
 									<a class="button button-primary"
-										href="{% url 'tourney:captains_meeting' object.round.captains_meeting.pk %}">
+										href="{% url 'tourney:captains_meeting' object.round.captains_meeting.pk|int_str %}">
 									Captains Meeting Form
 									</a>
 								</div>
@@ -103,562 +104,117 @@
 
 	<form method="post" class="form-inline">
 		{% csrf_token %}
+
+		{% for section in section_forms %}
 		<div class="card my-5">
-			<h4 class="card-header">Opening Statements</h4>
+			<h4 class="card-header">{{ section.0.init_subsection.section }}</h4>
 			<div class="card-body">
 				<div class="row">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.p_open class="form-select" name="p_open" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.p_open_comment }}
-								</div>
-							</div>
+					{% if section.0.init_subsection.section.is_statement %}
+						<div class="col-md-6 pe-4">
+							{% for subsection_form in section %}
+								{% if subsection_form.init_subsection.side == 'p' %}
+									<div class="card border border-primary">
+										<div class="card-header">
+											{{ subsection_form.init_subsection }}
+		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
+										</div>
+										<div class="card-body">
+											<div class="row my-2">
+												<div class="col-2 py-2">Score:</div>
+												<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+											</div>
+											<div class="row text-start">
+												<div class="p-1">Comments:</div>
+												{{ subsection_form.comment }}
+											</div>
+										</div>
+									</div>
+								{% endif %}
+							{% endfor %}
 						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								{{ form.d_open.label_tag }} {{ object.round.captains_meeting.d_opener }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.d_open class="form-select" name="d_open" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.d_open_comment }}
-								</div>
-							</div>
+						<div class="col-md-6 ps-4">
+							{% for subsection_form in section %}
+								{% if subsection_form.init_subsection.side == 'd' %}
+									<div class="card border border-primary">
+										<div class="card-header">
+											{{ subsection_form.init_subsection }}
+		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
+										</div>
+										<div class="card-body">
+											<div class="row my-2">
+												<div class="col-2 py-2">Score:</div>
+												<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+											</div>
+											<div class="row text-start">
+												<div class="p-1">Comments:</div>
+												{{ subsection_form.comment }}
+											</div>
+										</div>
+									</div>
+								{% endif %}
+							{% endfor %}
 						</div>
-					</div>
+					{% else %}
+						<div class="col-md-6 pe-4">
+							{% for subsection_form in section %}
+								{% if subsection_form.init_subsection.role == 'att' %}
+									{% if subsection_form.init_subsection.side == 'p' %}
+										<div class="card border border-primary my-2">
+									{% else %}
+										<div class="card border border-secondary my-2">
+									{% endif %}
+										<div class="card-header">
+											{{ subsection_form.init_subsection }}
+		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
+										</div>
+										<div class="card-body">
+											<div class="row my-2">
+												<div class="col-2 py-2">Score:</div>
+												<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+											</div>
+											<div class="row text-start">
+												<div class="p-1">Comments:</div>
+												{{ subsection_form.comment }}
+											</div>
+										</div>
+									</div>
+								{% endif %}
+							{% endfor %}
+						</div>
+						<div class="col-md-6 ps-4">
+							{% for subsection_form in section %}
+								{% if subsection_form.init_subsection.role == 'wit' %}
+									{% if subsection_form.init_subsection.side == 'p' %}
+										<div class="card border border-primary my-2">
+									{% else %}
+										<div class="card border border-secondary my-2">
+									{% endif %}
+										<div class="card-header">
+											{{ subsection_form.init_subsection }}
+		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
+										</div>
+										<div class="card-body">
+											<div class="row my-2">
+												<div class="col-2 py-2">Score:</div>
+												<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+											</div>
+											<div class="row text-start">
+												<div class="p-1">Comments:</div>
+												{{ subsection_form.comment }}
+											</div>
+										</div>
+									</div>
+								{% endif %}
+							{% endfor %}
+						</div>
+					{% endif %}
+
 				</div>
 			</div>
 		</div>
 
-		<div class="card my-5">
-			<h3 class="card-header">Prosecution Witness #1: {{ object.round.captains_meeting.p_wit1_name }}</h3>
-			<div class="card-body">
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Directing Attorney: {{ object.round.captains_meeting.p_wit1_direct_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.p_wit1_att_direct class="form-select" name="p_wit1_att_direct" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.p_wit1_att_direct_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Witness (Direct): {{ object.round.captains_meeting.p_wit1 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.p_wit1_wit_direct class="form-select" name="p_wit1_wit_direct" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.p_wit1_wit_direct_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Crossing Attorney: {{ object.round.captains_meeting.p_wit1_cross_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.p_wit1_att_cross class="form-select" name="p_wit1_att_cross" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.p_wit1_att_cross_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Witness (Cross): {{ object.round.captains_meeting.p_wit1 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.p_wit1_wit_cross class="form-select" name="p_wit1_wit_cross" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.p_wit1_wit_cross_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-
-		<div class="card my-5">
-			<h3 class="card-header">Prosecution Witness #2: {{ object.round.captains_meeting.p_wit2_name }}</h3>
-			<div class="card-body">
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Directing Attorney: {{ object.round.captains_meeting.p_wit2_direct_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.p_wit2_att_direct class="form-select" name="p_wit2_att_direct" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.p_wit2_att_direct_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Witness (Direct): {{ object.round.captains_meeting.p_wit2 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.p_wit2_wit_direct class="form-select" name="p_wit2_wit_direct" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.p_wit2_wit_direct_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Crossing Attorney: {{ object.round.captains_meeting.p_wit2_cross_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.p_wit2_att_cross class="form-select" name="p_wit2_att_cross" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.p_wit2_att_cross_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Witness (Cross): {{ object.round.captains_meeting.p_wit2 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.p_wit2_wit_cross class="form-select" name="p_wit2_wit_cross" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.p_wit2_wit_cross_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-			</div>
-		</div>
-{#		{{ form.as_p }}#}
-
-		<div class="card my-5">
-			<h3 class="card-header">Prosecution Witness #3: {{ object.round.captains_meeting.p_wit3_name }}</h3>
-			<div class="card-body">
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Directing Attorney: {{ object.round.captains_meeting.p_wit3_direct_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.p_wit3_att_direct class="form-select" name="p_wit3_att_direct" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.p_wit3_att_direct_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Witness (Direct): {{ object.round.captains_meeting.p_wit3 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.p_wit3_wit_direct class="form-select" name="p_wit3_wit_direct" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.p_wit3_wit_direct_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Crossing Attorney: {{ object.round.captains_meeting.p_wit3_cross_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.p_wit3_att_cross class="form-select" name="p_wit3_att_cross" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.p_wit3_att_cross_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Witness (Cross): {{ object.round.captains_meeting.p_wit3 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.p_wit3_wit_cross class="form-select" name="p_wit3_wit_cross" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.p_wit3_wit_cross_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		<div class="card my-5">
-			<h3 class="card-header">Defense Witness #1: {{ object.round.captains_meeting.d_wit1_name }}</h3>
-			<div class="card-body">
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Directing Attorney: {{ object.round.captains_meeting.d_wit1_direct_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.d_wit1_att_direct class="form-select" name="d_wit1_att_direct" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.d_wit1_att_direct_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Witness (Direct): {{ object.round.captains_meeting.d_wit1 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.d_wit1_wit_direct class="form-select" name="d_wit1_wit_direct" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.d_wit1_wit_direct_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Crossing Attorney: {{ object.round.captains_meeting.d_wit1_cross_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.d_wit1_att_cross class="form-select" name="d_wit1_att_cross" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.d_wit1_att_cross_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Witness (Cross): {{ object.round.captains_meeting.d_wit1 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.d_wit1_wit_cross class="form-select" name="d_wit1_wit_cross" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.d_wit1_wit_cross_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		
-		<div class="card my-5">
-			<h3 class="card-header">Defense Witness #2: {{ object.round.captains_meeting.d_wit2_name }}</h3>
-			<div class="card-body">
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Directing Attorney: {{ object.round.captains_meeting.d_wit2_direct_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.d_wit2_att_direct class="form-select" name="d_wit2_att_direct" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.d_wit2_att_direct_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Witness (Direct): {{ object.round.captains_meeting.d_wit2 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.d_wit2_wit_direct class="form-select" name="d_wit2_wit_direct" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.d_wit2_wit_direct_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Crossing Attorney: {{ object.round.captains_meeting.d_wit2_cross_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.d_wit2_att_cross class="form-select" name="d_wit2_att_cross" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.d_wit2_att_cross_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Witness (Cross): {{ object.round.captains_meeting.d_wit2 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.d_wit2_wit_cross class="form-select" name="d_wit2_wit_cross" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.d_wit2_wit_cross_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="card my-5">
-			<h3 class="card-header">Defense Witness #3: {{ object.round.captains_meeting.d_wit3_name }}</h3>
-			<div class="card-body">
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Directing Attorney: {{ object.round.captains_meeting.d_wit3_direct_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.d_wit3_att_direct class="form-select" name="d_wit3_att_direct" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.d_wit3_att_direct_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Witness (Direct): {{ object.round.captains_meeting.d_wit3 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.d_wit3_wit_direct class="form-select" name="d_wit3_wit_direct" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.d_wit3_wit_direct_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-				<div class="row my-2">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Crossing Attorney: {{ object.round.captains_meeting.d_wit3_cross_att }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.d_wit3_att_cross class="form-select" name="d_wit3_att_cross" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.d_wit3_att_cross_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Witness (Cross): {{ object.round.captains_meeting.d_wit3 }}
-							</div>
-								<div class="card-body">
-									<div class="row my-2">
-										<div class="col-2 py-2">Score:</div>
-										<div class="col-10">{% render_field form.d_wit3_wit_cross class="form-select" name="d_wit3_wit_cross" %}</div>
-									</div>
-									<div class="row text-start">
-										<div class="p-1">Comments:</div>
-										{{ form.d_wit3_wit_cross_comment }}
-									</div>
-								</div>
-							</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="card my-5">
-			<h4 class="card-header">Closing Arguments</h4>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								{{ form.p_close.label_tag }} {{ object.round.captains_meeting.p_closer }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.p_close class="form-select" name="p_close" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.p_close_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								{{ form.d_close.label_tag }} {{ object.round.captains_meeting.d_closer }}
-							</div>
-							<div class="card-body">
-								<div class="row my-2">
-									<div class="col-2 py-2">Score:</div>
-									<div class="col-10">{% render_field form.d_close class="form-select" name="d_close" %}</div>
-								</div>
-								<div class="row text-start">
-									<div class="p-1">Comments:</div>
-									{{ form.d_close_comment }}
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-
+		{% endfor %}
 
 		<div class="card my-5">
 			<h4 class="card-header">Individual Ranks</h4>

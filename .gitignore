@@ -4,6 +4,7 @@ __pycache__
 
 # Secret folder
 tabeasy_secrets/
+backup_db/
 
 # Server deployment files
 deploy.sh

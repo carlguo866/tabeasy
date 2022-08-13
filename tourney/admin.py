@@ -3,11 +3,17 @@ from django.db import models
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from django.forms import TextInput, Textarea, Select
 
-from tourney.forms import RoundForm
-from tourney.models.ballot import Ballot
+from ballot.admin import BallotInlineAdmin
+from tourney.models.captains_meeting import Character, CharacterPronouns
 from tourney.models.judge import Judge
 from tourney.models.round import Pairing, Round, CaptainsMeeting
 from tourney.models.team import Team, TeamMember
+from tourney.models.tournament import Tournament
+
+
+@admin.register(Tournament)
+class TournamentAdmin(admin.ModelAdmin):
+    list_display = ['name']
 
 
 class RoundInline(admin.StackedInline):
@@ -26,19 +32,7 @@ class PairingAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['pk', 'round_num','division']
     inlines = [RoundInline]
 
-@admin.register(Ballot)
-class BallotAdmin(admin.ModelAdmin, DynamicArrayMixin):
-    list_display = ['pk', 'round', 'judge', 'p_pd', 'd_pd','d_total_score','p_total_score', 'submit']
-    list_filter = ['round__pairing', 'judge']
-    search_fields = ['judge']
-    model = Ballot
 
-
-class BallotInlineAdmin(admin.TabularInline):
-    model = Ballot
-    fields = ['judge']
-    extra = 0
-    show_change_link = True
 
 @admin.register(Round)
 class RoundAdmin(admin.ModelAdmin):
@@ -50,9 +44,6 @@ class RoundAdmin(admin.ModelAdmin):
 class JudgeAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['pk', '__str__']
     search_fields = ['user.username']
-    # fieldsets = (
-    #     (None, {'fields': ('ballots', 'pairing1s', 'pairing2s')}),
-    # )
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
@@ -64,8 +55,24 @@ class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['pk', 'name','team']
     search_fields = ['name']
 
+
+@admin.register(Character)
+class CharacterAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'side']
+    # list_filter = ['tournament']
+    search_fields = ['__str__']
+
+class CharacterPronounsInlineAdmin(admin.TabularInline):
+    model = CharacterPronouns
+    fields = ['character','pronouns']
+    extra = 0
+    show_change_link = True
+
 @admin.register(CaptainsMeeting)
 class CaptainsMeetingAdmin(admin.ModelAdmin):
     list_display = ['pk', '__str__', 'submit']
     list_filter = ['round__pairing']
+    inlines = [CharacterPronounsInlineAdmin]
     search_fields = ['round__pairing','__str__']
+
+

@@ -7,18 +7,20 @@ from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory, modelformset_factory
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView, DetailView
 
 from accounts.models import User
+from ballot.forms import BallotForm
 from tabeasy.settings import DEBUG
 from tabeasy.utils.mixins import JudgeOnlyMixin, TeamOnlyMixin, AuthorizedJudgeOnlyMixin, PassRequestToFormViewMixin
-from tabeasy_secrets.secret import DIVISION_ROUND_NUM
-from tourney.forms import RoundForm, UpdateConflictForm, BallotForm, UpdateJudgeFriendForm, PairingFormSet, \
-    CaptainsMeetingForm, PairingSubmitForm, JudgeForm, CheckinJudgeForm
-from tourney.models.ballot import Ballot
+from tabeasy_secrets.secret import DIVISION_ROUND_NUM, str_int, TOURNAMENT_NAME
+from tourney.forms import RoundForm, UpdateConflictForm, UpdateJudgeFriendForm, PairingFormSet, \
+    CaptainsMeetingForm, PairingSubmitForm, JudgeForm, CheckinJudgeForm, EditPronounsForm
+from ballot.models import Ballot
+from tourney.models.captains_meeting import Character, CharacterPronouns
 from tourney.models.judge import Judge
 from tourney.models.round import Round, Pairing, CaptainsMeeting
 from tourney.models.team import Team, TeamMember
@@ -274,6 +276,30 @@ def view_captains_meeting_status(request, pairing_id):
     return render(request, 'tourney/tab/view_captains_meeting_status.html',
                   {'captains_meetings': captains_meetings})
 
+@user_passes_test(lambda u: u.is_staff)
+def test_pronouns(request):
+    if request.method == "POST":
+        forms = [EditPronounsForm(request.POST, instance=character,prefix=character.__str__())
+                 for character in Character.objects.all()]
+        has_wrong = False
+        for form in forms:
+            if form.is_valid():
+               form.save()
+            else:
+                has_wrong = True
+        if has_wrong:
+            raise ValidationError('aldfnkalndln somethign wrong')
+        else:
+            return redirect('index')
+    else:
+        forms = [EditPronounsForm(instance=character,prefix=character.__str__())
+                 for character in Character.objects.all()]
+
+    context = {'forms': forms}
+    return render(request, 'accounts/signup.html',
+                  context)
+
+
 # @login_required
 # # def add_conflict(request):
 # #     if request.method == 'POST':
@@ -325,35 +351,14 @@ class JudgePreferenceUpdateView(JudgeOnlyMixin, UpdateView):
 
     success_url = reverse_lazy('index')
 
-
-class BallotUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, UpdateView):
-    model = Ballot
-    template_name = "tourney/ballot.html"
-    form_class = BallotForm
-    permission_denied_message = 'You are not allowed to view this ballot.'
-
-    def test_func(self):
-        self.ballot = get_object_or_404(Ballot, pk=self.kwargs['pk'])
-        if self.request.user.is_staff:
-            return True
-        if self.request.user.is_judge and self.ballot.judge != self.request.user.judge:
-            return False
-        if self.request.user.is_team and \
-            self.request.user.team not in self.ballot.round.teams:
-            return False
-        return True
-
-    def get_success_url(self):
-        return self.request.path
-
-class CaptainsMeetingUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin, UpdateView):
+class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFormViewMixin, UpdateView):
     model = CaptainsMeeting
     template_name = "tourney/captains_meeting.html"
     form_class = CaptainsMeetingForm
     permission_denied_message = 'You are not allowed to view this Captains Meeting Form.'
 
     def test_func(self):
-        self.captains_meeting = get_object_or_404(CaptainsMeeting, pk=self.kwargs['pk'])
+        self.captains_meeting = get_object_or_404(CaptainsMeeting, pk=str_int(self.kwargs['encrypted_pk']))
         if self.request.user.is_staff:
             return True
         if self.request.user.is_team and self.request.user.team not in self.captains_meeting.round.teams:
@@ -362,6 +367,56 @@ class CaptainsMeetingUpdateView(UserPassesTestMixin, PassRequestToFormViewMixin,
                 self.request.user.judge not in self.captains_meeting.round.judges:
             return False
         return True
+
+    def get_object(self, queryset=None):
+        return CaptainsMeeting.objects.get(pk=str_int(self.kwargs['encrypted_pk']))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if CharacterPronouns.objects.filter(captains_meeting=self.object).exists():
+            context['forms'] = [EditPronounsForm(instance=character_pronouns,
+                                                 character=character_pronouns.character,captains_meeting=self.object,
+                                                 prefix=character_pronouns.character.__str__())
+                                for character_pronouns in
+                                CharacterPronouns.objects.filter(captains_meeting=self.object).all()]
+        else:
+            context['forms'] = [EditPronounsForm(character=character,captains_meeting=self.object,
+                                                 prefix=character.__str__())
+                 for character in Character.objects.filter(tournament__name=TOURNAMENT_NAME).all()]
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        self.object = self.get_object()
+        form = self.get_form()
+        if CharacterPronouns.objects.filter(captains_meeting=self.object).exists():
+            forms = [EditPronounsForm(request.POST, instance=character_pronouns,
+                                                 character=character_pronouns.character,
+                                                captains_meeting=self.object,
+                                                 prefix=character_pronouns.character.__str__())
+                                for character_pronouns in
+                                CharacterPronouns.objects.filter(captains_meeting=self.object).all()]
+        else:
+            forms = [EditPronounsForm(request.POST, character=character,captains_meeting=self.object, prefix=character.__str__())
+                       for character in Character.objects.all()]
+        is_valid = True
+        for pronouns_form in forms:
+            if not pronouns_form.is_valid():
+                raise ValidationError(pronouns_form.errors)
+                is_valid = False
+        if not form.is_valid():
+            is_valid = False
+        if is_valid:
+            return self.form_valid(form, forms)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form, forms):
+        for pronouns_form in forms:
+            # pronouns_form.instance.captains_meeting = self.object
+            pronouns_form.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('index')
