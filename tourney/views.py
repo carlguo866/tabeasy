@@ -1,29 +1,27 @@
 import random
 import string
 import openpyxl
-from ajax_select.fields import autoselect_fields_check_can_add
-from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ValidationError
-from django.forms import inlineformset_factory, modelformset_factory
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.forms import inlineformset_factory
+from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, UpdateView, DetailView
+from django.urls import reverse_lazy
+from django.views.generic import UpdateView
 
 from accounts.models import User
-from ballot.forms import BallotForm
 from tabeasy.settings import DEBUG
-from tabeasy.utils.mixins import JudgeOnlyMixin, TeamOnlyMixin, AuthorizedJudgeOnlyMixin, PassRequestToFormViewMixin
+from tabeasy.utils.mixins import JudgeOnlyMixin, PassRequestToFormViewMixin
 from tabeasy_secrets.secret import DIVISION_ROUND_NUM, str_int, TOURNAMENT_NAME
 from tourney.forms import RoundForm, UpdateConflictForm, UpdateJudgeFriendForm, PairingFormSet, \
     CaptainsMeetingForm, PairingSubmitForm, JudgeForm, CheckinJudgeForm, EditPronounsForm
-from ballot.models import Ballot
+from submission.models.ballot import Ballot
 from tourney.models.captains_meeting import Character, CharacterPronouns
 from tourney.models.judge import Judge
 from tourney.models.round import Round, Pairing, CaptainsMeeting
-from tourney.models.team import Team, TeamMember
+from tourney.models.team import Team
+from tourney.models.competitor import Competitor
 
 def sort_teams(teams):
     return list(reversed(sorted(teams,
@@ -43,14 +41,14 @@ def results(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def individual_awards(request):
-    atts_ranked = [(member,'P',member.att_individual_score()[0]) for member in TeamMember.objects.all()
+    atts_ranked = [(member,'P',member.att_individual_score()[0]) for member in Competitor.objects.all()
                    if member.att_individual_score()[0] >= 10]+ \
-                  [(member, 'D', member.att_individual_score()[1]) for member in TeamMember.objects.all()
+                  [(member, 'D', member.att_individual_score()[1]) for member in Competitor.objects.all()
                    if member.att_individual_score()[1] >= 10]
     atts_ranked = sorted(atts_ranked, key=lambda x: -x[2])
-    wits_ranked = [(member,'P',member.wit_individual_score()[0]) for member in TeamMember.objects.all()
+    wits_ranked = [(member,'P',member.wit_individual_score()[0]) for member in Competitor.objects.all()
                    if member.wit_individual_score()[0] >= 10]+ \
-                  [(member, 'D', member.wit_individual_score()[1]) for member in TeamMember.objects.all()
+                  [(member, 'D', member.wit_individual_score()[1]) for member in Competitor.objects.all()
                    if member.wit_individual_score()[1] >= 10]
     wits_ranked = sorted(wits_ranked, key=lambda x: -x[2])
 
@@ -464,12 +462,12 @@ def load_teams(request):
                         user.save()
                         Team.objects.create(team_id=pk, user=user, team_name=team_name,division=division,school=school)
                     for name in team_roster:
-                        if TeamMember.objects.filter(name=name).exists():
+                        if Competitor.objects.filter(name=name).exists():
                             message += f'update member {name}'
-                            TeamMember.objects.filter(name=name).update(team=Team.objects.filter(pk=pk)[0],name=name)
+                            Competitor.objects.filter(name=name).update(team=Team.objects.filter(pk=pk)[0],name=name)
                         else:
                             message += f'create member {name}'
-                            TeamMember.objects.create(name=name,team=Team.objects.filter(pk=pk)[0])
+                            Competitor.objects.create(name=name,team=Team.objects.filter(pk=pk)[0])
                 except Exception as e:
                     message += str(e)
                 else:

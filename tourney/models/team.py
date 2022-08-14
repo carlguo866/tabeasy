@@ -121,62 +121,6 @@ class Team(models.Model):
     #     else:
     #         return self.total_ballots() - other.total_ballots()
 
-class TeamMember(models.Model):
-    name = models.CharField(max_length=30)
-    team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='members',related_query_name='member')
-
-    def __str__(self):
-        return self.name
-
-    def att_individual_score(self):
-        p_total = 0
-        d_total = 0
-        dict = {
-            self.att_rank_1.all(): 5,
-            self.att_rank_2.all(): 4,
-            self.att_rank_3.all(): 3,
-            self.att_rank_4.all(): 2,
-        }
-        for k, v in dict.items():
-            for ballot in k:
-                if ballot.round.p_team == self.team:
-                    p_total += v
-                else:
-                    d_total += v
-        return [p_total, d_total]
-
-    def wit_individual_score(self):
-        p_total = 0
-        d_total = 0
-        dict = {
-            self.wit_rank_1.all(): 5,
-            self.wit_rank_2.all(): 4,
-            self.wit_rank_3.all(): 3,
-            self.wit_rank_4.all(): 2,
-        }
-        for k, v in dict.items():
-            for ballot in k:
-                if ballot.round.p_team == self.team:
-                    p_total += v
-                else:
-                    d_total += v
-        return [p_total, d_total]
-
-    def __lt__(self, other):
-        return self.id < other.id
-
-    class Meta:
-        ordering = ['id']
 
 
-class NonReversibleForeignKey(models.ForeignKey):
-    _relation_counter = 0
 
-    @classmethod
-    def generate_related_name(cls):
-        cls._relation_counter += 1
-        return "anonymous_relation_%s" % cls._relation_counter
-    #
-    # def contribute_to_related_class(self, cls, related):
-    #     self.name = NonReversibleForeignKey.generate_related_name()
-    #     return super(NonReversibleForeignKey, self).contribute_to_related_class(cls, related)

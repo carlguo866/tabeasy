@@ -1,13 +1,12 @@
 from django.contrib import admin
-from django.db import models
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
-from django.forms import TextInput, Textarea, Select
 
-from ballot.admin import BallotInlineAdmin
+from submission.admin import BallotInlineAdmin
 from tourney.models.captains_meeting import Character, CharacterPronouns
 from tourney.models.judge import Judge
 from tourney.models.round import Pairing, Round, CaptainsMeeting
-from tourney.models.team import Team, TeamMember
+from tourney.models.team import Team
+from tourney.models.competitor import Competitor
 from tourney.models.tournament import Tournament
 
 
@@ -50,7 +49,7 @@ class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['team_id','team_name','division','school']
     search_fields = ['team_name']
 
-@admin.register(TeamMember)
+@admin.register(Competitor)
 class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['pk', 'name','team']
     search_fields = ['name']

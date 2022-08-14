@@ -1,19 +1,14 @@
-import string
-import random
 from django import forms
-from django.contrib.postgres.forms import SimpleArrayField, SplitArrayField
 from django.core.exceptions import ValidationError
-from django.db.models import QuerySet
-from django.forms import MultipleChoiceField, BaseFormSet
+from django.forms import MultipleChoiceField
 from django.forms.models import ModelChoiceIterator, BaseInlineFormSet
 
 from tabeasy.settings import DEBUG
-from tabeasy_secrets.secret import DIVISION_ROUND_NUM
-from tourney.models.captains_meeting import Character, CharacterPronouns
+from tourney.models.captains_meeting import CharacterPronouns
 from tourney.models.judge import Judge
 from tourney.models.round import Pairing, Round, CaptainsMeeting
-from tourney.models.team import Team, TeamMember
-import ajax_select.fields as ajax_select_fields
+from tourney.models.team import Team
+from tourney.models.competitor import Competitor
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 INT_CHOICES = [(i,i) for i in range(11)]
@@ -277,7 +272,7 @@ class CaptainsMeetingForm(forms.ModelForm):
             self.fields[f'character_evidence_option{i + 1}_description'].required = False
 
 
-        p_team_members = TeamMember.objects.filter(team=self.instance.round.p_team)
+        p_team_members = Competitor.objects.filter(team=self.instance.round.p_team)
         self.fields['p_opener'].queryset = p_team_members
         self.fields['p_wit1'].queryset = p_team_members
         self.fields['p_wit1_direct_att'].queryset = p_team_members
@@ -290,7 +285,7 @@ class CaptainsMeetingForm(forms.ModelForm):
         self.fields['d_wit3_cross_att'].queryset = p_team_members
         self.fields['p_closer'].queryset = p_team_members
 
-        d_team_members = TeamMember.objects.filter(team=self.instance.round.d_team)
+        d_team_members = Competitor.objects.filter(team=self.instance.round.d_team)
         self.fields['d_opener'].queryset = d_team_members
         self.fields['d_wit1'].queryset = d_team_members
         self.fields['d_wit1_direct_att'].queryset = d_team_members

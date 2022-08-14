@@ -2,8 +2,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from tourney.models.captains_meeting import CaptainsMeeting
-from tourney.models.team import Team, TeamMember
-import uuid
+from tourney.models.team import Team
 
 class Pairing(models.Model):
     division_choices = [('Disney', 'Disney'), ('Universal', 'Universal')]

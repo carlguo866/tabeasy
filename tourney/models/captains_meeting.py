@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 import uuid
-from tourney.models import TeamMember
+from tourney.models.competitor import Competitor
 from tourney.models.tournament import Tournament
 
 
@@ -52,55 +52,55 @@ class CaptainsMeeting(models.Model):
         ('Billy Isaacs', 'Billy Isaacs'),
         ('Haley Floyd', 'Haley Floyd'),
     ]
-    p_opener = models.ForeignKey(TeamMember, on_delete=models.SET_NULL,
+    p_opener = models.ForeignKey(Competitor, on_delete=models.SET_NULL,
                                  related_name='p_opener', related_query_name='p_opener', null=True)
-    d_opener = models.ForeignKey(TeamMember, on_delete=models.SET_NULL, related_name='d_opener', null=True)
+    d_opener = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_name='d_opener', null=True)
     #
     p_wit1_name = models.CharField(max_length=30, choices=witness_choices, null=True)
-    p_wit1 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit1', null=True)
-    p_wit1_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE,
+    p_wit1 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='p_wit1', null=True)
+    p_wit1_direct_att = models.ForeignKey(Competitor, on_delete=models.CASCADE,
                                           related_name='p_wit1_direct_att', null=True)
-    p_wit1_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE,
+    p_wit1_cross_att = models.ForeignKey(Competitor, on_delete=models.CASCADE,
                                          related_name='p_wit1_cross_att', null=True)
 
     p_wit2_name = models.CharField(max_length=30, choices=witness_choices, null=True)
-    p_wit2 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit2', null=True)
-    p_wit2_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit2_direct_att',
+    p_wit2 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='p_wit2', null=True)
+    p_wit2_direct_att = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='p_wit2_direct_att',
                                           null=True)
-    p_wit2_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit2_cross_att',
+    p_wit2_cross_att = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='p_wit2_cross_att',
                                          null=True)
 
     p_wit3_name = models.CharField(max_length=30, choices=witness_choices, null=True)
-    p_wit3 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit3', null=True)
-    p_wit3_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit3_direct_att',
+    p_wit3 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='p_wit3', null=True)
+    p_wit3_direct_att = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='p_wit3_direct_att',
                                           null=True)
-    p_wit3_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_wit3_cross_att',
+    p_wit3_cross_att = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='p_wit3_cross_att',
                                          null=True)
 
 
     d_wit1_name = models.CharField(max_length=30, choices=witness_choices, null=True)
-    d_wit1 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit1', null=True)
-    d_wit1_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE,
+    d_wit1 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='d_wit1', null=True)
+    d_wit1_direct_att = models.ForeignKey(Competitor, on_delete=models.CASCADE,
                                           related_name='d_wit1_direct_att', null=True)
-    d_wit1_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE,
+    d_wit1_cross_att = models.ForeignKey(Competitor, on_delete=models.CASCADE,
                                          related_name='d_wit1_cross_att', null=True)
 
     d_wit2_name = models.CharField(max_length=30, choices=witness_choices, null=True)
-    d_wit2 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit2', null=True)
-    d_wit2_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit2_direct_att',
+    d_wit2 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='d_wit2', null=True)
+    d_wit2_direct_att = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='d_wit2_direct_att',
                                           null=True)
-    d_wit2_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit2_cross_att',
+    d_wit2_cross_att = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='d_wit2_cross_att',
                                          null=True)
 
     d_wit3_name = models.CharField(max_length=30, choices=witness_choices, null=True)
-    d_wit3 = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit3', null=True)
-    d_wit3_direct_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit3_direct_att',
+    d_wit3 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='d_wit3', null=True)
+    d_wit3_direct_att = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='d_wit3_direct_att',
                                           null=True)
-    d_wit3_cross_att = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_wit3_cross_att',
+    d_wit3_cross_att = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='d_wit3_cross_att',
                                          null=True)
 
-    p_closer = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='p_closer', null=True)
-    d_closer = models.ForeignKey(TeamMember, on_delete=models.CASCADE, related_name='d_closer', null=True)
+    p_closer = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='p_closer', null=True)
+    d_closer = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='d_closer', null=True)
 
     @property
     def p_direct_atts(self):
