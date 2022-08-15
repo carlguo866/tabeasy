@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django import forms
 
 from submission.models.ballot import Ballot
+from submission.models.captains_meeting import CaptainsMeeting, CharacterPronouns
 from submission.models.section import BallotSection
 from tourney.models import Competitor
 
@@ -120,3 +121,79 @@ class BallotSectionForm(forms.ModelForm):
             self.instance.ballot = self.init_ballot
         if self.init_subsection:
             self.instance.subsection = self.init_subsection
+
+class EditPronounsForm(forms.ModelForm):
+    class Meta:
+        model = CharacterPronouns
+        fields = ['pronouns']
+
+    def __init__(self, *args, **kwargs):
+        self.init_character = kwargs.pop('character', None)
+        self.init_captains_meeting = kwargs.pop('captains_meeting', None)
+        super(EditPronounsForm, self).__init__(*args, **kwargs)
+        if self.init_character:
+            self.instance.character = self.init_character
+        if self.init_captains_meeting:
+            self.instance.captains_meeting = self.init_captains_meeting
+
+
+
+class CaptainsMeetingForm(forms.ModelForm):
+
+    class Meta:
+        model = CaptainsMeeting
+        fields = '__all__'
+        exclude = ['round']
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request")
+        super(CaptainsMeetingForm, self).__init__(*args, **kwargs)
+        if self.request.user.is_judge:
+            for field in self.fields:
+                self.fields[field].widget.attrs['readonly'] = True
+
+        if not self.instance.submit:
+            for field in self.fields:
+                self.fields[field].required = False
+
+        for i, _ in enumerate(self.instance.character_evidence_options()):
+            self.fields[f'character_evidence_option{i + 1}_description'].required = False
+
+
+        p_team_members = Competitor.objects.filter(team=self.instance.round.p_team)
+        self.fields['p_opener'].queryset = p_team_members
+        self.fields['p_wit1'].queryset = p_team_members
+        self.fields['p_wit1_direct_att'].queryset = p_team_members
+        self.fields['p_wit2'].queryset = p_team_members
+        self.fields['p_wit2_direct_att'].queryset = p_team_members
+        self.fields['p_wit3'].queryset = p_team_members
+        self.fields['p_wit3_direct_att'].queryset = p_team_members
+        self.fields['d_wit1_cross_att'].queryset = p_team_members
+        self.fields['d_wit2_cross_att'].queryset = p_team_members
+        self.fields['d_wit3_cross_att'].queryset = p_team_members
+        self.fields['p_closer'].queryset = p_team_members
+
+        d_team_members = Competitor.objects.filter(team=self.instance.round.d_team)
+        self.fields['d_opener'].queryset = d_team_members
+        self.fields['d_wit1'].queryset = d_team_members
+        self.fields['d_wit1_direct_att'].queryset = d_team_members
+        self.fields['d_wit2'].queryset = d_team_members
+        self.fields['d_wit2_direct_att'].queryset = d_team_members
+        self.fields['d_wit3'].queryset = d_team_members
+        self.fields['d_wit3_direct_att'].queryset = d_team_members
+        self.fields['p_wit1_cross_att'].queryset = d_team_members
+        self.fields['p_wit2_cross_att'].queryset = d_team_members
+        self.fields['p_wit3_cross_att'].queryset = d_team_members
+        self.fields['d_closer'].queryset = d_team_members
+
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = []
+        #after submission all fields need to be filled
+        # if cleaned_data.get('submit') == True:
+        #     for k,v in cleaned_data.items():
+        #         if v == None:
+        #             errors.append(f"{k} empty")
+
+        if errors != []:
+            raise ValidationError(errors)
+

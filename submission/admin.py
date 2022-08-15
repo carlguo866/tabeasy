@@ -2,6 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from submission.models.ballot import Ballot
+from submission.models.captains_meeting import CharacterPronouns, CaptainsMeeting, Character
 from submission.models.section import Section, SubSection, BallotSection
 
 
@@ -30,3 +31,24 @@ class BallotInlineAdmin(admin.TabularInline):
     fields = ['judge']
     extra = 0
     show_change_link = True
+
+
+@admin.register(Character)
+class CharacterAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'side']
+    # list_filter = ['tournament']
+    search_fields = ['__str__']
+
+class CharacterPronounsInlineAdmin(admin.TabularInline):
+    model = CharacterPronouns
+    fields = ['character','pronouns']
+    extra = 0
+    show_change_link = True
+
+@admin.register(CaptainsMeeting)
+class CaptainsMeetingAdmin(admin.ModelAdmin):
+    list_display = ['pk', '__str__', 'submit']
+    list_filter = ['round__pairing']
+    inlines = [CharacterPronounsInlineAdmin]
+    search_fields = ['round__pairing','__str__']
+

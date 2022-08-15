@@ -3,7 +3,8 @@ from django.db import models
 
 # from tabeasy_secrets.secret import TOURNAMENT
 from submission.models.ballot import Ballot
-from tourney.models import CaptainsMeeting, Competitor, Round
+from submission.models.captains_meeting import CaptainsMeeting
+from tourney.models import Competitor, Round
 from tourney.models.tournament import Tournament
 
 pd_choices = [
