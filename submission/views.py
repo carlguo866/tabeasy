@@ -4,10 +4,11 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
-from submission.forms import BallotForm, BallotSectionForm, CaptainsMeetingForm, EditPronounsForm
+from submission.forms import BallotForm, BallotSectionForm, CaptainsMeetingForm, EditPronounsForm, \
+    CaptainsMeetingSectionForm
 from submission.models.ballot import Ballot
 from submission.models.captains_meeting import CaptainsMeeting, CharacterPronouns, Character
-from submission.models.section import BallotSection, Section, SubSection
+from submission.models.section import BallotSection, Section, SubSection, CaptainsMeetingSection
 from tabeasy.utils.mixins import PassRequestToFormViewMixin
 from tabeasy_secrets.secret import str_int, TOURNAMENT_NAME
 
@@ -110,7 +111,6 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
         return self.request.path
 
 
-
 class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFormViewMixin, UpdateView):
     model = CaptainsMeeting
     template_name = "tourney/captains_meeting.html"
@@ -134,15 +134,41 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if CharacterPronouns.objects.filter(captains_meeting=self.object).exists():
-            context['forms'] = [EditPronounsForm(instance=character_pronouns,
+            context['pronouns_forms'] = [EditPronounsForm(instance=character_pronouns,
                                                  character=character_pronouns.character,captains_meeting=self.object,
                                                  prefix=character_pronouns.character.__str__())
                                 for character_pronouns in
                                 CharacterPronouns.objects.filter(captains_meeting=self.object).all()]
         else:
-            context['forms'] = [EditPronounsForm(character=character,captains_meeting=self.object,
+            context['pronouns_forms'] = [EditPronounsForm(character=character,captains_meeting=self.object,
                                                  prefix=character.__str__())
                  for character in Character.objects.filter(tournament__name=TOURNAMENT_NAME).all()]
+
+        context['section_forms'] = []
+        if CaptainsMeetingSection.objects.filter(captains_meeting=self.object).exists():
+            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+                context['section_forms'].append(
+                    sorted([CaptainsMeetingSectionForm(instance=captains_meeting_section,
+                                       captains_meeting=self.object,
+                                       subsection=captains_meeting_section.subsection,
+                                       prefix=captains_meeting_section.subsection.__str__())
+                     for captains_meeting_section in
+                     CaptainsMeetingSection.objects.filter(captains_meeting=self.object, subsection__section=section).all()
+                     ],key= lambda x: x.init_subsection.sequence)
+                )
+        else:
+            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+                context['section_forms'].append(
+                    sorted([CaptainsMeetingSectionForm(subsection=subsection, captains_meeting=self.object,
+                                      prefix=subsection.__str__())
+                    for subsection in
+                    SubSection.objects.filter(section=section).all()],
+                    key= lambda x: x.init_subsection.sequence)
+                )
+
+        context['section_forms'] = sorted(context['section_forms'],
+                                    key= lambda x: x[0].init_subsection.sequence)
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -151,31 +177,72 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
         self.object = self.get_object()
         form = self.get_form()
         if CharacterPronouns.objects.filter(captains_meeting=self.object).exists():
-            forms = [EditPronounsForm(request.POST, instance=character_pronouns,
+            pronouns_forms = [EditPronounsForm(request.POST, instance=character_pronouns,
                                                  character=character_pronouns.character,
-                                                captains_meeting=self.object,
+                                                 captains_meeting=self.object,
                                                  prefix=character_pronouns.character.__str__())
                                 for character_pronouns in
                                 CharacterPronouns.objects.filter(captains_meeting=self.object).all()]
         else:
-            forms = [EditPronounsForm(request.POST, character=character,captains_meeting=self.object, prefix=character.__str__())
+            pronouns_forms = [EditPronounsForm(request.POST, character=character,captains_meeting=self.object, prefix=character.__str__())
                        for character in Character.objects.all()]
+
+
+        section_forms = []
+        if CaptainsMeetingSection.objects.filter(captains_meeting=self.object).exists():
+            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+                section_forms.append(
+                    sorted([CaptainsMeetingSectionForm(request.POST, instance=captains_meeting_section,
+                                                       captains_meeting=self.object,
+                                       subsection=captains_meeting_section.subsection,
+                                       prefix=captains_meeting_section.subsection.__str__())
+                     for captains_meeting_section in
+                     CaptainsMeetingSection.objects.filter(captains_meeting=self.object, subsection__section=section).all()
+                     ],key= lambda x: x.init_subsection.sequence)
+                )
+        else:
+            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+                section_forms.append(
+                    sorted([CaptainsMeetingSectionForm(request.POST,
+                                                       subsection=subsection, captains_meeting=self.object,
+                                                       prefix=subsection.__str__())
+                    for subsection in
+                    SubSection.objects.filter(section=section).all()],
+                    key= lambda x: x.init_subsection.sequence)
+                )
+
+        section_forms = sorted(section_forms,
+                                    key= lambda x: x[0].init_subsection.sequence)
+
         is_valid = True
-        for pronouns_form in forms:
+        for pronouns_form in pronouns_forms:
             if not pronouns_form.is_valid():
                 raise ValidationError(pronouns_form.errors)
                 is_valid = False
+
+        for section in section_forms:
+            for subsection_form in section:
+                if not subsection_form.is_valid():
+                    # if subsection_form.errors == {}:
+                    #     section.remove(subsection_form)
+                    # else:
+                    raise ValidationError(subsection_form, subsection_form.errors)
+                    is_valid = False
+
         if not form.is_valid():
             is_valid = False
         if is_valid:
-            return self.form_valid(form, forms)
+            return self.form_valid(form, pronouns_forms, section_forms)
         else:
             return self.form_invalid(form)
 
-    def form_valid(self, form, forms):
-        for pronouns_form in forms:
+    def form_valid(self, form, pronouns_forms, section_forms):
+        for pronouns_form in pronouns_forms:
             # pronouns_form.instance.captains_meeting = self.object
             pronouns_form.save()
+        for section in section_forms:
+            for subsection_form in section:
+                subsection_form.save()
         return super().form_valid(form)
 
     def get_success_url(self):

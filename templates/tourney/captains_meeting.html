@@ -14,6 +14,19 @@
 				{% endif %}
 			{% endfor %}
 		{% endif %}
+
+		{% for section in section_forms %}
+			{% for subsection_form in section %}
+				{% if subsection_form.errors %}
+					{% for key, value in subsection_form.errors.items %}
+						{% if value %}
+							<div class="alert alert-danger" role="alert">{{ value }}</div>
+						{% endif %}
+					{% endfor %}
+				{% endif %}
+			{% endfor %}
+		{% endfor %}
+
 		<h3>Captains Meeting Form</h3>
 		<div class="card-group my-3">
 				<div class="card border gx-2">
@@ -144,323 +157,55 @@
 
 		<h2>Roles</h2>
 		<div class="card my-5">
-			<h4 class="card-header">Opening</h4>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Prosecution
-							</div>
-							<div class="card-body">
-								{% render_field form.p_opener class='form-select mt-1' name='p_opener' %}
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Defense
-							</div>
-							<div class="card-body">
-								{% render_field form.d_opener class='form-select mt-1' name='d_opener' %}
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
 
-		<div class="card my-5">
-			<h4 class="card-header">Prosecution Witness #1</h4>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Prosecution
+			{% for section in section_forms %}
+				<h4 class="card-header">{{ section.0.init_subsection.section }}</h4>
+				<div class="card-body">
+						<div class="row">
+							<div class="col-md-6 pe-4">
+								<div class="card border border-primary">
+									<div class="card-header">
+										Prosecution
+									</div>
+									<div class="card-body">
+										<ul class="list-group">
+											{% for subsection_form in section %}
+												{% if subsection_form.init_subsection.side == 'p' %}
+													<li class="list-group-item">
+														<div>{{ subsection_form.init_subsection }}</div>
+														{% render_field subsection_form.competitor class='form-select mt-1' name='competitor' %}
+													</li>
+												{% endif %}
+											{% endfor %}
+										</ul>
+									</div>
+								</div>
 							</div>
-							<div class="card-body">
-								<ul class="list-group">
-									<li class="list-group-item">
-										<div>Character Name:</div>
-										{% render_field form.p_wit1_name class='form-select mt-1' name='p_wit1_name' %}
-									</li>
-									<li class="list-group-item">
-										<div>Witness:</div>
-										{% render_field form.p_wit1 class='form-select mt-1' name='p_wit1' %}
-									</li>
-									<li class="list-group-item">
-										<div>Directing Attorney:</div>
-										{% render_field form.p_wit1_direct_att class='form-select mt-1' name='p_wit1_direct_att' %}
-									</li>
-								</ul>
-
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Defense
-							</div>
-							<div class="card-body">
-								<div>Crossing Attorney:</div>
-								{% render_field form.p_wit1_cross_att class='form-select mt-1' name='p_wit1_cross_att' %}
+							<div class="col-md-6 ps-4">
+								<div class="card border border-secondary">
+									<div class="card-header">
+										Defense
+									</div>
+									<div class="card-body">
+										<ul class="list-group">
+											{% for subsection_form in section %}
+												{% if subsection_form.init_subsection.side == 'd' %}
+													<li class="list-group-item">
+														<div>{{ subsection_form.init_subsection }}</div>
+														{% render_field subsection_form.competitor class='form-select mt-1' name='competitor' %}
+													</li>
+												{% endif %}
+											{% endfor %}
+										</ul>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+			{% endfor %}
 
-
-
-		<div class="card my-5">
-			<h4 class="card-header">Prosecution Witness #2</h4>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Prosecution
-							</div>
-							<div class="card-body">
-								<ul class="list-group">
-									<li class="list-group-item">
-										<div>Character Name:</div>
-										{% render_field form.p_wit2_name class='form-select mt-1' name='p_wit2_name' %}
-									</li>
-									<li class="list-group-item">
-										<div>Witness:</div>
-										{% render_field form.p_wit2 class='form-select mt-1' name='p_wit2' %}
-									</li>
-									<li class="list-group-item">
-										<div>Directing Attorney:</div>
-										{% render_field form.p_wit2_direct_att class='form-select mt-1' name='p_wit2_direct_att' %}
-									</li>
-								</ul>
-
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Defense
-							</div>
-							<div class="card-body">
-								<div>Crossing Attorney:</div>
-								{% render_field form.p_wit2_cross_att class='form-select mt-1' name='p_wit2_cross_att' %}
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="card my-5">
-			<h4 class="card-header">Prosecution Witness #3</h4>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Prosecution
-							</div>
-							<div class="card-body">
-								<ul class="list-group">
-									<li class="list-group-item">
-										<div>Character Name:</div>
-										{% render_field form.p_wit3_name class='form-select mt-1' name='p_wit3_name' %}
-									</li>
-									<li class="list-group-item">
-										<div>Witness:</div>
-										{% render_field form.p_wit3 class='form-select mt-1' name='p_wit3' %}
-									</li>
-									<li class="list-group-item">
-										<div>Directing Attorney:</div>
-										{% render_field form.p_wit3_direct_att class='form-select mt-1' name='p_wit3_direct_att' %}
-									</li>
-								</ul>
-
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Defense
-							</div>
-							<div class="card-body">
-								<div>Crossing Attorney:</div>
-								{% render_field form.p_wit3_cross_att class='form-select mt-1' name='p_wit3_cross_att' %}
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="card my-5">
-			<h4 class="card-header">Defense Witness #1</h4>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Prosecution
-							</div>
-							<div class="card-body">
-								<div>Crossing Attorney:</div>
-								{% render_field form.d_wit1_cross_att class='form-select mt-1' name='d_wit1_cross_att' %}
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Defense
-							</div>
-							<div class="card-body">
-								<ul class="list-group">
-									<li class="list-group-item">
-										<div>Character Name:</div>
-										{% render_field form.d_wit1_name class='form-select mt-1' name='d_wit1_name' %}
-									</li>
-									<li class="list-group-item">
-										<div>Witness:</div>
-										{% render_field form.d_wit1 class='form-select mt-1' name='d_wit1' %}
-									</li>
-									<li class="list-group-item">
-										<div>Directing Attorney:</div>
-										{% render_field form.d_wit1_direct_att class='form-select mt-1' name='d_wit1_direct_att' %}
-									</li>
-								</ul>
-
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="card my-5">
-			<h4 class="card-header">Defense Witness #2</h4>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Prosecution
-							</div>
-							<div class="card-body">
-								<div>Crossing Attorney:</div>
-								{% render_field form.d_wit2_cross_att class='form-select mt-1' name='d_wit2_cross_att' %}
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Defense
-							</div>
-							<div class="card-body">
-								<ul class="list-group">
-									<li class="list-group-item">
-										<div>Character Name:</div>
-										{% render_field form.d_wit2_name class='form-select mt-1' name='d_wit2_name' %}
-									</li>
-									<li class="list-group-item">
-										<div>Witness:</div>
-										{% render_field form.d_wit2 class='form-select mt-1' name='d_wit2' %}
-									</li>
-									<li class="list-group-item">
-										<div>Directing Attorney:</div>
-										{% render_field form.d_wit2_direct_att class='form-select mt-1' name='d_wit2_direct_att' %}
-									</li>
-								</ul>
-
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-
-		<div class="card my-5">
-			<h4 class="card-header">Defense Witness #3</h4>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Prosecution
-							</div>
-							<div class="card-body">
-								<div>Crossing Attorney:</div>
-								{% render_field form.d_wit3_cross_att class='form-select mt-1' name='d_wit3_cross_att' %}
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Defense
-							</div>
-							<div class="card-body">
-								<ul class="list-group">
-									<li class="list-group-item">
-										<div>Character Name:</div>
-										{% render_field form.d_wit3_name class='form-select mt-1' name='d_wit3_name' %}
-									</li>
-									<li class="list-group-item">
-										<div>Witness:</div>
-										{% render_field form.d_wit3 class='form-select mt-1' name='d_wit3' %}
-									</li>
-									<li class="list-group-item">
-										<div>Directing Attorney:</div>
-										{% render_field form.d_wit3_direct_att class='form-select mt-1' name='d_wit3_direct_att' %}
-									</li>
-								</ul>
-
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="card my-5">
-			<h4 class="card-header">Closing</h4>
-			<div class="card-body">
-				<div class="row">
-					<div class="col-md-6 pe-4">
-						<div class="card border border-primary">
-							<div class="card-header">
-								Prosecution
-							</div>
-							<div class="card-body">
-								{% render_field form.p_closer class='form-select mt-1' name='p_closer' %}
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6 ps-4">
-						<div class="card border border-secondary">
-							<div class="card-header">
-								Defense
-							</div>
-							<div class="card-body">
-								{% render_field form.d_closer class='form-select mt-1' name='d_closer' %}
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="card my-5">
+			<div class="card my-5">
 			<h4 class="card-header">Pronouns</h4>
 			<div class="card-body">
 				<div class="card-text">
@@ -473,7 +218,7 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-								{% for pronoun_form in forms %}
+								{% for pronoun_form in pronoun_forms %}
 									{% if pronoun_form.init_character.side == 'p' %}
 										<li class="list-group-item">
 										<div>{{ pronoun_form.init_character }}</div>
@@ -490,7 +235,7 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-								{% for pronoun_form in forms %}
+								{% for pronoun_form in pronoun_forms %}
 									{% if pronoun_form.init_character.side == 'd' %}
 										<li class="list-group-item">
 										<div>{{ pronoun_form.init_character }}</div>
@@ -508,7 +253,7 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-								{% for pronoun_form in forms %}
+								{% for pronoun_form in pronoun_forms %}
 									{% if pronoun_form.init_character.side == 'other' %}
 										<li class="list-group-item">
 										<div>{{ pronoun_form.init_character }}</div>
@@ -541,14 +286,14 @@
 
 
 
-		{% if request.user.is_team %}
+{#		{% if request.user.is_team %}#}
 			<input class="button btn-secondary" type="submit" value="Save"
 						style="position:fixed; top: 100px; right: 20px">
 			<div class="form-check" style="position:fixed; top: 150px; right: 20px">
 				<span class="form-check-label" style="padding-bottom: 20px"> Submit </span>
 				{% render_field form.submit class='form-check-input' name="submit" %}
 			</div>
-		{% endif %}
+{#		{% endif %}#}
 		</form>
 	</div>
 
@@ -559,5 +304,4 @@
 {% block js %}
 	<script type="text/javascript" src="{% static 'js/form.js' %}"></script>
 {% endblock js %}
-
 

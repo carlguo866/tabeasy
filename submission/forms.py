@@ -3,7 +3,7 @@ from django import forms
 
 from submission.models.ballot import Ballot
 from submission.models.captains_meeting import CaptainsMeeting, CharacterPronouns
-from submission.models.section import BallotSection
+from submission.models.section import BallotSection, CaptainsMeetingSection
 from tourney.models import Competitor
 
 
@@ -155,45 +155,68 @@ class CaptainsMeetingForm(forms.ModelForm):
             for field in self.fields:
                 self.fields[field].required = False
 
-        for i, _ in enumerate(self.instance.character_evidence_options()):
-            self.fields[f'character_evidence_option{i + 1}_description'].required = False
 
+    #     p_team_members = Competitor.objects.filter(team=self.instance.round.p_team)
+    #     self.fields['p_opener'].queryset = p_team_members
+    #     self.fields['p_wit1'].queryset = p_team_members
+    #     self.fields['p_wit1_direct_att'].queryset = p_team_members
+    #     self.fields['p_wit2'].queryset = p_team_members
+    #     self.fields['p_wit2_direct_att'].queryset = p_team_members
+    #     self.fields['p_wit3'].queryset = p_team_members
+    #     self.fields['p_wit3_direct_att'].queryset = p_team_members
+    #     self.fields['d_wit1_cross_att'].queryset = p_team_members
+    #     self.fields['d_wit2_cross_att'].queryset = p_team_members
+    #     self.fields['d_wit3_cross_att'].queryset = p_team_members
+    #     self.fields['p_closer'].queryset = p_team_members
+    #
+    #     d_team_members = Competitor.objects.filter(team=self.instance.round.d_team)
+    #     self.fields['d_opener'].queryset = d_team_members
+    #     self.fields['d_wit1'].queryset = d_team_members
+    #     self.fields['d_wit1_direct_att'].queryset = d_team_members
+    #     self.fields['d_wit2'].queryset = d_team_members
+    #     self.fields['d_wit2_direct_att'].queryset = d_team_members
+    #     self.fields['d_wit3'].queryset = d_team_members
+    #     self.fields['d_wit3_direct_att'].queryset = d_team_members
+    #     self.fields['p_wit1_cross_att'].queryset = d_team_members
+    #     self.fields['p_wit2_cross_att'].queryset = d_team_members
+    #     self.fields['p_wit3_cross_att'].queryset = d_team_members
+    #     self.fields['d_closer'].queryset = d_team_members
+    #
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     errors = []
+    #     #after submission all fields need to be filled
+    #     # if cleaned_data.get('submit') == True:
+    #     #     for k,v in cleaned_data.items():
+    #     #         if v == None:
+    #     #             errors.append(f"{k} empty")
+    #
+    #     if errors != []:
+    #         raise ValidationError(errors)
 
-        p_team_members = Competitor.objects.filter(team=self.instance.round.p_team)
-        self.fields['p_opener'].queryset = p_team_members
-        self.fields['p_wit1'].queryset = p_team_members
-        self.fields['p_wit1_direct_att'].queryset = p_team_members
-        self.fields['p_wit2'].queryset = p_team_members
-        self.fields['p_wit2_direct_att'].queryset = p_team_members
-        self.fields['p_wit3'].queryset = p_team_members
-        self.fields['p_wit3_direct_att'].queryset = p_team_members
-        self.fields['d_wit1_cross_att'].queryset = p_team_members
-        self.fields['d_wit2_cross_att'].queryset = p_team_members
-        self.fields['d_wit3_cross_att'].queryset = p_team_members
-        self.fields['p_closer'].queryset = p_team_members
+class CaptainsMeetingSectionForm(forms.ModelForm):
+    class Meta:
+        model = CaptainsMeetingSection
+        fields = ['competitor','character']
 
-        d_team_members = Competitor.objects.filter(team=self.instance.round.d_team)
-        self.fields['d_opener'].queryset = d_team_members
-        self.fields['d_wit1'].queryset = d_team_members
-        self.fields['d_wit1_direct_att'].queryset = d_team_members
-        self.fields['d_wit2'].queryset = d_team_members
-        self.fields['d_wit2_direct_att'].queryset = d_team_members
-        self.fields['d_wit3'].queryset = d_team_members
-        self.fields['d_wit3_direct_att'].queryset = d_team_members
-        self.fields['p_wit1_cross_att'].queryset = d_team_members
-        self.fields['p_wit2_cross_att'].queryset = d_team_members
-        self.fields['p_wit3_cross_att'].queryset = d_team_members
-        self.fields['d_closer'].queryset = d_team_members
+    def __init__(self, *args, **kwargs):
+        self.init_captains_meeting = kwargs.pop('captains_meeting', None)
+        self.init_subsection = kwargs.pop('subsection', None)
+        super(CaptainsMeetingSectionForm, self).__init__(*args, **kwargs)
+        if self.init_captains_meeting:
+            self.instance.captains_meeting = self.init_captains_meeting
+        if self.init_subsection:
+            self.instance.subsection = self.init_subsection
 
-    def clean(self):
-        cleaned_data = super().clean()
-        errors = []
-        #after submission all fields need to be filled
-        # if cleaned_data.get('submit') == True:
-        #     for k,v in cleaned_data.items():
-        #         if v == None:
-        #             errors.append(f"{k} empty")
+        p_team_members = Competitor.objects.filter(team=self.init_captains_meeting.round.p_team)
+        d_team_members = Competitor.objects.filter(team=self.init_captains_meeting.round.d_team)
+        if self.init_subsection.side == 'p':
+            self.fields['competitor'].queryset = p_team_members
+        else:
+            self.fields['competitor'].queryset = d_team_members
 
-        if errors != []:
-            raise ValidationError(errors)
+        if not self.init_captains_meeting.submit:
+            for field in self.fields:
+                self.fields[field].required = False
+
 

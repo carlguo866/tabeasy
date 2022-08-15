@@ -3,7 +3,7 @@ from django.db import models
 
 # from tabeasy_secrets.secret import TOURNAMENT
 from submission.models.ballot import Ballot
-from submission.models.captains_meeting import CaptainsMeeting
+from submission.models.captains_meeting import CaptainsMeeting, Character
 from tourney.models import Competitor, Round
 from tourney.models.tournament import Tournament
 
@@ -34,12 +34,6 @@ class SubSection(models.Model):
     def __str__(self):
         return self.name
 
-class RoundSubSection(models.Model):
-    round = models.ForeignKey(Round,on_delete=models.CASCADE, related_name='subsections',
-                                    related_query_name='subsection',null=True)
-    subsection = models.ForeignKey(SubSection, on_delete=models.CASCADE, related_name='round_subsections',
-                                   related_query_name='round_subsection', null=True)
-
 class BallotSection(models.Model):
     ballot =  models.ForeignKey(Ballot, on_delete=models.CASCADE, related_name='sections',
                                     related_query_name='section',null=True)
@@ -56,3 +50,5 @@ class CaptainsMeetingSection(models.Model):
                                     related_query_name='captains_meeting',null=True)
     competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='roles',
                                     related_query_name='role',null=True)
+    character = models.ForeignKey(Character, models.CASCADE, related_name='round_characters',
+                                  related_query_name='round_character', null=True, blank=True)
