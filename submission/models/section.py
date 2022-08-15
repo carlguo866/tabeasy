@@ -15,11 +15,15 @@ role_choices = [
     ('att', 'Attorney'),
     ('wit', 'Witness')
 ]
+subsection_type_choices = [
+    ('direct', 'Direct'),
+    ('cross', 'Cross'),
+    ('statement', 'Statement'),
+]
 class Section(models.Model):
     name = models.CharField(max_length=40)
     tournament = models.ForeignKey(Tournament, on_delete=models.SET_NULL, related_name='sections',
                                     related_query_name='section', null=True)
-    is_statement = models.BooleanField(default=False)
     def __str__(self):
         return self.name
 
@@ -29,6 +33,7 @@ class SubSection(models.Model):
                                     related_query_name='subsection')
     side = models.CharField(max_length=40, choices=pd_choices)
     role = models.CharField(max_length=40, choices=role_choices)
+    type = models.CharField(max_length=40, choices=subsection_type_choices)
     sequence = models.IntegerField(default=0)
 
     def __str__(self):

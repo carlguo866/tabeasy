@@ -12,7 +12,7 @@ class SectionAdmin(admin.ModelAdmin):
 
 @admin.register(SubSection)
 class SubSectionAdmin(admin.ModelAdmin):
-    list_display = ['name', 'section','side','role']
+    list_display = ['name', 'section','side','role','type']
 
 class BallotSectionInlineAdmin(admin.TabularInline):
     model = BallotSection

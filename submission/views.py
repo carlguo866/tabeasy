@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
@@ -147,25 +148,31 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
         context['section_forms'] = []
         if CaptainsMeetingSection.objects.filter(captains_meeting=self.object).exists():
             for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
-                context['section_forms'].append(
-                    sorted([CaptainsMeetingSectionForm(instance=captains_meeting_section,
-                                       captains_meeting=self.object,
-                                       subsection=captains_meeting_section.subsection,
-                                       prefix=captains_meeting_section.subsection.__str__())
-                     for captains_meeting_section in
-                     CaptainsMeetingSection.objects.filter(captains_meeting=self.object, subsection__section=section).all()
-                     ],key= lambda x: x.init_subsection.sequence)
-                )
+                temp = []
+                for subsection in CaptainsMeetingSection.objects.filter(captains_meeting=self.object,
+                                                          subsection__section=section).all():
+                    if not (subsection.subsection.type == 'cross' and \
+                        subsection.subsection.role == 'wit'):
+                        temp.append(
+                            CaptainsMeetingSectionForm(instance=subsection,
+                                                       captains_meeting=self.object,
+                                                       subsection=subsection.subsection,
+                                                       prefix=subsection.subsection.__str__())
+                        )
+                temp = sorted(temp, key= lambda x: x.init_subsection.sequence)
+                context['section_forms'].append(temp)
         else:
             for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
-                context['section_forms'].append(
-                    sorted([CaptainsMeetingSectionForm(subsection=subsection, captains_meeting=self.object,
-                                      prefix=subsection.__str__())
-                    for subsection in
-                    SubSection.objects.filter(section=section).all()],
-                    key= lambda x: x.init_subsection.sequence)
-                )
-
+                temp = []
+                for subsection in SubSection.objects.filter(section=section).all():
+                    if not (subsection.subsection.type == 'cross' and \
+                            subsection.subsection.role == 'wit'):
+                        temp.append(
+                            CaptainsMeetingSectionForm(subsection=subsection, captains_meeting=self.object,
+                                          prefix=subsection.__str__())
+                        )
+                temp = sorted(temp, key=lambda x: x.init_subsection.sequence)
+                context['section_forms'].append(temp)
         context['section_forms'] = sorted(context['section_forms'],
                                     key= lambda x: x[0].init_subsection.sequence)
 
@@ -191,25 +198,31 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
         section_forms = []
         if CaptainsMeetingSection.objects.filter(captains_meeting=self.object).exists():
             for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
-                section_forms.append(
-                    sorted([CaptainsMeetingSectionForm(request.POST, instance=captains_meeting_section,
+                temp = []
+                for subsection in CaptainsMeetingSection.objects.filter(captains_meeting=self.object,
+                                                                           subsection__section=section).all():
+                    if not (subsection.subsection.type == 'cross' and \
+                        subsection.subsection.role == 'wit'):
+                        temp.append(
+                            CaptainsMeetingSectionForm(request.POST, instance=subsection,
                                                        captains_meeting=self.object,
-                                       subsection=captains_meeting_section.subsection,
-                                       prefix=captains_meeting_section.subsection.__str__())
-                     for captains_meeting_section in
-                     CaptainsMeetingSection.objects.filter(captains_meeting=self.object, subsection__section=section).all()
-                     ],key= lambda x: x.init_subsection.sequence)
-                )
+                                                       subsection=subsection.subsection,
+                                                       prefix=subsection.subsection.__str__())
+                        )
+                temp = sorted(temp, key=lambda x: x.init_subsection.sequence)
+                section_forms.append(temp)
         else:
             for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
-                section_forms.append(
-                    sorted([CaptainsMeetingSectionForm(request.POST,
-                                                       subsection=subsection, captains_meeting=self.object,
-                                                       prefix=subsection.__str__())
-                    for subsection in
-                    SubSection.objects.filter(section=section).all()],
-                    key= lambda x: x.init_subsection.sequence)
-                )
+                temp = []
+                for subsection in SubSection.objects.filter(section=section).all():
+                    if not (subsection.subsection.type == 'cross' and \
+                            subsection.subsection.role == 'wit'):
+                        temp.append(
+                            CaptainsMeetingSectionForm(request.POST, subsection=subsection, captains_meeting=self.object,
+                                                               prefix=subsection.__str__())
+                        )
+                temp = sorted(temp, key=lambda x: x.init_subsection.sequence)
+                section_forms.append(temp)
 
         section_forms = sorted(section_forms,
                                     key= lambda x: x[0].init_subsection.sequence)
@@ -243,6 +256,27 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
         for section in section_forms:
             for subsection_form in section:
                 subsection_form.save()
+
+                if subsection_form.init_subsection.role == 'wit' and \
+                        subsection_form.init_subsection.type == 'direct':
+                    subsection = SubSection.objects.get(section=subsection_form.init_subsection.section,
+                                                        role=subsection_form.init_subsection.role,
+                                                        type='cross')
+                    if CaptainsMeetingSection.objects.filter(captains_meeting=subsection_form.init_captains_meeting,
+                                                             subsection=subsection
+                                                             ).exists():
+                        CaptainsMeetingSection.objects.filter(captains_meeting=subsection_form.init_captains_meeting,
+                                                              subsection=subsection
+                                                              ).update(competitor=subsection_form.instance.competitor,
+                                                                       character=subsection_form.instance.character)
+                    else:
+                        CaptainsMeetingSection.objects.create(
+                            captains_meeting=subsection_form.init_captains_meeting,
+                            subsection=subsection,
+                            competitor=subsection_form.instance.competitor,
+                            character=subsection_form.instance.character
+                        )
+
         return super().form_valid(form)
 
     def get_success_url(self):

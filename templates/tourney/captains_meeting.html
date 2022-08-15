@@ -171,6 +171,12 @@
 										<ul class="list-group">
 											{% for subsection_form in section %}
 												{% if subsection_form.init_subsection.side == 'p' %}
+													{% if subsection_form.init_subsection.role == 'wit' %}
+														<li class="list-group-item">
+															<div>Character Name:</div>
+															{% render_field subsection_form.character class='form-select mt-1' name='character' %}
+														</li>
+													{% endif %}
 													<li class="list-group-item">
 														<div>{{ subsection_form.init_subsection }}</div>
 														{% render_field subsection_form.competitor class='form-select mt-1' name='competitor' %}
@@ -190,6 +196,12 @@
 										<ul class="list-group">
 											{% for subsection_form in section %}
 												{% if subsection_form.init_subsection.side == 'd' %}
+													{% if subsection_form.init_subsection.role == 'wit' %}
+														<li class="list-group-item">
+														<div>Character Name:</div>
+														{% render_field subsection_form.character class='form-select mt-1' name='character' %}
+														</li>
+													{% endif %}
 													<li class="list-group-item">
 														<div>{{ subsection_form.init_subsection }}</div>
 														{% render_field subsection_form.competitor class='form-select mt-1' name='competitor' %}
