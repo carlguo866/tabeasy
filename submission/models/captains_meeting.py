@@ -6,7 +6,7 @@ from tourney.models.tournament import Tournament
 
 
 class CaptainsMeeting(models.Model):
-    round = models.OneToOneField('Round', on_delete=models.CASCADE, related_name='captains_meeting'
+    round = models.OneToOneField('tourney.Round', on_delete=models.CASCADE, related_name='captains_meeting'
                                  , related_query_name='captains_meeting', primary_key=True)
 
     character_evidence_option1 = models.BooleanField(default=False, help_text='The defendant will offer evidence under MRE 404(a)(1) of the following traits of his/her own character:')

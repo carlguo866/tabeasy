@@ -3,9 +3,6 @@ from django.contrib.auth import views as auth_views
 from . import views
 app_name = 'tourney'
 urlpatterns = [
-    path('captains_meeting/<str:encrypted_pk>',
-         views.CaptainsMeetingUpdateView.as_view(),
-         name='captains_meeting'),
     path('pairing', views.pairing_index, name='pairing_index'),
     path('pairing/edit/<int:round_num>', views.edit_pairing, name='edit_pairing'),
     path('pairing/delete/<int:round_num>', views.delete_pairing, name='delete_pairing'),
