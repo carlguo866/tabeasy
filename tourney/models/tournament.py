@@ -14,6 +14,7 @@ class Tournament(models.Model):
     publish_ballot_scores = models.BooleanField(default=False)
     split_division = models.BooleanField(default=False)
     division_team_num = models.IntegerField(default=10)
+    individual_award_rank_plus_record = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

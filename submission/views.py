@@ -44,7 +44,8 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
                 context['section_forms'].append(
                     sorted([BallotSectionForm(instance=ballot_section,
                                        subsection=ballot_section.subsection,
-                                       prefix=ballot_section.subsection.__str__())
+                                       prefix=ballot_section.subsection.__str__(),
+                                       request=self.request)
                      for ballot_section in
                      BallotSection.objects.filter(ballot=self.object, subsection__section=section).all()
                      ],key= lambda x: x.init_subsection.sequence)
@@ -53,7 +54,8 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
             for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
                 context['section_forms'].append(
                     sorted([BallotSectionForm(subsection=subsection, ballot=self.object,
-                                      prefix=subsection.__str__())
+                                      prefix=subsection.__str__(),
+                                      request=self.request)
                     for subsection in
                     SubSection.objects.filter(section=section).all()],
                     key= lambda x: x.init_subsection.sequence)
@@ -74,7 +76,8 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
                 section_forms.append(
                     sorted([BallotSectionForm(request.POST, instance=ballot_section,
                                        subsection=ballot_section.subsection,
-                                       prefix=ballot_section.subsection.__str__())
+                                       prefix=ballot_section.subsection.__str__(),
+                                       request=self.request)
                      for ballot_section in
                      BallotSection.objects.filter(ballot=self.object, subsection__section=section).all()
                      ], key= lambda x: x.init_subsection.sequence)
@@ -83,7 +86,7 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
             for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
                 section_forms.append(
                     sorted([BallotSectionForm(request.POST, subsection=subsection, ballot=self.object,
-                                      prefix=subsection.__str__())
+                                      prefix=subsection.__str__(), request=self.request)
                      for subsection in
                      SubSection.objects.filter(section=section).all()],
                     key= lambda x: x.init_subsection.sequence)

@@ -1,6 +1,7 @@
 from django.db import models
 
-from tourney.models import Team
+from tabeasy_secrets.secret import TOURNAMENT_NAME
+from tourney.models import Team, Tournament
 
 
 class Competitor(models.Model):
@@ -25,6 +26,10 @@ class Competitor(models.Model):
                     p_total += v
                 else:
                     d_total += v
+        tournament = Tournament.objects.get(name=TOURNAMENT_NAME)
+        if tournament.individual_award_rank_plus_record:
+            p_total += self.team.p_ballot()
+            d_total += self.team.d_ballot()
         return [p_total, d_total]
 
     def wit_individual_score(self):
@@ -42,6 +47,10 @@ class Competitor(models.Model):
                     p_total += v
                 else:
                     d_total += v
+        tournament = Tournament.objects.get(name=TOURNAMENT_NAME)
+        if tournament.individual_award_rank_plus_record:
+            p_total += self.team.p_ballot()
+            d_total += self.team.d_ballot()
         return [p_total, d_total]
 
     def __lt__(self, other):

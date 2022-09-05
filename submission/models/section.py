@@ -57,3 +57,7 @@ class CaptainsMeetingSection(models.Model):
                                     related_query_name='role',null=True)
     character = models.ForeignKey(Character, models.CASCADE, related_name='round_characters',
                                   related_query_name='round_character', null=True, blank=True)
+
+    def __str__(self):
+        return self.subsection.__str__() + self.competitor.__str__()
+

@@ -48,7 +48,7 @@ class CharacterPronounsInlineAdmin(admin.TabularInline):
 
 class CaptainsMeetingSectionInlineAdmin(admin.TabularInline):
     model = CaptainsMeetingSection
-    fields = ['subsection', 'competitor']
+    fields = ['subsection', 'competitor','character']
     extra = 0
     show_change_link = True
 

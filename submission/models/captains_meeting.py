@@ -236,7 +236,6 @@ class Character(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     side = models.CharField(max_length=5, choices=side_choices, null=True)
-    pronouns = models.CharField(max_length=20, choices=pronoun_choices, null=True)
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 

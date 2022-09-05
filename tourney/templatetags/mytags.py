@@ -4,6 +4,8 @@ import random
 from django import template
 from itertools import chain
 
+from django.core.exceptions import ValidationError
+
 register = template.Library()
 
 @register.filter(name='chr')
@@ -24,6 +26,17 @@ from django import template
 def call_method(obj, method_name, *args):
     method = getattr(obj, method_name)
     return method(*args)
+
+@register.simple_tag
+def get_competitor(subsection_list, subsection):
+    return subsection_list.get(subsection=subsection).competitor
+
+@register.simple_tag
+def get_character(subsection_list, section):
+    wit_direct = subsection_list.get(subsection__type='direct',subsection__role='wit',
+                                        subsection__section=section)
+    return wit_direct.character
+
 
 
 

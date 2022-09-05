@@ -230,7 +230,7 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-								{% for pronoun_form in pronoun_forms %}
+								{% for pronoun_form in pronouns_forms %}
 									{% if pronoun_form.init_character.side == 'p' %}
 										<li class="list-group-item">
 										<div>{{ pronoun_form.init_character }}</div>
@@ -247,7 +247,7 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-								{% for pronoun_form in pronoun_forms %}
+								{% for pronoun_form in pronouns_forms %}
 									{% if pronoun_form.init_character.side == 'd' %}
 										<li class="list-group-item">
 										<div>{{ pronoun_form.init_character }}</div>
@@ -265,7 +265,7 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-								{% for pronoun_form in pronoun_forms %}
+								{% for pronoun_form in pronouns_forms %}
 									{% if pronoun_form.init_character.side == 'other' %}
 										<li class="list-group-item">
 										<div>{{ pronoun_form.init_character }}</div>

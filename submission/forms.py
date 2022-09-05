@@ -11,44 +11,8 @@ INT_CHOICES = [(i , i) for i in range(11)]
 class BallotForm(forms.ModelForm):
     class Meta:
         model = Ballot
-        # labels =  {'p_open': 'Prosecution Opening',
-        #            'd_open': 'Defense Opening',
-        #            'p_close': 'Prosecution Closing',
-        #            'd_close': 'Defense Closing',
-        #            }
         fields = '__all__'
         exclude = ['round','judge']
-        # widgets = {
-        #     'p_open': forms.Select(choices=INT_CHOICES),
-        #     'd_open': forms.Select(choices=INT_CHOICES),
-        #     'p_wit1_wit_direct': forms.Select(choices=INT_CHOICES),
-        #     'p_wit1_wit_cross': forms.Select(choices=INT_CHOICES),
-        #     'p_wit1_att_direct': forms.Select(choices=INT_CHOICES),
-        #     'p_wit1_att_cross': forms.Select(choices=INT_CHOICES),
-        #     'p_wit2_wit_direct': forms.Select(choices=INT_CHOICES),
-        #     'p_wit2_wit_cross': forms.Select(choices=INT_CHOICES),
-        #     'p_wit2_att_direct': forms.Select(choices=INT_CHOICES),
-        #     'p_wit2_att_cross': forms.Select(choices=INT_CHOICES),
-        #     'p_wit3_wit_direct': forms.Select(choices=INT_CHOICES),
-        #     'p_wit3_wit_cross': forms.Select(choices=INT_CHOICES),
-        #     'p_wit3_att_direct': forms.Select(choices=INT_CHOICES),
-        #     'p_wit3_att_cross': forms.Select(choices=INT_CHOICES),
-        #     'd_wit1_wit_direct': forms.Select(choices=INT_CHOICES),
-        #     'd_wit1_wit_cross': forms.Select(choices=INT_CHOICES),
-        #     'd_wit1_att_direct': forms.Select(choices=INT_CHOICES),
-        #     'd_wit1_att_cross': forms.Select(choices=INT_CHOICES),
-        #     'd_wit2_wit_direct': forms.Select(choices=INT_CHOICES),
-        #     'd_wit2_wit_cross': forms.Select(choices=INT_CHOICES),
-        #     'd_wit2_att_direct': forms.Select(choices=INT_CHOICES),
-        #     'd_wit2_att_cross': forms.Select(choices=INT_CHOICES),
-        #     'd_wit3_wit_direct': forms.Select(choices=INT_CHOICES),
-        #     'd_wit3_wit_cross': forms.Select(choices=INT_CHOICES),
-        #     'd_wit3_att_direct': forms.Select(choices=INT_CHOICES),
-        #     'd_wit3_att_cross': forms.Select(choices=INT_CHOICES),
-        #     'p_close': forms.Select(choices=INT_CHOICES),
-        #     'd_close': forms.Select(choices=INT_CHOICES),
-        # }
-
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
@@ -57,13 +21,21 @@ class BallotForm(forms.ModelForm):
         if self.instance.round.pairing.round_num == 5 or not self.instance.submit:
             for field in self.fields:
                 self.fields[field].required = False
+
+        if self.instance.submit:
+            for field in self.fields:
+                self.fields[field].disabled = True
+
         if self.request.user.is_team:
             for field in self.fields:
-                self.fields[field].widget.attrs['readonly'] = True
+                self.fields[field].disabled = True
 
         if self.request.user.is_judge and self.request.user.judge != self.instance.judge:
             for field in self.fields:
-                self.fields[field].widget.attrs['readonly'] = True
+                self.fields[field].disabled = True
+
+        if self.request.user.is_staff:
+            self.fields['submit'].disabled = False
 
         if self.instance.round.captains_meeting.submit == True:
             att_list = Competitor.objects.filter(pk__in=[att.pk for att in self.instance.round.captains_meeting.atts])
@@ -114,6 +86,7 @@ class BallotSectionForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request')
         self.init_ballot = kwargs.pop('ballot', None)
         self.init_subsection = kwargs.pop('subsection', None)
         super(BallotSectionForm, self).__init__(*args, **kwargs)
@@ -121,6 +94,17 @@ class BallotSectionForm(forms.ModelForm):
             self.instance.ballot = self.init_ballot
         if self.init_subsection:
             self.instance.subsection = self.init_subsection
+        if self.instance.ballot.submit:
+            for field in self.fields:
+                self.fields[field].disabled = True
+
+        if self.request.user.is_team:
+            for field in self.fields:
+                self.fields[field].disabled = True
+
+        if self.request.user.is_judge and self.request.user.judge != self.instance.ballot.judge:
+            for field in self.fields:
+                self.fields[field].disabled = True
 
 class EditPronounsForm(forms.ModelForm):
     class Meta:
@@ -147,9 +131,9 @@ class CaptainsMeetingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(CaptainsMeetingForm, self).__init__(*args, **kwargs)
-        if self.request.user.is_judge:
+        if self.request.user.is_judge and not self.request.user.is_staff:
             for field in self.fields:
-                self.fields[field].widget.attrs['readonly'] = True
+                self.fields[field].disabled = True
 
         if not self.instance.submit:
             for field in self.fields:

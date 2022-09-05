@@ -5,6 +5,12 @@
 
 {% block content %}
 	<div class="container-md center">
+		{% if form.instance.submit %}
+			<div class="alert alert-primary" role="alert">
+				You have submitted your ballot. Thanks for judging!
+			</div>
+		{% endif %}
+
 		{% if form.errors %}
 			{% for key, value in form.errors.items %}
 				{% if value %}
@@ -105,18 +111,24 @@
 	<form method="post" class="form-inline">
 		{% csrf_token %}
 
-		{% for section in section_forms %}
+		{% for section_form in section_forms %}
 		<div class="card my-5">
-			<h4 class="card-header">{{ section.0.init_subsection.section }}</h4>
+			<h4 class="card-header">
+				{{ section_form.0.init_subsection.section }}
+				{% if not section_form.0.init_subsection.type == 'statement' %}
+				: {% get_character object.round.captains_meeting.sections section_form.0.init_subsection.section %}
+				{% endif %}
+			</h4>
 			<div class="card-body">
 				<div class="row">
-					{% if section.0.init_subsection.section.is_statement %}
+					{% if section_form.0.init_subsection.type == 'statement' %}
 						<div class="col-md-6 pe-4">
-							{% for subsection_form in section %}
+							{% for subsection_form in section_form %}
 								{% if subsection_form.init_subsection.side == 'p' %}
 									<div class="card border border-primary">
 										<div class="card-header">
-											{{ subsection_form.init_subsection }}
+											{{ subsection_form.init_subsection }}:
+											{% get_competitor object.round.captains_meeting.sections subsection_form.init_subsection %}
 		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
 										</div>
 										<div class="card-body">
@@ -134,11 +146,12 @@
 							{% endfor %}
 						</div>
 						<div class="col-md-6 ps-4">
-							{% for subsection_form in section %}
+							{% for subsection_form in section_form %}
 								{% if subsection_form.init_subsection.side == 'd' %}
 									<div class="card border border-primary">
 										<div class="card-header">
-											{{ subsection_form.init_subsection }}
+											{{ subsection_form.init_subsection }}:
+											{% get_competitor object.round.captains_meeting.sections subsection_form.init_subsection %}
 		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
 										</div>
 										<div class="card-body">
@@ -157,7 +170,7 @@
 						</div>
 					{% else %}
 						<div class="col-md-6 pe-4">
-							{% for subsection_form in section %}
+							{% for subsection_form in section_form %}
 								{% if subsection_form.init_subsection.role == 'att' %}
 									{% if subsection_form.init_subsection.side == 'p' %}
 										<div class="card border border-primary my-2">
@@ -165,7 +178,8 @@
 										<div class="card border border-secondary my-2">
 									{% endif %}
 										<div class="card-header">
-											{{ subsection_form.init_subsection }}
+											{{ subsection_form.init_subsection }}:
+											{% get_competitor object.round.captains_meeting.sections subsection_form.init_subsection %}
 		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
 										</div>
 										<div class="card-body">
@@ -183,7 +197,7 @@
 							{% endfor %}
 						</div>
 						<div class="col-md-6 ps-4">
-							{% for subsection_form in section %}
+							{% for subsection_form in section_form %}
 								{% if subsection_form.init_subsection.role == 'wit' %}
 									{% if subsection_form.init_subsection.side == 'p' %}
 										<div class="card border border-primary my-2">
@@ -191,7 +205,8 @@
 										<div class="card border border-secondary my-2">
 									{% endif %}
 										<div class="card-header">
-											{{ subsection_form.init_subsection }}
+											{{ subsection_form.init_subsection }}:
+											{% get_competitor object.round.captains_meeting.sections subsection_form.init_subsection %}
 		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
 										</div>
 										<div class="card-body">
