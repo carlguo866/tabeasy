@@ -60,6 +60,16 @@
 									Not Assigned
 								{% endif %}
 							</li>
+							<li class="list-group-item">
+								{% for judge in object.round.judges %}
+									<div class="row my-2 px-3">
+									<a class="button button-primary"
+											href={% url 'submission:paradigm' judge.user.username %}>
+										View {{ judge }}'s Paradigm
+									</a>
+									</div>
+								{% endfor %}
+							</li>
 							<li class="list-group-item"><span class="text-primary">Blue</span> denotes Prosecution,
 								and <span class="text-secondary">Purple</span> denotes Defense</li>
 							</ul>

@@ -15,8 +15,8 @@ class User(AbstractUser):
     )
     is_judge = models.BooleanField(default=True)
     is_team = models.BooleanField(default=False)
-    is_tab = models.BooleanField(default=False)
-
+    tournament = models.ForeignKey('tourney.Tournament', on_delete=models.SET_NULL, related_name='users',
+                                   related_query_name='user', null=True)
 
     def available_pairings(self):
         if not self.is_staff:

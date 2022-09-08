@@ -33,10 +33,14 @@ def index(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def results(request):
-    div1_teams = sort_teams([team for team in Team.objects.filter(division='Disney')])
-    div2_teams = sort_teams([team for team in Team.objects.filter(division='Universal')])
-    dict = {'div1_teams_ranked': div1_teams,
-            'div2_teams_ranked': div2_teams}
+    tournament = request.user.tournament
+    if tournament.split_division:
+        div1_teams = sort_teams([team for team in Team.objects.filter(division='Disney')])
+        div2_teams = sort_teams([team for team in Team.objects.filter(division='Universal')])
+        dict = {'teams_ranked': [div1_teams, div2_teams]}
+    else:
+        teams = sort_teams([team for team in Team.objects.filter(user__tournament=tournament)])
+        dict = {'teams_ranked': [teams]}
     return render(request, 'tourney/tab/results.html', dict)
 
 @user_passes_test(lambda u: u.is_staff)
@@ -58,47 +62,71 @@ def individual_awards(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def next_pairing(request):
-    teams = Team.objects.all()
-    if Pairing.objects.exists():
-        next_round = max([pairing.round_num for pairing in Pairing.objects.all()])+1
+    tournament = request.user.tournament
+    teams = Team.objects.filter(user__tournament=tournament)
+    if Pairing.objects.filter(tournament=tournament).exists():
+        next_round = max([pairing.round_num for pairing in Pairing.objects.filter(tournament=tournament)])+1
     else:
         next_round = 1
-    if next_round % 2 == 0:
-        div1_d_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
-                                   if team.next_side(next_round) == 'd'])
-        div1_p_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
-                                   if team.next_side(next_round) == 'p'])
-        div2_d_teams = sort_teams([team for team in Team.objects.filter(division='Universal')
-                                   if team.next_side(next_round) == 'd'])
-        div2_p_teams = sort_teams([team for team in Team.objects.filter(division='Universal')
-                                   if team.next_side(next_round) == 'p'])
-    else:
-        div1_teams = sort_teams([team for team in Team.objects.filter(division='Disney')])
-        div1_p_teams = []
-        div1_d_teams = []
-        for i in range(0, len(div1_teams), 2):
-            if random.randint(0, 1):
-                div1_p_teams.append(div1_teams[i])
-                div1_d_teams.append(div1_teams[i+1])
-            else:
-                div1_p_teams.append(div1_teams[i+1])
-                div1_d_teams.append(div1_teams[i])
-        div2_teams = sort_teams([team for team in Team.objects.filter(division='Universal')])
-        div2_p_teams = []
-        div2_d_teams = []
-        for i in range(0, len(div2_teams), 2):
-            if random.randint(0, 1):
-                div2_p_teams.append(div2_teams[i])
-                div2_d_teams.append(div2_teams[i + 1])
-            else:
-                div2_p_teams.append(div2_teams[i + 1])
-                div2_d_teams.append(div2_teams[i])
 
-    dict = {'next_round': next_round,
-            'divs': ['Disney','Universal'],
-            'teams':[zip(div1_p_teams, div1_d_teams),
-                     zip(div2_p_teams, div2_d_teams)]
-            }
+    if tournament.split_division:
+        if next_round % 2 == 0:
+            div1_d_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
+                                       if team.next_side(next_round) == 'd'])
+            div1_p_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
+                                       if team.next_side(next_round) == 'p'])
+            div2_d_teams = sort_teams([team for team in Team.objects.filter(division='Universal')
+                                       if team.next_side(next_round) == 'd'])
+            div2_p_teams = sort_teams([team for team in Team.objects.filter(division='Universal')
+                                       if team.next_side(next_round) == 'p'])
+        else:
+            div1_teams = sort_teams([team for team in Team.objects.filter(division='Disney')])
+            div1_p_teams = []
+            div1_d_teams = []
+            for i in range(0, len(div1_teams), 2):
+                if random.randint(0, 1):
+                    div1_p_teams.append(div1_teams[i])
+                    div1_d_teams.append(div1_teams[i+1])
+                else:
+                    div1_p_teams.append(div1_teams[i+1])
+                    div1_d_teams.append(div1_teams[i])
+            div2_teams = sort_teams([team for team in Team.objects.filter(division='Universal')])
+            div2_p_teams = []
+            div2_d_teams = []
+            for i in range(0, len(div2_teams), 2):
+                if random.randint(0, 1):
+                    div2_p_teams.append(div2_teams[i])
+                    div2_d_teams.append(div2_teams[i + 1])
+                else:
+                    div2_p_teams.append(div2_teams[i + 1])
+                    div2_d_teams.append(div2_teams[i])
+
+        dict = {'next_round': next_round,
+                'divs': ['Disney','Universal'],
+                'teams':[zip(div1_p_teams, div1_d_teams),
+                         zip(div2_p_teams, div2_d_teams)]
+                }
+    else:
+        if next_round % 2 == 0:
+            d_teams = sort_teams([team for team in Team.objects.filter(user__tournament=tournament)
+                                       if team.next_side(next_round) == 'd'])
+            p_teams = sort_teams([team for team in Team.objects.filter(user__tournament=tournament)
+                                       if team.next_side(next_round) == 'p'])
+        else:
+            teams = sort_teams([team for team in Team.objects.filter(user__tournament=tournament)])
+            p_teams = []
+            d_teams = []
+            for i in range(0, len(teams), 2):
+                if random.randint(0, 1):
+                    p_teams.append(teams[i])
+                    d_teams.append(teams[i + 1])
+                else:
+                    p_teams.append(teams[i + 1])
+                    d_teams.append(teams[i])
+        dict = {'next_round': next_round,
+                'divs': ['Teams'],
+                'teams': [zip(p_teams, d_teams)]
+                }
     return render(request, 'tourney/pairing/next_pairing.html', dict)
 
 @user_passes_test(lambda u: u.is_staff)
@@ -116,111 +144,186 @@ def pairing_index(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def edit_pairing(request, round_num):
+    tournament = request.user.tournament
     if DEBUG:
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
-                                             max_num=8, validate_max=True)
+                                             max_num=tournament.division_team_num, validate_max=True)
     else:
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
-                                             max_num=8, validate_max=True,
-                                             extra=8)
-    if not Pairing.objects.filter(round_num=round_num).exists():
-        div1_pairing = Pairing.objects.create(round_num=round_num, division='Disney')
-        div2_pairing = Pairing.objects.create(round_num=round_num, division='Universal')
-    else:
-        div1_pairing = Pairing.objects.filter(round_num=round_num).get(division='Disney')
-        div2_pairing = Pairing.objects.filter(round_num=round_num).get(division='Universal')
+                                             max_num=tournament.division_team_num, validate_max=True,
+                                             extra=tournament.division_team_num)
 
-    available_judges_pk = [judge.pk for judge in Judge.objects.all()
-                           if judge.get_availability(div1_pairing.round_num)]
-    judges = Judge.objects.filter(pk__in=available_judges_pk).order_by('-checkin','-preside', 'user__username').all()
-
-    if request.method == "POST":
-        div1_formset = RoundFormSet(request.POST, request.FILES, prefix='div1', instance=div1_pairing,
-                                    form_kwargs={'pairing': div1_pairing, 'other_formset':None})
-        div2_formset = RoundFormSet(request.POST, request.FILES, prefix='div2', instance=div2_pairing,
-                                    form_kwargs={'pairing': div2_pairing, 'other_formset':div1_formset})
-
-        div1_submit_form = PairingSubmitForm(request.POST, prefix='div1', instance=div1_pairing)
-        div2_submit_form = PairingSubmitForm(request.POST, prefix='div2', instance=div2_pairing)
-
-        if div1_submit_form.is_valid():
-            div1_submit_form.save()
-        if div2_submit_form.is_valid():
-            div2_submit_form.save()
-        both_true = True
-        if div1_formset.is_valid():
-            # get courtroom
-            actual_round_num = len(div1_formset)
-            for form in div1_formset:
-                if form.instance.p_team == None or form.instance.d_team == None:
-                    actual_round_num -= 1
-            if div1_formset[0].instance.pairing.division == 'Disney':
-                random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
-            else:
-                random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
-            for round in Pairing.objects.get(pk=div1_pairing.pk).rounds.all():
-                if round.courtroom != None:
-                    random_choice = random_choice.replace(round.courtroom, '')
-            random_choice = random.sample(list(random_choice), len(random_choice))
-            for form in div1_formset:
-                if form.instance.p_team != None and form.instance.d_team != None \
-                        and form.instance.courtroom == None:
-                    form.instance.courtroom = random_choice[0]
-                    del(random_choice[0])
-                    form.save()
-            div1_formset.save()
+    if request.user.tournament.split_division:
+        if not Pairing.objects.filter(round_num=round_num).exists():
+            div1_pairing = Pairing.objects.create(round_num=round_num, division='Disney')
+            div2_pairing = Pairing.objects.create(round_num=round_num, division='Universal')
         else:
-            both_true = False
+            div1_pairing = Pairing.objects.filter(round_num=round_num).get(division='Disney')
+            div2_pairing = Pairing.objects.filter(round_num=round_num).get(division='Universal')
 
-        if div2_formset.is_valid():
-            actual_round_num = len(div2_formset)
-            for form in div2_formset:
-                if form.instance.p_team == None or form.instance.d_team == None:
-                    actual_round_num -= 1
-            if div2_formset[0].instance.pairing.division == 'Disney':
-                random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
+        available_judges_pk = [judge.pk for judge in Judge.objects.all()
+                               if judge.get_availability(div1_pairing.round_num)]
+        judges = Judge.objects.filter(pk__in=available_judges_pk).order_by('-checkin','-preside', 'user__username').all()
+
+        if request.method == "POST":
+            div1_formset = RoundFormSet(request.POST, request.FILES, prefix='div1', instance=div1_pairing,
+                                        form_kwargs={'pairing': div1_pairing, 'other_formset':None})
+            div2_formset = RoundFormSet(request.POST, request.FILES, prefix='div2', instance=div2_pairing,
+                                        form_kwargs={'pairing': div2_pairing, 'other_formset':div1_formset})
+
+            div1_submit_form = PairingSubmitForm(request.POST, prefix='div1', instance=div1_pairing)
+            div2_submit_form = PairingSubmitForm(request.POST, prefix='div2', instance=div2_pairing)
+
+            if div1_submit_form.is_valid():
+                div1_submit_form.save()
+            if div2_submit_form.is_valid():
+                div2_submit_form.save()
+            both_true = True
+            if div1_formset.is_valid():
+                # get courtroom
+                actual_round_num = len(div1_formset)
+                for form in div1_formset:
+                    if form.instance.p_team == None or form.instance.d_team == None:
+                        actual_round_num -= 1
+                if div1_formset[0].instance.pairing.division == 'Disney':
+                    random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
+                else:
+                    random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
+                for round in Pairing.objects.get(pk=div1_pairing.pk).rounds.all():
+                    if round.courtroom != None:
+                        random_choice = random_choice.replace(round.courtroom, '')
+                random_choice = random.sample(list(random_choice), len(random_choice))
+                for form in div1_formset:
+                    if form.instance.p_team != None and form.instance.d_team != None \
+                            and form.instance.courtroom == None:
+                        form.instance.courtroom = random_choice[0]
+                        del(random_choice[0])
+                        form.save()
+                div1_formset.save()
             else:
-                random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
-            for round in Pairing.objects.get(pk=div2_pairing.pk).rounds.all():
-                if round.courtroom != None:
-                    random_choice = random_choice.replace(round.courtroom, '')
-            random_choice = random.sample(list(random_choice), len(random_choice))
-            for form in div2_formset:
-                if form.instance.p_team != None and form.instance.d_team != None \
-                        and form.instance.courtroom == None:
-                    form.instance.courtroom = random_choice[0]
-                    del(random_choice[0])
-                    form.save()
-            div2_formset.save()
-        else:
-            both_true = False
+                both_true = False
 
-        pairings = [div1_pairing, div2_pairing]
-        for pairing in pairings:
-            if pairing.final_submit and not pairing.publish:
-                for round in pairing.rounds.all():
-                    if not Ballot.objects.filter(round=round).exists():
-                        for judge in round.judges:
-                            Ballot.objects.create(round=round, judge=judge)
-                    else:
-                        for judge in round.judges:
-                            if not Ballot.objects.filter(round=round, judge=judge).exists():
+            if div2_formset.is_valid():
+                actual_round_num = len(div2_formset)
+                for form in div2_formset:
+                    if form.instance.p_team == None or form.instance.d_team == None:
+                        actual_round_num -= 1
+                if div2_formset[0].instance.pairing.division == 'Disney':
+                    random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
+                else:
+                    random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
+                for round in Pairing.objects.get(pk=div2_pairing.pk).rounds.all():
+                    if round.courtroom != None:
+                        random_choice = random_choice.replace(round.courtroom, '')
+                random_choice = random.sample(list(random_choice), len(random_choice))
+                for form in div2_formset:
+                    if form.instance.p_team != None and form.instance.d_team != None \
+                            and form.instance.courtroom == None:
+                        form.instance.courtroom = random_choice[0]
+                        del(random_choice[0])
+                        form.save()
+                div2_formset.save()
+            else:
+                both_true = False
+
+            pairings = [div1_pairing, div2_pairing]
+            for pairing in pairings:
+                if pairing.final_submit and not pairing.publish:
+                    for round in pairing.rounds.all():
+                        if not Ballot.objects.filter(round=round).exists():
+                            for judge in round.judges:
                                 Ballot.objects.create(round=round, judge=judge)
-                        for ballot in Ballot.objects.filter(round=round).all():
-                            if ballot.judge not in round.judges:
-                                Ballot.objects.filter(round=round, judge=ballot.judge).delete()
+                        else:
+                            for judge in round.judges:
+                                if not Ballot.objects.filter(round=round, judge=judge).exists():
+                                    Ballot.objects.create(round=round, judge=judge)
+                            for ballot in Ballot.objects.filter(round=round).all():
+                                if ballot.judge not in round.judges:
+                                    Ballot.objects.filter(round=round, judge=ballot.judge).delete()
 
-        if both_true:
-            return redirect('tourney:pairing_index')
+            if both_true:
+                return redirect('tourney:pairing_index')
+        else:
+            div1_formset = RoundFormSet(instance=div1_pairing,prefix='div1', form_kwargs={'pairing': div1_pairing, 'other_formset':None})
+            div2_formset = RoundFormSet(instance=div2_pairing,prefix='div2', form_kwargs={'pairing': div2_pairing, 'other_formset':div1_formset})
+            div1_submit_form = PairingSubmitForm(instance=div1_pairing, prefix='div1')
+            div2_submit_form = PairingSubmitForm(instance=div2_pairing, prefix='div2')
+
+        return render(request, 'tourney/pairing/edit.html', {'formsets': [div1_formset, div2_formset],
+                                                             'submit_forms': [div1_submit_form, div2_submit_form],
+                                                             'pairing': div1_pairing,
+                                                             'judges': judges})
     else:
-        div1_formset = RoundFormSet(instance=div1_pairing,prefix='div1', form_kwargs={'pairing': div1_pairing, 'other_formset':None})
-        div2_formset = RoundFormSet(instance=div2_pairing,prefix='div2', form_kwargs={'pairing': div2_pairing, 'other_formset':div1_formset})
-        div1_submit_form = PairingSubmitForm(instance=div1_pairing, prefix='div1')
-        div2_submit_form = PairingSubmitForm(instance=div2_pairing, prefix='div2')
-    return render(request, 'tourney/pairing/edit.html', {'formsets': [div1_formset, div2_formset],
-                                                         'submit_forms': [div1_submit_form,div2_submit_form],
-                                                         'pairing': div1_pairing,
-                                                         'judges': judges})
+        if not Pairing.objects.filter(round_num=round_num).exists():
+            pairing = Pairing.objects.create(tournament=tournament, round_num=round_num)
+        else:
+            pairing = Pairing.objects.get(tournament=tournament, round_num=round_num)
+
+        available_judges_pk = [judge.pk for judge in Judge.objects.filter(user__tournament=tournament)
+                               if judge.get_availability(pairing.round_num)]
+        judges = Judge.objects.filter(pk__in=available_judges_pk).order_by('-checkin','-preside', 'user__username').all()
+
+        if request.method == "POST":
+            formset = RoundFormSet(request.POST, request.FILES, prefix='div1', instance=pairing,
+                                        form_kwargs={'pairing': pairing, 'other_formset': None})
+
+            submit_form = PairingSubmitForm(request.POST, prefix='div1', instance=pairing)
+
+            if submit_form.is_valid():
+                submit_form.save()
+
+            both_true = True
+            if formset.is_valid():
+                # get courtroom
+                actual_round_num = len(formset)
+                for form in formset:
+                    if form.instance.p_team == None or form.instance.d_team == None:
+                        actual_round_num -= 1
+                if formset[0].instance.pairing.division == 'Disney':
+                    random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
+                else:
+                    random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
+                for round in Pairing.objects.get(pk=formset.pk).rounds.all():
+                    if round.courtroom != None:
+                        random_choice = random_choice.replace(round.courtroom, '')
+                random_choice = random.sample(list(random_choice), len(random_choice))
+                for form in formset:
+                    if form.instance.p_team != None and form.instance.d_team != None \
+                            and form.instance.courtroom == None:
+                        form.instance.courtroom = random_choice[0]
+                        del (random_choice[0])
+                        form.save()
+                formset.save()
+            else:
+                both_true = False
+
+            pairings = [pairing]
+            for pairing in pairings:
+                if pairing.final_submit and not pairing.publish:
+                    for round in pairing.rounds.all():
+                        if not Ballot.objects.filter(round=round).exists():
+                            for judge in round.judges:
+                                Ballot.objects.create(round=round, judge=judge)
+                        else:
+                            for judge in round.judges:
+                                if not Ballot.objects.filter(round=round, judge=judge).exists():
+                                    Ballot.objects.create(round=round, judge=judge)
+                            for ballot in Ballot.objects.filter(round=round).all():
+                                if ballot.judge not in round.judges:
+                                    Ballot.objects.filter(round=round, judge=ballot.judge).delete()
+
+            if both_true:
+                return redirect('tourney:pairing_index')
+        else:
+            formset = RoundFormSet(instance=pairing, prefix='div1',
+                                        form_kwargs={'pairing': pairing, 'other_formset': None})
+            submit_form = PairingSubmitForm(instance=pairing, prefix='div1')
+
+        return render(request, 'tourney/pairing/edit.html', {'formsets': [formset],
+                                                             'submit_forms': [submit_form],
+                                                             'pairing': pairing,
+                                                             'judges': judges})
+
 @user_passes_test(lambda u: u.is_staff)
 def delete_pairing(request, round_num):
     if Pairing.objects.filter(round_num=round_num).exists():

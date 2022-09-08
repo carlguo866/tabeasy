@@ -8,7 +8,7 @@ class UserAdmin(BaseUserAdmin, DynamicArrayMixin):
     model = User
     list_display = ('id', 'username')
     fieldsets = (
-        (None, {'fields': ('username', 'password', 'raw_password')}),
+        (None, {'fields': ('username', 'password', 'raw_password', 'tournament')}),
         (('Personal info'), {'fields': ('first_name', 'last_name', 'is_team', 'is_judge')}),
         ('Permissions', {
             'fields': ('is_active', 'is_staff',

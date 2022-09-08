@@ -32,6 +32,14 @@
 							<li class="list-group-item">Division: {{ object.round.pairing.division }}</li>
 							<li class="list-group-item">Judge Name: {{ object.judge }}</li>
 							<li class="list-group-item">
+								{% if object.judge == object.round.presiding_judge %}
+									You are presiding this round.
+								{% else %}
+									You are scoring this round.
+								{% endif %}
+							</li>
+
+							<li class="list-group-item">
 								<div>Click for:</div>
 								<div class="row my-2 px-3">
 									<a class="button button-primary"
