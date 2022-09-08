@@ -2,7 +2,9 @@ from django.contrib import admin
 
 # Register your models here.
 from submission.models.ballot import Ballot
-from submission.models.captains_meeting import CharacterPronouns, CaptainsMeeting, Character
+from submission.models.captains_meeting import CaptainsMeeting
+from submission.models.character import CharacterPronouns, Character
+from submission.models.paradigm import Paradigm, ParadigmPreference, ParadigmPreferenceItem
 from submission.models.section import Section, SubSection, BallotSection, CaptainsMeetingSection
 
 
@@ -13,6 +15,8 @@ class SectionAdmin(admin.ModelAdmin):
 @admin.register(SubSection)
 class SubSectionAdmin(admin.ModelAdmin):
     list_display = ['name', 'section','side','role','type']
+
+
 
 class BallotSectionInlineAdmin(admin.TabularInline):
     model = BallotSection
@@ -52,14 +56,31 @@ class CaptainsMeetingSectionInlineAdmin(admin.TabularInline):
     extra = 0
     show_change_link = True
 
-
-
 @admin.register(CaptainsMeeting)
 class CaptainsMeetingAdmin(admin.ModelAdmin):
     list_display = ['pk', '__str__', 'submit']
     list_filter = ['round__pairing']
     inlines = [CaptainsMeetingSectionInlineAdmin, CharacterPronounsInlineAdmin]
     search_fields = ['round__pairing','__str__']
+
+@admin.register(ParadigmPreference)
+class ParadigmPreferenceAdmin(admin.ModelAdmin):
+    list_display = ['tournament','role','low_end', 'high_end']
+
+class ParadigmPreferenceItemInlineAdmin(admin.TabularInline):
+    model = ParadigmPreferenceItem
+    fields = ['paradigm', 'paradigm_preference','scale']
+    extra = 0
+    show_change_link = True
+
+
+@admin.register(Paradigm)
+class ParadigmAdmin(admin.ModelAdmin):
+    list_display = ['judge', 'affiliations', 'experience_years']
+    list_filter = ['judge']
+    inlines = [ParadigmPreferenceItemInlineAdmin]
+    search_fields = ['judge']
+
 
 
 

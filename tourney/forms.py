@@ -4,7 +4,6 @@ from django.forms import MultipleChoiceField
 from django.forms.models import ModelChoiceIterator, BaseInlineFormSet
 
 from tabeasy.settings import DEBUG
-from submission.models.captains_meeting import CharacterPronouns
 from tourney.models.judge import Judge
 from tourney.models.round import Pairing, Round
 from tourney.models.team import Team

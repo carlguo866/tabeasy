@@ -11,12 +11,13 @@ from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
 from accounts.models import User
+from submission.forms import CharacterPronounsForm
 from tabeasy.settings import DEBUG
 from tabeasy.utils.mixins import JudgeOnlyMixin, PassRequestToFormViewMixin
 from tabeasy_secrets.secret import DIVISION_ROUND_NUM, str_int, TOURNAMENT_NAME
 from tourney.forms import RoundForm, UpdateConflictForm, UpdateJudgeFriendForm, PairingFormSet, PairingSubmitForm, JudgeForm, CheckinJudgeForm
 from submission.models.ballot import Ballot
-from submission.models.captains_meeting import Character, CharacterPronouns
+from submission.models.character import Character, CharacterPronouns
 from tourney.models.judge import Judge
 from tourney.models.round import Round, Pairing
 from tourney.models.team import Team
@@ -276,7 +277,7 @@ def view_captains_meeting_status(request, pairing_id):
 @user_passes_test(lambda u: u.is_staff)
 def test_pronouns(request):
     if request.method == "POST":
-        forms = [EditPronounsForm(request.POST, instance=character,prefix=character.__str__())
+        forms = [CharacterPronounsForm(request.POST, instance=character,prefix=character.__str__())
                  for character in Character.objects.all()]
         has_wrong = False
         for form in forms:
@@ -289,7 +290,7 @@ def test_pronouns(request):
         else:
             return redirect('index')
     else:
-        forms = [EditPronounsForm(instance=character,prefix=character.__str__())
+        forms = [CharacterPronounsForm(instance=character,prefix=character.__str__())
                  for character in Character.objects.all()]
 
     context = {'forms': forms}

@@ -1,19 +1,20 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponseForbidden, JsonResponse
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
-from submission.forms import BallotForm, BallotSectionForm, CaptainsMeetingForm, EditPronounsForm, \
-    CaptainsMeetingSectionForm
+from submission.forms import BallotForm, BallotSectionForm, CaptainsMeetingForm, CharacterPronounsForm, \
+    CaptainsMeetingSectionForm, ParadigmForm, ParadigmPreferenceItemForm
 from submission.models.ballot import Ballot
-from submission.models.captains_meeting import CaptainsMeeting, CharacterPronouns, Character
+from submission.models.captains_meeting import CaptainsMeeting
+from submission.models.character import CharacterPronouns, Character
+from submission.models.paradigm import ParadigmPreference, ParadigmPreferenceItem, Paradigm
 from submission.models.section import BallotSection, Section, SubSection, CaptainsMeetingSection
 from tabeasy.utils.mixins import PassRequestToFormViewMixin
 from tabeasy_secrets.secret import str_int, TOURNAMENT_NAME
-
-
+from tourney.models import Judge
 
 
 class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFormViewMixin, UpdateView):
@@ -138,15 +139,15 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if CharacterPronouns.objects.filter(captains_meeting=self.object).exists():
-            context['pronouns_forms'] = [EditPronounsForm(instance=character_pronouns,
-                                                 character=character_pronouns.character,captains_meeting=self.object,
-                                                 prefix=character_pronouns.character.__str__())
-                                for character_pronouns in
-                                CharacterPronouns.objects.filter(captains_meeting=self.object).all()]
+            context['pronouns_forms'] = [CharacterPronounsForm(instance=character_pronouns,
+                                                               character=character_pronouns.character, captains_meeting=self.object,
+                                                               prefix=character_pronouns.character.__str__())
+                                         for character_pronouns in
+                                         CharacterPronouns.objects.filter(captains_meeting=self.object).all()]
         else:
-            context['pronouns_forms'] = [EditPronounsForm(character=character,captains_meeting=self.object,
-                                                 prefix=character.__str__())
-                 for character in Character.objects.filter(tournament__name=TOURNAMENT_NAME).all()]
+            context['pronouns_forms'] = [CharacterPronounsForm(character=character, captains_meeting=self.object,
+                                                               prefix=character.__str__())
+                                         for character in Character.objects.filter(tournament__name=TOURNAMENT_NAME).all()]
 
         context['section_forms'] = []
         if CaptainsMeetingSection.objects.filter(captains_meeting=self.object).exists():
@@ -168,8 +169,8 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
             for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
                 temp = []
                 for subsection in SubSection.objects.filter(section=section).all():
-                    if not (subsection.subsection.type == 'cross' and \
-                            subsection.subsection.role == 'wit'):
+                    if not (subsection.type == 'cross' and \
+                            subsection.role == 'wit'):
                         temp.append(
                             CaptainsMeetingSectionForm(subsection=subsection, captains_meeting=self.object,
                                           prefix=subsection.__str__())
@@ -187,15 +188,17 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
         self.object = self.get_object()
         form = self.get_form()
         if CharacterPronouns.objects.filter(captains_meeting=self.object).exists():
-            pronouns_forms = [EditPronounsForm(request.POST, instance=character_pronouns,
-                                                 character=character_pronouns.character,
-                                                 captains_meeting=self.object,
-                                                 prefix=character_pronouns.character.__str__())
-                                for character_pronouns in
-                                CharacterPronouns.objects.filter(captains_meeting=self.object).all()]
+            pronouns_forms = [CharacterPronounsForm(request.POST, instance=character_pronouns,
+                                                    character=character_pronouns.character,
+                                                    captains_meeting=self.object,
+                                                    prefix=character_pronouns.character.__str__(),
+                                                    form=form)
+                              for character_pronouns in
+                              CharacterPronouns.objects.filter(captains_meeting=self.object).all()]
         else:
-            pronouns_forms = [EditPronounsForm(request.POST, character=character,captains_meeting=self.object, prefix=character.__str__())
-                       for character in Character.objects.all()]
+            pronouns_forms = [CharacterPronounsForm(request.POST, character=character, captains_meeting=self.object,
+                                                    prefix=character.__str__(), form=form)
+                              for character in Character.objects.all()]
 
 
         section_forms = []
@@ -210,7 +213,8 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
                             CaptainsMeetingSectionForm(request.POST, instance=subsection,
                                                        captains_meeting=self.object,
                                                        subsection=subsection.subsection,
-                                                       prefix=subsection.subsection.__str__())
+                                                       prefix=subsection.subsection.__str__(),
+                                                       form=form)
                         )
                 temp = sorted(temp, key=lambda x: x.init_subsection.sequence)
                 section_forms.append(temp)
@@ -218,11 +222,13 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
             for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
                 temp = []
                 for subsection in SubSection.objects.filter(section=section).all():
-                    if not (subsection.subsection.type == 'cross' and \
-                            subsection.subsection.role == 'wit'):
+                    if not (subsection.type == 'cross' and \
+                            subsection.role == 'wit'):
                         temp.append(
-                            CaptainsMeetingSectionForm(request.POST, subsection=subsection, captains_meeting=self.object,
-                                                               prefix=subsection.__str__())
+                            CaptainsMeetingSectionForm(request.POST, subsection=subsection,
+                                                       captains_meeting=self.object,
+                                                       prefix=subsection.__str__(),
+                                                       form=form)
                         )
                 temp = sorted(temp, key=lambda x: x.init_subsection.sequence)
                 section_forms.append(temp)
@@ -231,26 +237,23 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
                                     key= lambda x: x[0].init_subsection.sequence)
 
         is_valid = True
+
+        if not form.is_valid():
+            is_valid = False
+
         for pronouns_form in pronouns_forms:
             if not pronouns_form.is_valid():
-                raise ValidationError(pronouns_form.errors)
                 is_valid = False
 
         for section in section_forms:
             for subsection_form in section:
                 if not subsection_form.is_valid():
-                    # if subsection_form.errors == {}:
-                    #     section.remove(subsection_form)
-                    # else:
-                    raise ValidationError(subsection_form, subsection_form.errors)
                     is_valid = False
 
-        if not form.is_valid():
-            is_valid = False
         if is_valid:
             return self.form_valid(form, pronouns_forms, section_forms)
         else:
-            return self.form_invalid(form)
+            return self.form_invalid(form, pronouns_forms, section_forms)
 
     def form_valid(self, form, pronouns_forms, section_forms):
         for pronouns_form in pronouns_forms:
@@ -282,5 +285,67 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
 
         return super().form_valid(form)
 
+    def form_invalid(self, form,pronouns_forms, section_forms):
+        context = self.get_context_data()
+        context['pronouns_forms'] = pronouns_forms
+        context['section_forms'] = section_forms
+        return self.render_to_response(context)
+
     def get_success_url(self):
         return reverse_lazy('index')
+
+def edit_paradigm(request, judge):
+    judge = Judge.objects.get(user__username=judge)
+    if Paradigm.objects.filter(judge=judge).exists():
+        paradigm = Paradigm.objects.get(judge=judge)
+    else:
+        paradigm = Paradigm.objects.create(judge=judge)
+
+    if request.method == "POST":
+        paradigm_form = ParadigmForm(request.POST, instance=paradigm)
+        if ParadigmPreferenceItem.objects.filter(paradigm=paradigm).exists():
+            paradigm_preference_item_forms = [
+                ParadigmPreferenceItemForm(request.POST, instance=each, prefix=each.__str__())
+                for each in ParadigmPreferenceItem.objects.filter(paradigm=paradigm).all()
+            ]
+        else:
+            paradigm_preference_item_forms = [
+                ParadigmPreferenceItemForm(request.POST, paradigm=paradigm, paradigm_preference=each,
+                                           prefix=each.__str__())
+                for each in ParadigmPreference.objects.filter(tournament__name=TOURNAMENT_NAME)
+            ]
+
+        is_true = True
+
+        if paradigm_form.is_valid():
+            paradigm_form.save()
+        else:
+            is_true = False
+
+        for form in paradigm_preference_item_forms:
+            if form.is_valid():
+                form.save()
+            else:
+                is_true = False
+
+        if is_true:
+            return redirect('index')
+
+    else:
+        paradigm_form = ParadigmForm(instance=paradigm)
+        if ParadigmPreferenceItem.objects.filter(paradigm=paradigm).exists():
+            paradigm_preference_item_forms = [
+                ParadigmPreferenceItemForm(instance=each, prefix=each.__str__())
+                for each in ParadigmPreferenceItem.objects.filter(paradigm=paradigm).all()
+            ]
+        else:
+            paradigm_preference_item_forms = [
+                ParadigmPreferenceItemForm(paradigm=paradigm, paradigm_preference=each,
+                                           prefix=each.__str__())
+                for each in ParadigmPreference.objects.filter(tournament__name=TOURNAMENT_NAME)
+            ]
+
+    return render(request, 'tourney/paradigm.html', {'judge': judge,
+                                                     'paradigm_form':paradigm_form,
+                                                     'forms': paradigm_preference_item_forms})
+

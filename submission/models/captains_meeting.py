@@ -153,97 +153,72 @@ class CaptainsMeeting(models.Model):
         errors = []
 
         if self.submit:
+            #
+            # fields = [f.name for f in self._meta.get_fields()]
+            # model_fields = [( getattr(self, field_name), field_name) for field_name in fields]
+            # for field, field_name in model_fields:
+            #     if field == None:
+            #         errors.append(f"You have not entered any values in {field_name}")
 
-            fields = [f.name for f in self._meta.get_fields()]
-            model_fields = [( getattr(self, field_name), field_name ) for field_name in fields]
-            for field, field_name in model_fields:
-                if field == None:
-                    errors.append(f"You have not entered any values in {field_name}")
+            # for i, character_evidence_option in enumerate(self.character_evidence_options()):
+            #     if character_evidence_option and \
+            #             getattr(self, f"character_evidence_option{i+1}_description") == '':
+            #         errors.append(f'You filled out Character Evidence Option {i+1} as yes, but you didn\'t provide description.')
 
-            if errors != []:
-                raise ValidationError(errors)
+            # if not self.character_evidence_submit:
+            #     errors.append('You didn\'t submit the Character Evidence Form!')
 
-            for i, character_evidence_option in enumerate(self.character_evidence_options()):
-                if character_evidence_option and \
-                        getattr(self, f"character_evidence_option{i+1}_description") == '':
-                    errors.append(f'You filled out Character Evidence Option {i+1} as yes, but you didn\'t provide description.')
+            # # characters
+            # characters = []
+            # for x in self.sections.all():
+            #     if captains_meeting_subsection.subsection.type == 'direct' and \
+            #         captains_meeting_subsection.subsection.role == 'wit':
+            #         characters.append(captains_meeting_subsection.character)
 
-            if not self.character_evidence_submit:
-                errors.append('You didn\'t submit the Character Evidence Form!')
 
-            # characters
-            if len(self.characters()) !=  len(set(self.characters())):
-                errors.append("Each witness can only be called once")
-            for character in self.p_characters():
-                if character not in ['J.C. Longstreet', 'Francis Kimball', 'Charlie Kaminsky','Billy Isaacs','Haley Floyd']:
-                    errors.append(f"{character} cannot be called by the Prosecution")
-            for character in self.d_characters():
-                if character not in ['Whit Bowman', 'Jackie Hunter', 'Charlie Kaminsky','Billy Isaacs','Haley Floyd']:
-                    errors.append(f"{character} cannot be called by the Defense")
-            #p
-            if self.p_opener == self.p_closer:
-                errors.append(f"{self.p_opener} cannot give both Opening Statement and Closing Argument")
-            if len(self.p_direct_atts) != len(set(self.p_direct_atts)):
-                errors.append(f"Prosecution has one attorney assigned for two Direct Examinations")
-            if len(self.p_cross_atts) != len(set(self.p_cross_atts)):
-                errors.append(f"Prosecution has one attorney assigned for two Cross Examinations")
-            if len(self.p_wits) != len(set(self.p_wits)):
-                errors.append(f"Prosecution has one witness assigned for two characters")
-
-            if sorted(self.p_direct_atts) != sorted(self.p_cross_atts):
-                errors.append(f"{sorted(self.p_direct_atts)} cross and direct not the same three ppl")
-
-            #d
-            if self.d_opener == self.d_closer:
-                errors.append(f"{self.d_opener} cannot give both Opening Statement and Closing Argument")
-            if len(self.d_direct_atts) != len(set(self.d_direct_atts)):
-                errors.append(f"Defense has one attorney assigned for two Direct Examinations")
-            if len(self.d_cross_atts) != len(set(self.d_cross_atts)):
-                errors.append(f"Defense has one attorney assigned for two Cross Examinations")
-            if len(self.d_wits) != len(set(self.d_wits)):
-                errors.append(f"Defense has one witness assigned for two characters")
-            if self.d_direct_atts != None \
-                    and self.p_direct_atts != None \
-                    and sorted(self.d_direct_atts) != sorted(self.d_cross_atts):
-                errors.append(f"Each team must have exactly three attorneys each round")
-
-            for wit in self.wits:
-                if wit in self.atts:
-                    errors.append(f"{wit} assigned as both an attorney and witness")
+            # if len(self.characters()) !=  len(set(self.characters())):
+            #     errors.append("Each witness can only be called once")
+            # for character in self.p_characters():
+            #     if character not in ['J.C. Longstreet', 'Francis Kimball', 'Charlie Kaminsky','Billy Isaacs','Haley Floyd']:
+            #         errors.append(f"{character} cannot be called by the Prosecution")
+            # for character in self.d_characters():
+            #     if character not in ['Whit Bowman', 'Jackie Hunter', 'Charlie Kaminsky','Billy Isaacs','Haley Floyd']:
+            #         errors.append(f"{character} cannot be called by the Defense")
+            # #p
+            # if self.p_opener == self.p_closer:
+            #     errors.append(f"{self.p_opener} cannot give both Opening Statement and Closing Argument")
+            # if len(self.p_direct_atts) != len(set(self.p_direct_atts)):
+            #     errors.append(f"Prosecution has one attorney assigned for two Direct Examinations")
+            # if len(self.p_cross_atts) != len(set(self.p_cross_atts)):
+            #     errors.append(f"Prosecution has one attorney assigned for two Cross Examinations")
+            # if len(self.p_wits) != len(set(self.p_wits)):
+            #     errors.append(f"Prosecution has one witness assigned for two characters")
+            #
+            # if sorted(self.p_direct_atts) != sorted(self.p_cross_atts):
+            #     errors.append(f"{sorted(self.p_direct_atts)} cross and direct not the same three ppl")
+            #
+            # #d
+            # if self.d_opener == self.d_closer:
+            #     errors.append(f"{self.d_opener} cannot give both Opening Statement and Closing Argument")
+            # if len(self.d_direct_atts) != len(set(self.d_direct_atts)):
+            #     errors.append(f"Defense has one attorney assigned for two Direct Examinations")
+            # if len(self.d_cross_atts) != len(set(self.d_cross_atts)):
+            #     errors.append(f"Defense has one attorney assigned for two Cross Examinations")
+            # if len(self.d_wits) != len(set(self.d_wits)):
+            #     errors.append(f"Defense has one witness assigned for two characters")
+            # if self.d_direct_atts != None \
+            #         and self.p_direct_atts != None \
+            #         and sorted(self.d_direct_atts) != sorted(self.d_cross_atts):
+            #     errors.append(f"Each team must have exactly three attorneys each round")
+            #
+            # for wit in self.wits:
+            #     if wit in self.atts:
+            #         errors.append(f"{wit} assigned as both an attorney and witness")
 
             if not self.demo:
-                errors.append('didn\'t check demo')
+                errors.append('You didn\'t check for demo')
 
         if errors != []:
             raise ValidationError(errors)
 
-
-pronoun_choices = [
-    ('he', 'He/Him'),
-    ('she', 'She/Her'),
-    ('they','They/Them'),
-    ('ze','Ze/Hir')
-]
-side_choices = [
-    ('p', 'P'),
-    ('d', 'D'),
-    ('other','Other'),
-]
-
-class Character(models.Model):
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='characters',
-                                    related_query_name='character', null=True)
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
-    side = models.CharField(max_length=5, choices=side_choices, null=True)
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
-
-
-class CharacterPronouns(models.Model):
-    character = models.ForeignKey(Character, on_delete=models.CASCADE, related_name='characters',
-                                  related_query_name='character')
-    captains_meeting = models.ForeignKey(CaptainsMeeting, on_delete=models.CASCADE, related_name='captains_meetings',
-                                  related_query_name='captains_meeting')
-    pronouns = models.CharField(max_length=20, choices=pronoun_choices, null=True)
 

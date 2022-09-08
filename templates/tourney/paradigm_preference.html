@@ -1,0 +1,34 @@
+{% load mytags %}
+{% load widget_tweaks %}
+
+{% for form in combined_forms %}
+  {{ form.non_field_errors }}
+{% endfor %}
+{% for form in combined_forms %}
+	{% for field in form %}
+		<div class="form-group col-md-12 p-1">
+		<strong>On a scale of 1-10, I prefer {{ combined_forms.0.instance.paradigm_preference.role|display_role }} who...</strong>
+			<br>
+			{{ form.instance.paradigm_preference.low_end }}
+			{% render_field field class='form-range' style='width:400px' name='scale' oninput="this.nextElementSibling.value = this.value" %}
+			{{ form.instance.paradigm_preference.high_end }}
+{#			Value: <span id="demo">To be loaded</span>#}
+			{% if field.help_text %}
+				<br>
+				<small style="color: grey">{{ field.help_text }}</small>
+			{% endif %}
+		</div>
+	{% endfor %}
+{% endfor %}
+
+{% block js %}
+	<script>
+	var slider = document.getElementById("myRange");
+	var output = document.getElementById("demo");
+	output.innerHTML = slider.value;
+
+	slider.oninput = function() {
+		output.innerHTML = this.value;
+	}
+	</script>
+{% endblock %}

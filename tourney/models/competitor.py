@@ -3,13 +3,25 @@ from django.db import models
 from tabeasy_secrets.secret import TOURNAMENT_NAME
 from tourney.models import Team, Tournament
 
+pronoun_choices = [
+    ('he', 'He/Him'),
+    ('she', 'She/Her'),
+    ('they','They/Them'),
+    ('ze','Ze/Hir')
+]
 
 class Competitor(models.Model):
     name = models.CharField(max_length=30)
     team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='members',related_query_name='member')
+    pronouns = models.CharField(max_length=20, choices=pronoun_choices, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        if self.pronouns == None:
+            return self.name
+        else:
+            for (i, j) in pronoun_choices:
+                if i == self.pronouns:
+                    return f"{self.name} ({j})"
 
     def att_individual_score(self):
         p_total = 0

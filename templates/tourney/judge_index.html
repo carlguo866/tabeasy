@@ -42,9 +42,16 @@
 						Preference
 					</div>
 					<div class="card-body text-start">
-						<a class='button button-primary py-2' href="{% url 'tourney:edit_preference'%}">
-							Edit Preference
-						</a>
+						<div class="my-2">
+							<a class='button button-primary py-2' href="{% url 'submission:paradigm' request.user.username %}">
+							Edit Paradigm
+							</a>
+						</div>
+						<div class="mt-4">
+							<a class='button button-primary py-2' href="{% url 'tourney:edit_preference'%}">
+							Edit Availability
+							</a>
+						</div>
 						<div class="card-text mt-3 mb-2">Can preside? {{ request.user.judge.get_preside_preference }}</div>
 						<div class="card-text my-2">Availability:</div>
 						<ul class="list-group">

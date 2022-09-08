@@ -2,9 +2,13 @@ from django.core.exceptions import ValidationError
 from django import forms
 
 from submission.models.ballot import Ballot
-from submission.models.captains_meeting import CaptainsMeeting, CharacterPronouns
+from submission.models.captains_meeting import CaptainsMeeting
+from submission.models.character import CharacterPronouns, Character
+from submission.models.paradigm import Paradigm, ParadigmPreferenceItem
 from submission.models.section import BallotSection, CaptainsMeetingSection
+from tabeasy_secrets.secret import TOURNAMENT_NAME
 from tourney.models import Competitor
+from django.forms.widgets import NumberInput
 
 
 INT_CHOICES = [(i , i) for i in range(11)]
@@ -106,7 +110,7 @@ class BallotSectionForm(forms.ModelForm):
             for field in self.fields:
                 self.fields[field].disabled = True
 
-class EditPronounsForm(forms.ModelForm):
+class CharacterPronounsForm(forms.ModelForm):
     class Meta:
         model = CharacterPronouns
         fields = ['pronouns']
@@ -114,12 +118,27 @@ class EditPronounsForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.init_character = kwargs.pop('character', None)
         self.init_captains_meeting = kwargs.pop('captains_meeting', None)
-        super(EditPronounsForm, self).__init__(*args, **kwargs)
+        self.form = kwargs.pop('form', None)
+        super(CharacterPronounsForm, self).__init__(*args, **kwargs)
         if self.init_character:
             self.instance.character = self.init_character
         if self.init_captains_meeting:
             self.instance.captains_meeting = self.init_captains_meeting
 
+        if not self.init_captains_meeting.submit:
+            for field in self.fields:
+                self.fields[field].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = []
+        # after submission all fields need to be filled
+        if self.form.cleaned_data['submit'] == True:
+            if cleaned_data.get('pronouns') == None:
+                errors.append(f"Character {self.instance} pronouns empty")
+
+        if errors != []:
+            raise ValidationError(errors)
 
 
 class CaptainsMeetingForm(forms.ModelForm):
@@ -128,6 +147,7 @@ class CaptainsMeetingForm(forms.ModelForm):
         model = CaptainsMeeting
         fields = '__all__'
         exclude = ['round']
+
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(CaptainsMeetingForm, self).__init__(*args, **kwargs)
@@ -139,44 +159,17 @@ class CaptainsMeetingForm(forms.ModelForm):
             for field in self.fields:
                 self.fields[field].required = False
 
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = []
+        #after submission all fields need to be filled
+        if cleaned_data.get('submit') == True:
+            for k,v in cleaned_data.items():
+                if v == None:
+                    errors.append(f"{k} empty")
 
-    #     p_team_members = Competitor.objects.filter(team=self.instance.round.p_team)
-    #     self.fields['p_opener'].queryset = p_team_members
-    #     self.fields['p_wit1'].queryset = p_team_members
-    #     self.fields['p_wit1_direct_att'].queryset = p_team_members
-    #     self.fields['p_wit2'].queryset = p_team_members
-    #     self.fields['p_wit2_direct_att'].queryset = p_team_members
-    #     self.fields['p_wit3'].queryset = p_team_members
-    #     self.fields['p_wit3_direct_att'].queryset = p_team_members
-    #     self.fields['d_wit1_cross_att'].queryset = p_team_members
-    #     self.fields['d_wit2_cross_att'].queryset = p_team_members
-    #     self.fields['d_wit3_cross_att'].queryset = p_team_members
-    #     self.fields['p_closer'].queryset = p_team_members
-    #
-    #     d_team_members = Competitor.objects.filter(team=self.instance.round.d_team)
-    #     self.fields['d_opener'].queryset = d_team_members
-    #     self.fields['d_wit1'].queryset = d_team_members
-    #     self.fields['d_wit1_direct_att'].queryset = d_team_members
-    #     self.fields['d_wit2'].queryset = d_team_members
-    #     self.fields['d_wit2_direct_att'].queryset = d_team_members
-    #     self.fields['d_wit3'].queryset = d_team_members
-    #     self.fields['d_wit3_direct_att'].queryset = d_team_members
-    #     self.fields['p_wit1_cross_att'].queryset = d_team_members
-    #     self.fields['p_wit2_cross_att'].queryset = d_team_members
-    #     self.fields['p_wit3_cross_att'].queryset = d_team_members
-    #     self.fields['d_closer'].queryset = d_team_members
-    #
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     errors = []
-    #     #after submission all fields need to be filled
-    #     # if cleaned_data.get('submit') == True:
-    #     #     for k,v in cleaned_data.items():
-    #     #         if v == None:
-    #     #             errors.append(f"{k} empty")
-    #
-    #     if errors != []:
-    #         raise ValidationError(errors)
+        if errors != []:
+            raise ValidationError(errors)
 
 class CaptainsMeetingSectionForm(forms.ModelForm):
     class Meta:
@@ -186,6 +179,7 @@ class CaptainsMeetingSectionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.init_captains_meeting = kwargs.pop('captains_meeting', None)
         self.init_subsection = kwargs.pop('subsection', None)
+        self.form = kwargs.pop('form', None)
         super(CaptainsMeetingSectionForm, self).__init__(*args, **kwargs)
         if self.init_captains_meeting:
             self.instance.captains_meeting = self.init_captains_meeting
@@ -193,14 +187,59 @@ class CaptainsMeetingSectionForm(forms.ModelForm):
             self.instance.subsection = self.init_subsection
 
         p_team_members = Competitor.objects.filter(team=self.init_captains_meeting.round.p_team)
+        p_characters = Character.objects.filter(tournament__name=TOURNAMENT_NAME,side__in=['p','other'])
         d_team_members = Competitor.objects.filter(team=self.init_captains_meeting.round.d_team)
+        d_characters = Character.objects.filter(tournament__name=TOURNAMENT_NAME, side__in=['d', 'other'])
+
+
         if self.init_subsection.side == 'p':
             self.fields['competitor'].queryset = p_team_members
+            self.fields['character'].queryset = p_characters
         else:
             self.fields['competitor'].queryset = d_team_members
+            self.fields['character'].queryset = d_characters
 
         if not self.init_captains_meeting.submit:
             for field in self.fields:
                 self.fields[field].required = False
 
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = []
+        # after submission all fields need to be filled
+        if self.form.cleaned_data['submit'] == True:
+            if cleaned_data.get('competitor') == None:
+                errors.append(f"{self.instance.subsection} competitor empty")
+            if self.instance.subsection.type == 'direct' and self.instance.subsection.role == 'wit' and \
+                cleaned_data.get('character') == None:
+                errors.append(f"{self.instance.subsection} character empty")
+
+        if errors != []:
+            raise ValidationError(errors)
+
+
+class ParadigmForm(forms.ModelForm):
+    class Meta:
+        model = Paradigm
+        fields = '__all__'
+        exclude = ['judge']
+
+class ParadigmPreferenceItemForm(forms.ModelForm):
+
+    class Meta:
+        model = ParadigmPreferenceItem
+        fields = ['scale']
+
+        widgets = {
+            'scale': forms.NumberInput(attrs={'type':'range', 'step': '1', 'min': '1', 'max': '10'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.paradigm = kwargs.pop('paradigm', None)
+        self.paradigm_preference = kwargs.pop('paradigm_preference', None)
+        super(ParadigmPreferenceItemForm, self).__init__(*args, **kwargs)
+        if self.paradigm:
+            self.instance.paradigm = self.paradigm
+        if self.paradigm_preference:
+            self.instance.paradigm_preference = self.paradigm_preference
 

@@ -2,8 +2,11 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 # from tabeasy_secrets.secret import TOURNAMENT
+from rest_framework.exceptions import ValidationError
+
 from submission.models.ballot import Ballot
-from submission.models.captains_meeting import CaptainsMeeting, Character
+from submission.models.captains_meeting import CaptainsMeeting
+from submission.models.character import Character
 from tourney.models import Competitor, Round
 from tourney.models.tournament import Tournament
 
@@ -60,4 +63,11 @@ class CaptainsMeetingSection(models.Model):
 
     def __str__(self):
         return self.subsection.__str__() + self.competitor.__str__()
+
+    def clean(self):
+        errors = []
+
+        if errors != []:
+            raise ValidationError(errors)
+
 

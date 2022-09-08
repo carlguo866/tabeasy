@@ -30,8 +30,6 @@ class PairingAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['pk', 'round_num','division']
     inlines = [RoundInline]
 
-
-
 @admin.register(Round)
 class RoundAdmin(admin.ModelAdmin):
     list_display = ['pk','__str__','p_team','d_team','presiding_judge','scoring_judge']
@@ -52,4 +50,7 @@ class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
 class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['pk', 'name','team']
     search_fields = ['name']
+
+
+
 

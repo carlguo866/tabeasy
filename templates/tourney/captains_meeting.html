@@ -15,7 +15,7 @@
 			{% endfor %}
 		{% endif %}
 
-		{% for section in section_forms %}
+		{% for section in section_forms%}
 			{% for subsection_form in section %}
 				{% if subsection_form.errors %}
 					{% for key, value in subsection_form.errors.items %}
@@ -25,6 +25,17 @@
 					{% endfor %}
 				{% endif %}
 			{% endfor %}
+		{% endfor %}
+
+
+		{% for pronouns_form in pronouns_forms %}
+			{% if pronouns_form.errors %}
+				{% for key, value in pronouns_form.errors.items %}
+					{% if value %}
+						<div class="alert alert-danger" role="alert">{{ value }}</div>
+					{% endif %}
+				{% endfor %}
+			{% endif %}
 		{% endfor %}
 
 		<h3>Captains Meeting Form</h3>
@@ -93,66 +104,66 @@
 		{% csrf_token %}
 
 
-		<div class="card my-5">
-			<h4 class="card-header">Character Evidence Form</h4>
-				<div class="card-body">
-					<ul class="list-group">
-						<li class="list-group-item">
-							{% render_field form.character_evidence_option1 class='form-check-input mt-2' name="character_evidence_option1" %}
-							<span class="mx-3">{{ form.character_evidence_option1.help_text }}</span>
-							{{ form.character_evidence_option1_description }}
-						</li>
-						<li class="list-group-item">
-							{% render_field form.character_evidence_option2 class='form-check-input mt-2' name="character_evidence_option2" %}
-							<span class="mx-3">{{ form.character_evidence_option2.help_text }}</span>
-							{{ form.character_evidence_option2_description }}
-						</li>
-						<li class="list-group-item">
-							{% render_field form.character_evidence_option3 class='form-check-input mt-2' name="character_evidence_option3" %}
-							<span class="mx-3">{{ form.character_evidence_option3.help_text }}</span>
-							{{ form.character_evidence_option3_description }}
-						</li>
-						<li class="list-group-item">
-							{% render_field form.character_evidence_option4 class='form-check-input mt-2' name="character_evidence_option4" %}
-							<span class="m-3">{{ form.character_evidence_option4.help_text }}</span>
-							{{ form.character_evidence_option4_description }}
-						</li>
-						<li class="list-group-item">
-							{% render_field form.character_evidence_submit class='form-check-input mt-1' name="character_evidence_submit" %}
-							<span class="m-3">{{ form.character_evidence_submit.help_text }}</span>
-						</li>
-					</ul>
-				</div>
-
-			<div class="card my-5">
-				<h4 class="card-header">Charges</h4>
-				<div class="card-body">
-					<div class="row">
-						<div class="col-md-6 pe-4">
-							<div class="card border border-primary">
-
-								<div class="card-body">
-									<div class="card-text my-2">
-										Prosecution announces that they wish to pursue Robbery1 against the following victim(s):
-									</div>
-									{% render_field form.p_charge class='form-select mt-1' name='p_charge' %}
-								</div>
-							</div>
-						</div>
-						<div class="col-md-6 ps-4">
-							<div class="card border border-secondary">
-								<div class="card-body">
-									<div class="card-text my-2">
-										Defense then announces their intention that the defendant is:
-										{% render_field form.d_charge class='form-select mt-1' name='d_charge' %}
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+{#		<div class="card my-5">#}
+{#			<h4 class="card-header">Character Evidence Form</h4>#}
+{#				<div class="card-body">#}
+{#					<ul class="list-group">#}
+{#						<li class="list-group-item">#}
+{#							{% render_field form.character_evidence_option1 class='form-check-input mt-2' name="character_evidence_option1" %}#}
+{#							<span class="mx-3">{{ form.character_evidence_option1.help_text }}</span>#}
+{#							{{ form.character_evidence_option1_description }}#}
+{#						</li>#}
+{#						<li class="list-group-item">#}
+{#							{% render_field form.character_evidence_option2 class='form-check-input mt-2' name="character_evidence_option2" %}#}
+{#							<span class="mx-3">{{ form.character_evidence_option2.help_text }}</span>#}
+{#							{{ form.character_evidence_option2_description }}#}
+{#						</li>#}
+{#						<li class="list-group-item">#}
+{#							{% render_field form.character_evidence_option3 class='form-check-input mt-2' name="character_evidence_option3" %}#}
+{#							<span class="mx-3">{{ form.character_evidence_option3.help_text }}</span>#}
+{#							{{ form.character_evidence_option3_description }}#}
+{#						</li>#}
+{#						<li class="list-group-item">#}
+{#							{% render_field form.character_evidence_option4 class='form-check-input mt-2' name="character_evidence_option4" %}#}
+{#							<span class="m-3">{{ form.character_evidence_option4.help_text }}</span>#}
+{#							{{ form.character_evidence_option4_description }}#}
+{#						</li>#}
+{#						<li class="list-group-item">#}
+{#							{% render_field form.character_evidence_submit class='form-check-input mt-1' name="character_evidence_submit" %}#}
+{#							<span class="m-3">{{ form.character_evidence_submit.help_text }}</span>#}
+{#						</li>#}
+{#					</ul>#}
+{#				</div>#}
+{##}
+{#			<div class="card my-5">#}
+{#				<h4 class="card-header">Charges</h4>#}
+{#				<div class="card-body">#}
+{#					<div class="row">#}
+{#						<div class="col-md-6 pe-4">#}
+{#							<div class="card border border-primary">#}
+{##}
+{#								<div class="card-body">#}
+{#									<div class="card-text my-2">#}
+{#										Prosecution announces that they wish to pursue Robbery1 against the following victim(s):#}
+{#									</div>#}
+{#									{% render_field form.p_charge class='form-select mt-1' name='p_charge' %}#}
+{#								</div>#}
+{#							</div>#}
+{#						</div>#}
+{#						<div class="col-md-6 ps-4">#}
+{#							<div class="card border border-secondary">#}
+{#								<div class="card-body">#}
+{#									<div class="card-text my-2">#}
+{#										Defense then announces their intention that the defendant is:#}
+{#										{% render_field form.d_charge class='form-select mt-1' name='d_charge' %}#}
+{#									</div>#}
+{#								</div>#}
+{#							</div>#}
+{#						</div>#}
+{#					</div>#}
+{#				</div>#}
+{#			</div>#}
+{#		</div>#}
 
 
 		<h2>Roles</h2>
@@ -230,11 +241,11 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-								{% for pronoun_form in pronouns_forms %}
-									{% if pronoun_form.init_character.side == 'p' %}
+								{% for pronouns_form in pronouns_forms %}
+									{% if pronouns_form.init_character.side == 'p' %}
 										<li class="list-group-item">
-										<div>{{ pronoun_form.init_character }}</div>
-										{% render_field pronoun_form.pronouns class='form-select mt-1' name='pronouns' %}
+										<div>{{ pronouns_form.init_character }}</div>
+										{% render_field pronouns_form.pronouns class='form-select mt-1' name='pronouns' %}
 										</li>
 									{% endif %}
 								{% endfor %}
@@ -247,11 +258,11 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-								{% for pronoun_form in pronouns_forms %}
-									{% if pronoun_form.init_character.side == 'd' %}
+								{% for pronouns_form in pronouns_forms %}
+									{% if pronouns_form.init_character.side == 'd' %}
 										<li class="list-group-item">
-										<div>{{ pronoun_form.init_character }}</div>
-										{% render_field pronoun_form.pronouns class='form-select mt-1' name='pronouns' %}
+										<div>{{ pronouns_form.init_character }}</div>
+										{% render_field pronouns_form.pronouns class='form-select mt-1' name='pronouns' %}
 										</li>
 									{% endif %}
 								{% endfor %}
@@ -265,11 +276,11 @@
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">
-								{% for pronoun_form in pronouns_forms %}
-									{% if pronoun_form.init_character.side == 'other' %}
+								{% for pronouns_form in pronouns_forms %}
+									{% if pronouns_form.init_character.side == 'other' %}
 										<li class="list-group-item">
-										<div>{{ pronoun_form.init_character }}</div>
-										{% render_field pronoun_form.pronouns class='form-select mt-1' name='pronouns' %}
+										<div>{{ pronouns_form.init_character }}</div>
+										{% render_field pronouns_form.pronouns class='form-select mt-1' name='pronouns' %}
 										</li>
 									{% endif %}
 								{% endfor %}

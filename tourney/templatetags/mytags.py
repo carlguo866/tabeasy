@@ -60,3 +60,15 @@ def chaffify(val, chaff_size = 150, chaff_modulus = 7):
     """
     chaff = random.randint(0, math.floor(chaff_size / chaff_modulus)) * chaff_modulus
     return val * chaff_size + chaff
+
+
+role_choices = [
+    ('att', 'attorneys'),
+    ('wit', 'witnesses')
+]
+@register.filter
+def display_role(q):
+    for choice in role_choices:
+        if choice[0] == q:
+            return choice[1]
+    return ''
