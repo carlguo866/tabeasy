@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.admin import display
+#from django.contrib.admin import display
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 
 from submission.admin import BallotInlineAdmin

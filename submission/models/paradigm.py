@@ -1,28 +1,30 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from array_field_select.fields import ArrayField
 
 experience_description_choices = [
     ('hs', 'I am a former High School Mock Trial Competitor'),
     ('college', 'I am a current or former College Mock Trial Competitor'),
     ('ls', 'I am a current or former Law School Mock Trial Competitor'),
+    ('judged', 'I have judged 1-2 Mock Trial Competitions in the past'),
+    ('judged_some', 'I have judged 3-5 Mock Trial Competitions in the past'),
+    ('judged_many', 'I have judged 5 or more Mock Trial Competitions in the past'),
 ]
 
 
 judged_rounds_choices = [
-    (1,'I have judged 1-2 Mock Trial Competitions in the past'),
-    (2,'I have judged 3-5 Mock Trial Competitions in the past'),
-    (3,'I have judged 5 or more Mock Trial Competitions in the past'),
 ]
 
 class Paradigm(models.Model):
     judge = models.OneToOneField('tourney.Judge', on_delete=models.CASCADE,
                                 primary_key=True, related_name='paradigm')
     experience_years = models.DecimalField(default=0, max_digits=3, decimal_places=1, help_text='How many years of mock trial experience do you have?')
-    experience_description = models.CharField(max_length=40, choices=experience_description_choices, null=True,
-                                              help_text='Do you have any experience competing in high school, collegiate or law school mock trial competitions?')
-    judged_rounds = models.IntegerField(choices=judged_rounds_choices,null=True,
-                                        help_text='Do you have any experience judging high school, collegiate or law school mock trial competitions?')
-    affiliations = models.CharField(max_length=200, null=True, blank=True)
+    experience_description = ArrayField(
+        models.CharField(max_length=40, choices=experience_description_choices, null=True,
+                         help_text='Do you have any experience competing or judging in high school, collegiate or law school mock trial competitions?'),
+        size=6
+    )
+    affiliations = models.CharField(max_length=2000, null=True, blank=True)
     #scale On a scale of 1-10, I prefer mock trial attorneys who…
     comments = models.TextField(max_length=5000, null=True, blank=True)
 
@@ -38,7 +40,7 @@ class ParadigmPreference(models.Model):
     high_end = models.CharField(max_length=40, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.low_end} {self.high_end}"
+        return f"{self.role.upper()}: {self.low_end} v. {self.high_end}"
 
 class ParadigmPreferenceItem(models.Model):
     paradigm = models.ForeignKey(Paradigm, on_delete=models.CASCADE, related_name='preferences',

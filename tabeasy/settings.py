@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_better_admin_arrayfield',
     'widget_tweaks',
     'ajax_select',
+    'array_field_select',
     'accounts',
     'submission',
     'tourney',

@@ -6,6 +6,7 @@ from submission.models.captains_meeting import CaptainsMeeting
 from submission.models.character import CharacterPronouns, Character
 from submission.models.paradigm import Paradigm, ParadigmPreference, ParadigmPreferenceItem
 from submission.models.section import Section, SubSection, BallotSection, CaptainsMeetingSection
+from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 
 
 @admin.register(Section)
@@ -75,7 +76,7 @@ class ParadigmPreferenceItemInlineAdmin(admin.TabularInline):
 
 
 @admin.register(Paradigm)
-class ParadigmAdmin(admin.ModelAdmin):
+class ParadigmAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['judge', 'affiliations', 'experience_years']
     list_filter = ['judge']
     inlines = [ParadigmPreferenceItemInlineAdmin]
