@@ -11,8 +11,8 @@
 						Conflicted Teams
 					</div>
 					<div class="card-body text-start">
-						<a class="button button-primary py-2 mb-4" href="{% url 'tourney:update_conflict' %}">
-							Update Conflict
+						<a href="{% url 'tourney:update_conflict' %}">
+							<button type="button" class="button button-primary mb-2 py-1">Update Conflict</button>
 						</a>
 						<ul class="list-group mt-3">
 							{% for team in request.user.judge.conflicts.all %}
@@ -26,8 +26,8 @@
 						Judge Friends
 					</div>
 					<div class="card-body text-start">
-						<a class="button button-primary py-2 my-2" href="{% url 'tourney:judge_friend' %}">
-							Update Judge Friends
+						<a href="{% url 'tourney:judge_friend' %}">
+							<button type="button" class="button button-primary mb-2 py-1">Update Judge Friends</button>
 						</a>
 						<ul class="list-group mt-3">
 							{% for friend in request.user.judge.judge_friends.all %}
@@ -42,9 +42,16 @@
 						Preference
 					</div>
 					<div class="card-body text-start">
-						<a class='button button-primary py-2' href="{% url 'tourney:edit_preference'%}">
-							Edit Preference
-						</a>
+						<div class="my-2">
+							<a class='button button-primary py-2' href="{% url 'submission:paradigm' request.user.username %}">
+							Edit Paradigm
+							</a>
+						</div>
+						<div class="mt-4">
+							<a class='button button-primary py-2' href="{% url 'tourney:edit_preference'%}">
+							Edit Availability
+							</a>
+						</div>
 						<div class="card-text mt-3 mb-2">Can preside? {{ request.user.judge.get_preside_preference }}</div>
 						<div class="card-text my-2">Availability:</div>
 						<ul class="list-group">
@@ -76,7 +83,7 @@
 						{% for ballot in request.user.judge.ballots.all %}
 							{% if ballot.round.pairing.final_submit %}
 								<div class="card-text mb-4">
-									<a class="button button-primary py-2" href="{% url 'ballot:view' ballot.pk|int_str %}">
+									<a class="button button-primary py-2" href="{% url 'submission:ballot' ballot.pk|int_str %}">
 										{{ ballot.round }}
 									</a>
 								</div>

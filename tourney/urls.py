@@ -3,9 +3,6 @@ from django.contrib.auth import views as auth_views
 from . import views
 app_name = 'tourney'
 urlpatterns = [
-    path('captains_meeting/<str:encrypted_pk>',
-         views.CaptainsMeetingUpdateView.as_view(),
-         name='captains_meeting'),
     path('pairing', views.pairing_index, name='pairing_index'),
     path('pairing/edit/<int:round_num>', views.edit_pairing, name='edit_pairing'),
     path('pairing/delete/<int:round_num>', views.delete_pairing, name='delete_pairing'),
@@ -18,6 +15,9 @@ urlpatterns = [
          views.view_captains_meeting_status, name='view_captains_meeting_status'),
     path('results', views.results, name='results'),
     path('individual_awards', views.individual_awards, name='individual_awards'),
+    path('team/edit_competitor_pronouns/',
+         views.edit_competitor_pronouns,
+         name='edit_competitor_pronouns'),
     path('judge/update_conflict',
          views.ConflictUpdateView.as_view(),
          name='update_conflict'),
@@ -27,7 +27,5 @@ urlpatterns = [
     path('judge/judge_preference',
          views.JudgePreferenceUpdateView.as_view(),
          name='edit_preference'),
-    path('test/pronouns',
-         views.test_pronouns,
-         name='test_pronouns'),
+
 ]

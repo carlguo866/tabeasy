@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'ajax_select',
     'accounts',
-    'ballot',
+    'submission',
     'tourney',
 ]
 
@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'accounts.middleware.UpdateLastLoginMiddleware',
 ]
 
 ROOT_URLCONF = 'tabeasy.urls'
@@ -144,6 +145,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 
 LOGIN_REDIRECT_URL='/'
 AUTH_USER_MODEL='accounts.User'
+AUTHENTICATION_BACKENDS = ['accounts.auth_backend.EmailUsernameBackend']
+
+# email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_SSL = True
+DEFAULT_FROM_EMAIL = 'Tabeasy<noreply@tabeasy.org>'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
  
 # overwrite with local secret setting
 try:
