@@ -11,8 +11,8 @@
 						Conflicted Teams
 					</div>
 					<div class="card-body text-start">
-						<a class="button button-primary py-2 mb-4" href="{% url 'tourney:update_conflict' %}">
-							Update Conflict
+						<a href="{% url 'tourney:update_conflict' %}">
+							<button type="button" class="button button-primary mb-2 py-1">Update Conflict</button>
 						</a>
 						<ul class="list-group mt-3">
 							{% for team in request.user.judge.conflicts.all %}
@@ -26,8 +26,8 @@
 						Judge Friends
 					</div>
 					<div class="card-body text-start">
-						<a class="button button-primary py-2 my-2" href="{% url 'tourney:judge_friend' %}">
-							Update Judge Friends
+						<a href="{% url 'tourney:judge_friend' %}">
+							<button type="button" class="button button-primary mb-2 py-1">Update Judge Friends</button>
 						</a>
 						<ul class="list-group mt-3">
 							{% for friend in request.user.judge.judge_friends.all %}

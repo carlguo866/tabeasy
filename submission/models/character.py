@@ -4,14 +4,14 @@ from submission.models.captains_meeting import CaptainsMeeting
 from tourney.models import Tournament
 
 pronoun_choices = [
-    ('he', 'He/Him'),
-    ('she', 'She/Her'),
-    ('they','They/Them'),
-    ('ze','Ze/Hir')
+    ('he', 'he/him'),
+    ('she', 'she/her'),
+    ('they','they/them'),
+    ('ze','ze/hir')
 ]
 side_choices = [
-    ('p', 'P'),
-    ('d', 'D'),
+    ('P', 'P'),
+    ('D', 'D'),
     ('other','Other'),
 ]
 

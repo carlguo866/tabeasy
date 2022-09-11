@@ -12,10 +12,12 @@ from django.views.generic import UpdateView
 
 from accounts.models import User
 from submission.forms import CharacterPronounsForm
+from submission.models.section import Section, SubSection
 from tabeasy.settings import DEBUG
 from tabeasy.utils.mixins import JudgeOnlyMixin, PassRequestToFormViewMixin
-from tabeasy_secrets.secret import DIVISION_ROUND_NUM, str_int, TOURNAMENT_NAME
-from tourney.forms import RoundForm, UpdateConflictForm, UpdateJudgeFriendForm, PairingFormSet, PairingSubmitForm, JudgeForm, CheckinJudgeForm
+from tabeasy_secrets.secret import DIVISION_ROUND_NUM, str_int
+from tourney.forms import RoundForm, UpdateConflictForm, UpdateJudgeFriendForm, PairingFormSet, PairingSubmitForm, \
+    JudgeForm, CheckinJudgeForm, CompetitorPronounsForm
 from submission.models.ballot import Ballot
 from submission.models.character import Character, CharacterPronouns
 from tourney.models.judge import Judge
@@ -45,14 +47,15 @@ def results(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def individual_awards(request):
-    atts_ranked = [(member,'P',member.att_individual_score()[0]) for member in Competitor.objects.all()
+    tournament = request.user.tournament
+    atts_ranked = [(member,'P',member.att_individual_score()[0]) for member in Competitor.objects.filter(team__user__tournament=tournament)
                    if member.att_individual_score()[0] >= 10]+ \
-                  [(member, 'D', member.att_individual_score()[1]) for member in Competitor.objects.all()
+                  [(member, 'D', member.att_individual_score()[1]) for member in Competitor.objects.filter(team__user__tournament=tournament)
                    if member.att_individual_score()[1] >= 10]
     atts_ranked = sorted(atts_ranked, key=lambda x: -x[2])
-    wits_ranked = [(member,'P',member.wit_individual_score()[0]) for member in Competitor.objects.all()
+    wits_ranked = [(member,'P',member.wit_individual_score()[0]) for member in Competitor.objects.filter(team__user__tournament=tournament)
                    if member.wit_individual_score()[0] >= 10]+ \
-                  [(member, 'D', member.wit_individual_score()[1]) for member in Competitor.objects.all()
+                  [(member, 'D', member.wit_individual_score()[1]) for member in Competitor.objects.filter(team__user__tournament=tournament)
                    if member.wit_individual_score()[1] >= 10]
     wits_ranked = sorted(wits_ranked, key=lambda x: -x[2])
 
@@ -63,7 +66,6 @@ def individual_awards(request):
 @user_passes_test(lambda u: u.is_staff)
 def next_pairing(request):
     tournament = request.user.tournament
-    teams = Team.objects.filter(user__tournament=tournament)
     if Pairing.objects.filter(tournament=tournament).exists():
         next_round = max([pairing.round_num for pairing in Pairing.objects.filter(tournament=tournament)])+1
     else:
@@ -71,7 +73,7 @@ def next_pairing(request):
 
     if tournament.split_division:
         if next_round % 2 == 0:
-            div1_d_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
+            i_d_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
                                        if team.next_side(next_round) == 'd'])
             div1_p_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
                                        if team.next_side(next_round) == 'p'])
@@ -131,12 +133,14 @@ def next_pairing(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def pairing_index(request):
-    round_num_lists = sorted(Pairing.objects.values_list('round_num',flat=True).distinct())
+    tournament = request.user.tournament
+    round_num_lists = sorted(Pairing.objects.filter(tournament=tournament).values_list('round_num',flat=True).distinct())
     pairings = []
     for round_num in round_num_lists:
-        pairings.append(Pairing.objects.filter(round_num=round_num).order_by('division'))
-    if Pairing.objects.exists():
-        next_round = max([pairing.round_num for pairing in Pairing.objects.all()]) + 1
+        pairings.append(Pairing.objects.filter(tournament=tournament,
+                                               round_num=round_num).order_by('division'))
+    if Pairing.objects.filter(tournament=tournament).exists():
+        next_round = max([pairing.round_num for pairing in Pairing.objects.filter(tournament=tournament)]) + 1
     else:
         next_round = 1
     dict = {'pairings': pairings, 'next_round': next_round }
@@ -167,9 +171,9 @@ def edit_pairing(request, round_num):
 
         if request.method == "POST":
             div1_formset = RoundFormSet(request.POST, request.FILES, prefix='div1', instance=div1_pairing,
-                                        form_kwargs={'pairing': div1_pairing, 'other_formset':None})
+                                        form_kwargs={'pairing': div1_pairing, 'other_formset':None, 'request':request })
             div2_formset = RoundFormSet(request.POST, request.FILES, prefix='div2', instance=div2_pairing,
-                                        form_kwargs={'pairing': div2_pairing, 'other_formset':div1_formset})
+                                        form_kwargs={'pairing': div2_pairing, 'other_formset':div1_formset, 'request':request })
 
             div1_submit_form = PairingSubmitForm(request.POST, prefix='div1', instance=div1_pairing)
             div2_submit_form = PairingSubmitForm(request.POST, prefix='div2', instance=div2_pairing)
@@ -244,8 +248,14 @@ def edit_pairing(request, round_num):
             if both_true:
                 return redirect('tourney:pairing_index')
         else:
-            div1_formset = RoundFormSet(instance=div1_pairing,prefix='div1', form_kwargs={'pairing': div1_pairing, 'other_formset':None})
-            div2_formset = RoundFormSet(instance=div2_pairing,prefix='div2', form_kwargs={'pairing': div2_pairing, 'other_formset':div1_formset})
+            div1_formset = RoundFormSet(instance=div1_pairing,prefix='div1',
+                                        form_kwargs={'pairing': div1_pairing,
+                                                     'other_formset':None,
+                                                     'request':request })
+            div2_formset = RoundFormSet(instance=div2_pairing,prefix='div2',
+                                        form_kwargs={'pairing': div2_pairing,
+                                                     'other_formset':div1_formset,
+                                                     'request':request })
             div1_submit_form = PairingSubmitForm(instance=div1_pairing, prefix='div1')
             div2_submit_form = PairingSubmitForm(instance=div2_pairing, prefix='div2')
 
@@ -254,7 +264,7 @@ def edit_pairing(request, round_num):
                                                              'pairing': div1_pairing,
                                                              'judges': judges})
     else:
-        if not Pairing.objects.filter(round_num=round_num).exists():
+        if not Pairing.objects.filter(tournament=tournament, round_num=round_num).exists():
             pairing = Pairing.objects.create(tournament=tournament, round_num=round_num)
         else:
             pairing = Pairing.objects.get(tournament=tournament, round_num=round_num)
@@ -265,8 +275,9 @@ def edit_pairing(request, round_num):
 
         if request.method == "POST":
             formset = RoundFormSet(request.POST, request.FILES, prefix='div1', instance=pairing,
-                                        form_kwargs={'pairing': pairing, 'other_formset': None})
-
+                                        form_kwargs={'pairing': pairing,
+                                                     'other_formset': None,
+                                                     'request': request })
             submit_form = PairingSubmitForm(request.POST, prefix='div1', instance=pairing)
 
             if submit_form.is_valid():
@@ -283,7 +294,7 @@ def edit_pairing(request, round_num):
                     random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
                 else:
                     random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
-                for round in Pairing.objects.get(pk=formset.pk).rounds.all():
+                for round in Pairing.objects.get(pk=pairing.pk).rounds.all():
                     if round.courtroom != None:
                         random_choice = random_choice.replace(round.courtroom, '')
                 random_choice = random.sample(list(random_choice), len(random_choice))
@@ -316,7 +327,9 @@ def edit_pairing(request, round_num):
                 return redirect('tourney:pairing_index')
         else:
             formset = RoundFormSet(instance=pairing, prefix='div1',
-                                        form_kwargs={'pairing': pairing, 'other_formset': None})
+                                        form_kwargs={'pairing': pairing,
+                                                     'other_formset': None,
+                                                     'request': request})
             submit_form = PairingSubmitForm(instance=pairing, prefix='div1')
 
         return render(request, 'tourney/pairing/edit.html', {'formsets': [formset],
@@ -334,14 +347,14 @@ def delete_pairing(request, round_num):
 def checkin_judges(request, round_num):
 
     if request.method == "POST":
-        form = CheckinJudgeForm(request.POST, round_num=round_num)
+        form = CheckinJudgeForm(request.POST, round_num=round_num, request=request)
         if form.is_valid():
             for judge in form.cleaned_data['checkins']:
                 judge.checkin = True
                 judge.save()
         return redirect('tourney:pairing_index')
     else:
-        form = CheckinJudgeForm(round_num=round_num)
+        form = CheckinJudgeForm(round_num=round_num, request=request)
 
     return render(request, 'tourney/tab/checkin_judges.html',{'form':form, 'round_num':round_num})
 
@@ -352,7 +365,7 @@ def clear_checkin(request):
 
 @user_passes_test(lambda u: u.is_staff)
 def checkin_all_judges(request, round_num):
-    available_judges_pk = [judge.pk for judge in Judge.objects.all()
+    available_judges_pk = [judge.pk for judge in Judge.objects.filter(user__tournament=request.user.tournament)
                            if judge.get_availability(round_num)]
     Judge.objects.filter(pk__in=available_judges_pk).update(checkin=True)
     return redirect('tourney:pairing_index')
@@ -377,30 +390,6 @@ def view_captains_meeting_status(request, pairing_id):
     return render(request, 'tourney/tab/view_captains_meeting_status.html',
                   {'captains_meetings': captains_meetings})
 
-@user_passes_test(lambda u: u.is_staff)
-def test_pronouns(request):
-    if request.method == "POST":
-        forms = [CharacterPronounsForm(request.POST, instance=character,prefix=character.__str__())
-                 for character in Character.objects.all()]
-        has_wrong = False
-        for form in forms:
-            if form.is_valid():
-               form.save()
-            else:
-                has_wrong = True
-        if has_wrong:
-            raise ValidationError('aldfnkalndln somethign wrong')
-        else:
-            return redirect('index')
-    else:
-        forms = [CharacterPronounsForm(instance=character,prefix=character.__str__())
-                 for character in Character.objects.all()]
-
-    context = {'forms': forms}
-    return render(request, 'accounts/signup.html',
-                  context)
-
-
 # @login_required
 # # def add_conflict(request):
 # #     if request.method == 'POST':
@@ -409,7 +398,7 @@ def test_pronouns(request):
 # #
 # #     return render(request, 'tourney/add_conflict.html', {'form':form})
 
-class ConflictUpdateView(JudgeOnlyMixin, UpdateView):
+class ConflictUpdateView(JudgeOnlyMixin, PassRequestToFormViewMixin, UpdateView):
     model = Judge
     template_name = "tourney/add_conflict.html"
 
@@ -425,7 +414,7 @@ class ConflictUpdateView(JudgeOnlyMixin, UpdateView):
 
     success_url = reverse_lazy('index')
 
-class JudgeFriendUpdateView(JudgeOnlyMixin, UpdateView):
+class JudgeFriendUpdateView(JudgeOnlyMixin, PassRequestToFormViewMixin, UpdateView):
     model = Judge
     template_name = "utils/generic_form.html"
 
@@ -452,6 +441,27 @@ class JudgePreferenceUpdateView(JudgeOnlyMixin, UpdateView):
 
     success_url = reverse_lazy('index')
 
+@user_passes_test(lambda u: u.is_team)
+def edit_competitor_pronouns(request):
+    team = request.user.team
+    if request.method == 'POST':
+        competitor_pronouns_forms = [CompetitorPronounsForm(request.POST, instance=competitor,
+                                                           prefix=competitor.name)
+                                     for competitor in team.competitors.all()]
+        for form in competitor_pronouns_forms:
+            if form.is_valid():
+                form.save()
+
+        return redirect('index')
+    else:
+        competitor_pronouns_forms = [CompetitorPronounsForm(instance=competitor,
+                                                           prefix=competitor.name)
+                                     for competitor in team.competitors.all()]
+    return render(request, 'tourney/competitor_pronouns.html', {
+        'team': team,
+        'forms': competitor_pronouns_forms
+    })
+
 @user_passes_test(lambda u: u.is_staff)
 def load_teams(request):
     if "GET" == request.method:
@@ -477,34 +487,35 @@ def load_teams(request):
                 team_roster.append(worksheet.cell(i,j).value)
                 j+=1
             message = ''
-            if len(team_roster) < 6:
-                message += f' errors: team {pk} less than 6 members '
-            elif len(team_roster) > 10:
-                message += f' errors: team {pk} more than 10 members '
-            else:
-                try:
-                    if Team.objects.filter(pk=pk).exists():
-                        message += f'update team {pk}'
-                        Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
-                    else:
-                        message += f'create team {pk}'
-                        raw_password = worksheet.cell(i,17).value
-                        username = ''.join(team_name.split(' '))
-                        user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False)
-                        user.set_password(raw_password)
-                        user.save()
-                        Team.objects.create(team_id=pk, user=user, team_name=team_name,division=division,school=school)
-                    for name in team_roster:
-                        if Competitor.objects.filter(name=name).exists():
-                            message += f'update member {name}'
-                            Competitor.objects.filter(name=name).update(team=Team.objects.filter(pk=pk)[0],name=name)
-                        else:
-                            message += f'create member {name}'
-                            Competitor.objects.create(name=name,team=Team.objects.filter(pk=pk)[0])
-                except Exception as e:
-                    message += str(e)
+            # if len(team_roster) < 6:
+            #     message += f' errors: team {pk} less than 6 members '
+            # elif len(team_roster) > 10:
+            #     message += f' errors: team {pk} more than 10 members '
+            # else:
+            try:
+                if Team.objects.filter(pk=pk).exists():
+                    message += f'update team {pk}'
+                    Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
                 else:
-                    message += 'success'
+                    message += f'create team {pk}'
+                    raw_password = worksheet.cell(i,17).value
+                    username = ''.join(team_name.split(' '))
+                    user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False)
+                    user.set_password(raw_password)
+                    user.tournament = request.user.tournament
+                    user.save()
+                    Team.objects.create(team_id=pk, user=user, team_name=team_name,division=division,school=school)
+                for name in team_roster:
+                    if Competitor.objects.filter(name=name).exists():
+                        message += f'update member {name}'
+                        Competitor.objects.filter(name=name).update(team=Team.objects.filter(pk=pk)[0],name=name)
+                    else:
+                        message += f'create member {name}'
+                        Competitor.objects.create(name=name,team=Team.objects.filter(pk=pk)[0])
+            except Exception as e:
+                message += str(e)
+            else:
+                message += 'success'
             list.append(message)
         return render(request, 'admin/load_excel.html', {"list": list})
 
@@ -517,7 +528,7 @@ def load_judges(request):
     else:
         excel_file = request.FILES["excel_file"]
         wb = openpyxl.load_workbook(excel_file)
-        worksheet = wb["Sheet1"]
+        worksheet = wb["Judges"]
         list = []
         n = worksheet.max_row
         m = worksheet.max_column
@@ -531,9 +542,9 @@ def load_judges(request):
                 last_name = ' '
             raw_password = worksheet.cell(i,10).value
             preside = worksheet.cell(i,3).value
-            if preside == 'CIN':
+            if preside == 'CIN' or 'No preference':
                 preside = 2
-            elif preside == 'y':
+            elif preside == 'y' or 'Presiding':
                 preside = 1
             else:
                 preside = 0
@@ -544,9 +555,9 @@ def load_judges(request):
                 else:
                     availability.append(False)
 
-            judge_friends = worksheet.cell(i, 11).value
-            if judge_friends != None:
-                judge_friends = judge_friends.split(',')
+            # judge_friends = worksheet.cell(i, 11).value
+            # if judge_friends != None:
+            #     judge_friends = judge_friends.split(',')
 
             message = ''
             try:
@@ -556,14 +567,15 @@ def load_judges(request):
                     user = judge.user
                     user.first_name = first_name
                     user.last_name = last_name
+                    user.tournament = request.user.tournament
                     user.save()
 
-                    if judge_friends:
-                        for friend in judge_friends:
-                            first = friend.split(' ')[0]
-                            last = friend.split(' ')[1]
-                            if Judge.objects.filter(user__first_name=first, user__last_name=last).exists():
-                                judge.judge_friends.add(Judge.objects.get(user__first_name=first, user__last_name=last))
+                    # if judge_friends:
+                    #     for friend in judge_friends:
+                    #         first = friend.split(' ')[0]
+                    #         last = friend.split(' ')[1]
+                    #         if Judge.objects.filter(user__first_name=first, user__last_name=last).exists():
+                    #             judge.judge_friends.add(Judge.objects.get(user__first_name=first, user__last_name=last))
 
                     judge.preside = preside
                     for i in range(len(availability)):
@@ -580,12 +592,12 @@ def load_judges(request):
                     for i in range(len(availability)):
                         setattr(judge, f'available_round{i+1}', availability[i])
 
-                    if judge_friends:
-                        for friend in judge_friends:
-                            first = friend.split(' ')[0]
-                            last = friend.split(' ')[1]
-                            if Judge.objects.filter(user__first_name=first, user__last_name=last).exists():
-                                judge.judge_friends.add(Judge.objects.get(user__first_name=first, user__last_name=last))
+                    # if judge_friends:
+                    #     for friend in judge_friends:
+                    #         first = friend.split(' ')[0]
+                    #         last = friend.split(' ')[1]
+                    #         if Judge.objects.filter(user__first_name=first, user__last_name=last).exists():
+                    #             judge.judge_friends.add(Judge.objects.get(user__first_name=first, user__last_name=last))
                     judge.save()
 
             except Exception as e:
@@ -594,3 +606,81 @@ def load_judges(request):
                 message += 'success'
             list.append(message)
         return render(request, 'admin/load_excel.html', {"list": list})
+
+@user_passes_test(lambda u: u.is_staff)
+def load_sections(request):
+    tournament = request.user.tournament
+    if not Section.objects.filter(tournament=tournament).exists():
+        wit_nums = tournament.wit_nums
+        i = 1
+        openings = Section.objects.create(name='Openings', tournament=tournament)
+        SubSection.objects.create(name=f'{tournament.p_choice} Opening',
+                                  section=openings,
+                                  side='P',
+                                  role='att',
+                                  type='statement',
+                                  help_text=f'{tournament.p_choice} Opening',
+                                  sequence=i)
+        SubSection.objects.create(name=f'Defense Opening',
+                                  section=openings,
+                                  side='D',
+                                  role='att',
+                                  type='statement',
+                                  help_text=f'Defense Opening',
+                                  sequence=i)
+        i+=1
+        side_choices = {
+            'P': tournament.p_choice,
+            'D': 'Defense'
+        }
+        for side in ['P', 'D']:
+            for wit_num in range(1, wit_nums+1):
+
+                section = Section.objects.create(name=f'{side_choices[side]} Witness #{wit_num}', tournament=tournament)
+                SubSection.objects.create(name=f'{side} Wit {wit_num} Wit Direct',
+                                          section=section,
+                                          side=side,
+                                          role='wit',
+                                          type='direct',
+                                          help_text=f'Witness (Direct)',
+                                          sequence=i)
+                SubSection.objects.create(name=f'{side} Wit {wit_num} Att Direct',
+                                          section=section,
+                                          side=side,
+                                          role='att',
+                                          type='direct',
+                                          help_text=f'Directing Attorney',
+                                          sequence=i)
+                i+=1
+                SubSection.objects.create(name=f'{side} Wit {wit_num} Wit Cross',
+                                          section=section,
+                                          side=side,
+                                          role='wit',
+                                          type='cross',
+                                          help_text=f'Witness (Cross)',
+                                          sequence=i)
+                opposing_side = 'P' if side == 'D' else 'D'
+                SubSection.objects.create(name=f'{side} Wit {wit_num} Att Cross',
+                                          section=section,
+                                          side=opposing_side,
+                                          role='att',
+                                          type='cross',
+                                          help_text=f'Crossing Attorney',
+                                          sequence=i)
+                i+=1
+        closings = Section.objects.create(name='Closings', tournament=tournament)
+        SubSection.objects.create(name=f'{tournament.p_choice} Closing',
+                                  section=closings,
+                                  side='P',
+                                  role='att',
+                                  type='statement',
+                                  help_text=f'{tournament.p_choice} Closing',
+                                  sequence=i)
+        SubSection.objects.create(name=f'Defense Closing',
+                                  section=closings,
+                                  side='D',
+                                  role='att',
+                                  type='statement',
+                                  help_text=f'{tournament.p_choice} Closing',
+                                  sequence=i)
+    return redirect('index')

@@ -1,18 +1,16 @@
 from django.db import models
-
-from tabeasy_secrets.secret import TOURNAMENT_NAME
-from tourney.models import Team, Tournament
+from tourney.models import Team
 
 pronoun_choices = [
-    ('he', 'He/Him'),
-    ('she', 'She/Her'),
-    ('they','They/Them'),
-    ('ze','Ze/Hir')
+    ('he', 'he/him'),
+    ('she', 'she/her'),
+    ('they','they/them'),
+    ('ze','ze/hir')
 ]
 
 class Competitor(models.Model):
     name = models.CharField(max_length=30)
-    team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='members',related_query_name='member')
+    team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='competitors',related_query_name='competitor')
     pronouns = models.CharField(max_length=20, choices=pronoun_choices, null=True, blank=True)
 
     def __str__(self):
@@ -38,7 +36,7 @@ class Competitor(models.Model):
                     p_total += v
                 else:
                     d_total += v
-        tournament = Tournament.objects.get(name=TOURNAMENT_NAME)
+        tournament = self.team.user.tournament
         if tournament.individual_award_rank_plus_record:
             p_total += self.team.p_ballot()
             d_total += self.team.d_ballot()
@@ -59,7 +57,7 @@ class Competitor(models.Model):
                     p_total += v
                 else:
                     d_total += v
-        tournament = Tournament.objects.get(name=TOURNAMENT_NAME)
+        tournament = self.team.user.tournament
         if tournament.individual_award_rank_plus_record:
             p_total += self.team.p_ballot()
             d_total += self.team.d_ballot()

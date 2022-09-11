@@ -29,13 +29,19 @@ def call_method(obj, method_name, *args):
 
 @register.simple_tag
 def get_competitor(subsection_list, subsection):
-    return subsection_list.get(subsection=subsection).competitor
+    if subsection_list.filter(subsection=subsection).exists():
+        return subsection_list.get(subsection=subsection).competitor
+    else:
+        return None
 
 @register.simple_tag
 def get_character(subsection_list, section):
-    wit_direct = subsection_list.get(subsection__type='direct',subsection__role='wit',
-                                        subsection__section=section)
-    return wit_direct.character
+    if subsection_list.filter(subsection__type='direct', subsection__role='wit',
+                           subsection__section=section).exists():
+        return subsection_list.get(subsection__type='direct',subsection__role='wit',
+                                        subsection__section=section).character
+    else:
+        return None
 
 
 

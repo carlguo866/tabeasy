@@ -11,8 +11,8 @@ from tourney.models import Competitor, Round
 from tourney.models.tournament import Tournament
 
 pd_choices = [
-    ('p', 'Plaintiff'),
-    ('d', 'Defense')
+    ('P', 'P'),
+    ('D', 'D')
 ]
 role_choices = [
     ('att', 'Attorney'),
@@ -28,7 +28,7 @@ class Section(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.SET_NULL, related_name='sections',
                                     related_query_name='section', null=True)
     def __str__(self):
-        return self.name
+        return f"{self.tournament} {self.name}"
 
 class SubSection(models.Model):
     name = models.CharField(max_length=40)
@@ -37,6 +37,7 @@ class SubSection(models.Model):
     side = models.CharField(max_length=40, choices=pd_choices)
     role = models.CharField(max_length=40, choices=role_choices)
     type = models.CharField(max_length=40, choices=subsection_type_choices)
+    help_text = models.CharField(max_length=40, null=True, blank=True)
     sequence = models.IntegerField(default=0)
 
     def __str__(self):

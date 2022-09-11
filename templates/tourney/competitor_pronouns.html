@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+	{% for form in forms %}
+		{% if form.errors %}
+			{% for key, value in form.errors.items %}
+				<div class="alert alert-danger" role="alert">{{ value }}</div>
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
+	<h1>{{ team }} Members' Pronouns</h1>
+	<form method="post">
+		{% csrf_token %}
+		{% for form in forms %}
+			{% for field in form %}
+				<div class="form-group col-md-12 p-1">
+					<strong>{{ form.instance }}</strong>
+					<br>
+					{{ field }}
+				</div>
+			{% endfor %}
+		{% endfor %}
+
+		<br>
+		<button class='button button-primary' type="submit">Save</button>
+	</form>
+</div>
+
+{% endblock %}

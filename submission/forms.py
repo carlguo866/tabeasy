@@ -6,7 +6,6 @@ from submission.models.captains_meeting import CaptainsMeeting
 from submission.models.character import CharacterPronouns, Character
 from submission.models.paradigm import Paradigm, ParadigmPreferenceItem
 from submission.models.section import BallotSection, CaptainsMeetingSection
-from tabeasy_secrets.secret import TOURNAMENT_NAME
 from tourney.models import Competitor
 from django.forms.widgets import NumberInput
 
@@ -180,6 +179,11 @@ class CaptainsMeetingSectionForm(forms.ModelForm):
         self.init_captains_meeting = kwargs.pop('captains_meeting', None)
         self.init_subsection = kwargs.pop('subsection', None)
         self.form = kwargs.pop('form', None)
+        self.request = kwargs.pop('request', None)
+        if self.request:
+            tournament = self.request.user.tournament
+        else:
+            raise ValidationError(self.request)
         super(CaptainsMeetingSectionForm, self).__init__(*args, **kwargs)
         if self.init_captains_meeting:
             self.instance.captains_meeting = self.init_captains_meeting
@@ -187,12 +191,12 @@ class CaptainsMeetingSectionForm(forms.ModelForm):
             self.instance.subsection = self.init_subsection
 
         p_team_members = Competitor.objects.filter(team=self.init_captains_meeting.round.p_team)
-        p_characters = Character.objects.filter(tournament__name=TOURNAMENT_NAME,side__in=['p','other'])
+        p_characters = Character.objects.filter(tournament=tournament,side__in=['P','other'])
         d_team_members = Competitor.objects.filter(team=self.init_captains_meeting.round.d_team)
-        d_characters = Character.objects.filter(tournament__name=TOURNAMENT_NAME, side__in=['d', 'other'])
+        d_characters = Character.objects.filter(tournament=tournament, side__in=['D', 'other'])
 
 
-        if self.init_subsection.side == 'p':
+        if self.init_subsection.side == 'P':
             self.fields['competitor'].queryset = p_team_members
             self.fields['character'].queryset = p_characters
         else:

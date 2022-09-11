@@ -6,7 +6,7 @@ from accounts.models import User
 @admin.register(User)
 class UserAdmin(BaseUserAdmin, DynamicArrayMixin):
     model = User
-    list_display = ('id', 'username')
+    list_display = ('id', 'username', 'tournament')
     fieldsets = (
         (None, {'fields': ('username', 'password', 'raw_password', 'tournament')}),
         (('Personal info'), {'fields': ('first_name', 'last_name', 'is_team', 'is_judge')}),

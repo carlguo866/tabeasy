@@ -50,7 +50,7 @@ class Ballot(models.Model):
 
     def p_total_score(self):
         p_total_score = 0
-        scores = [ballot_section.score for ballot_section in self.sections.filter(subsection__side='p').all()]
+        scores = [ballot_section.score for ballot_section in self.sections.filter(subsection__side='P').all()]
         for score in scores:
             if score:
                 p_total_score += score
@@ -58,7 +58,7 @@ class Ballot(models.Model):
 
     def d_total_score(self):
         d_total_score = 0
-        scores = [ballot_section.score for ballot_section in self.sections.filter(subsection__side='d').all()]
+        scores = [ballot_section.score for ballot_section in self.sections.filter(subsection__side='D').all()]
         for score in scores:
             if score:
                 d_total_score += score

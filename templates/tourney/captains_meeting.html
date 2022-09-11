@@ -60,16 +60,19 @@
 									Not Assigned
 								{% endif %}
 							</li>
-							<li class="list-group-item">
-								{% for judge in object.round.judges %}
-									<div class="row my-2 px-3">
-									<a class="button button-primary"
-											href={% url 'submission:paradigm' judge.user.username %}>
-										View {{ judge }}'s Paradigm
-									</a>
-									</div>
-								{% endfor %}
-							</li>
+
+						{% if object.round.pairing.final_submit %}
+								<li class="list-group-item">
+									{% for judge in object.round.judges %}
+										<div class="row my-2 px-3">
+										<a class="button button-primary"
+												href={% url 'submission:paradigm' judge.user.username %}>
+											View {{ judge }}'s Paradigm
+										</a>
+										</div>
+									{% endfor %}
+								</li>
+							{% endif %}
 							<li class="list-group-item"><span class="text-primary">Blue</span> denotes Prosecution,
 								and <span class="text-secondary">Purple</span> denotes Defense</li>
 							</ul>
@@ -84,8 +87,8 @@
 							<div class="card-text my-1 ">
 								<div class="pb-1">Team Roster:</div>
 								<ul class="list-group">
-									{% for member in object.round.p_team.members.all %}
-										<li class="list-group-item">{{ member }}</li>
+									{% for competitor in object.round.p_team.competitors.all %}
+										<li class="list-group-item">{{ competitor }}</li>
 									{% endfor %}
 								</ul>
 							</div>
@@ -100,8 +103,8 @@
 							<div class="card-text my-1 ">
 								<div class="pb-1">Team Roster:</div>
 								<ul class="list-group">
-									{% for member in object.round.d_team.members.all %}
-										<li class="list-group-item">{{ member }}</li>
+									{% for competitor in object.round.d_team.competitors.all %}
+										<li class="list-group-item">{{ competitor }}</li>
 									{% endfor %}
 								</ul>
 						</div>
@@ -177,10 +180,11 @@
 
 
 		<h2>Roles</h2>
-		<div class="card my-5">
+
 
 			{% for section in section_forms %}
-				<h4 class="card-header">{{ section.0.init_subsection.section }}</h4>
+				<div class="card my-5">
+				<h4 class="card-header">{{ section.0.init_subsection.section.name }}</h4>
 				<div class="card-body">
 						<div class="row">
 							<div class="col-md-6 pe-4">
@@ -191,7 +195,7 @@
 									<div class="card-body">
 										<ul class="list-group">
 											{% for subsection_form in section %}
-												{% if subsection_form.init_subsection.side == 'p' %}
+												{% if subsection_form.init_subsection.side == 'P' %}
 													{% if subsection_form.init_subsection.role == 'wit' %}
 														<li class="list-group-item">
 															<div>Character Name:</div>
@@ -199,7 +203,7 @@
 														</li>
 													{% endif %}
 													<li class="list-group-item">
-														<div>{{ subsection_form.init_subsection }}</div>
+														<div>{{ subsection_form.init_subsection.help_text }}:</div>
 														{% render_field subsection_form.competitor class='form-select mt-1' name='competitor' %}
 													</li>
 												{% endif %}
@@ -216,7 +220,7 @@
 									<div class="card-body">
 										<ul class="list-group">
 											{% for subsection_form in section %}
-												{% if subsection_form.init_subsection.side == 'd' %}
+												{% if subsection_form.init_subsection.side == 'D' %}
 													{% if subsection_form.init_subsection.role == 'wit' %}
 														<li class="list-group-item">
 														<div>Character Name:</div>
@@ -224,7 +228,7 @@
 														</li>
 													{% endif %}
 													<li class="list-group-item">
-														<div>{{ subsection_form.init_subsection }}</div>
+														<div>{{ subsection_form.init_subsection.help_text }}:</div>
 														{% render_field subsection_form.competitor class='form-select mt-1' name='competitor' %}
 													</li>
 												{% endif %}
@@ -242,7 +246,7 @@
 			<h4 class="card-header">Pronouns</h4>
 			<div class="card-body">
 				<div class="card-text">
-					First, the preferred pronouns of the testifying witnesses are announced by the side calling them. Second, if JACKIE HUNTER is not selected, the defense will announce their pronouns; otherwise, the prosecution will announce the preferred pronoun of the witness not selected. Officer Winston Thomas and Cameron Poole both use he/him prounouns.
+					The preferred pronouns of the testifying witnesses are announced by the side calling them.
 				</div>
 				<div class="card-group my-3">
 					<div class="card border gx-2">
@@ -252,7 +256,7 @@
 						<div class="card-body text-start">
 							<ul class="list-group">
 								{% for pronouns_form in pronouns_forms %}
-									{% if pronouns_form.init_character.side == 'p' %}
+									{% if pronouns_form.init_character.side == 'P' %}
 										<li class="list-group-item">
 										<div>{{ pronouns_form.init_character }}</div>
 										{% render_field pronouns_form.pronouns class='form-select mt-1' name='pronouns' %}
@@ -269,7 +273,7 @@
 						<div class="card-body text-start">
 							<ul class="list-group">
 								{% for pronouns_form in pronouns_forms %}
-									{% if pronouns_form.init_character.side == 'd' %}
+									{% if pronouns_form.init_character.side == 'D' %}
 										<li class="list-group-item">
 										<div>{{ pronouns_form.init_character }}</div>
 										{% render_field pronouns_form.pronouns class='form-select mt-1' name='pronouns' %}

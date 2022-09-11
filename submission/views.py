@@ -13,7 +13,7 @@ from submission.models.character import CharacterPronouns, Character
 from submission.models.paradigm import ParadigmPreference, ParadigmPreferenceItem, Paradigm
 from submission.models.section import BallotSection, Section, SubSection, CaptainsMeetingSection
 from tabeasy.utils.mixins import PassRequestToFormViewMixin
-from tabeasy_secrets.secret import str_int, TOURNAMENT_NAME
+from tabeasy_secrets.secret import str_int
 from tourney.models import Judge
 
 
@@ -41,7 +41,7 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
         context = super().get_context_data(**kwargs)
         context['section_forms'] = []
         if BallotSection.objects.filter(ballot=self.object).exists():
-            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+            for section in Section.objects.filter(tournament=self.object.judge.user.tournament).all():
                 context['section_forms'].append(
                     sorted([BallotSectionForm(instance=ballot_section,
                                        subsection=ballot_section.subsection,
@@ -52,7 +52,7 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
                      ],key= lambda x: x.init_subsection.sequence)
                 )
         else:
-            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+            for section in Section.objects.filter(tournament=self.object.judge.user.tournament).all():
                 context['section_forms'].append(
                     sorted([BallotSectionForm(subsection=subsection, ballot=self.object,
                                       prefix=subsection.__str__(),
@@ -73,7 +73,7 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
         form = self.get_form()
         section_forms = []
         if BallotSection.objects.filter(ballot=self.object).exists():
-            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+            for section in Section.objects.filter(tournament=self.object.judge.user.tournament).all():
                 section_forms.append(
                     sorted([BallotSectionForm(request.POST, instance=ballot_section,
                                        subsection=ballot_section.subsection,
@@ -84,7 +84,7 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
                      ], key= lambda x: x.init_subsection.sequence)
                 )
         else:
-            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+            for section in Section.objects.filter(tournament=self.object.judge.user.tournament).all():
                 section_forms.append(
                     sorted([BallotSectionForm(request.POST, subsection=subsection, ballot=self.object,
                                       prefix=subsection.__str__(), request=self.request)
@@ -147,11 +147,11 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
         else:
             context['pronouns_forms'] = [CharacterPronounsForm(character=character, captains_meeting=self.object,
                                                                prefix=character.__str__())
-                                         for character in Character.objects.filter(tournament__name=TOURNAMENT_NAME).all()]
+                                         for character in Character.objects.filter(tournament=self.object.round.pairing.tournament).all()]
 
         context['section_forms'] = []
         if CaptainsMeetingSection.objects.filter(captains_meeting=self.object).exists():
-            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+            for section in Section.objects.filter(tournament=self.object.round.pairing.tournament).all():
                 temp = []
                 for subsection in CaptainsMeetingSection.objects.filter(captains_meeting=self.object,
                                                           subsection__section=section).all():
@@ -161,19 +161,20 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
                             CaptainsMeetingSectionForm(instance=subsection,
                                                        captains_meeting=self.object,
                                                        subsection=subsection.subsection,
-                                                       prefix=subsection.subsection.__str__())
+                                                       prefix=subsection.subsection.__str__(),
+                                                       request=self.request)
                         )
                 temp = sorted(temp, key= lambda x: x.init_subsection.sequence)
                 context['section_forms'].append(temp)
         else:
-            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+            for section in Section.objects.filter(tournament=self.object.round.pairing.tournament).all():
                 temp = []
                 for subsection in SubSection.objects.filter(section=section).all():
                     if not (subsection.type == 'cross' and \
                             subsection.role == 'wit'):
                         temp.append(
                             CaptainsMeetingSectionForm(subsection=subsection, captains_meeting=self.object,
-                                          prefix=subsection.__str__())
+                                          prefix=subsection.__str__(), request=self.request)
                         )
                 temp = sorted(temp, key=lambda x: x.init_subsection.sequence)
                 context['section_forms'].append(temp)
@@ -203,7 +204,7 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
 
         section_forms = []
         if CaptainsMeetingSection.objects.filter(captains_meeting=self.object).exists():
-            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+            for section in Section.objects.filter(tournament=self.object.round.pairing.tournament).all():
                 temp = []
                 for subsection in CaptainsMeetingSection.objects.filter(captains_meeting=self.object,
                                                                            subsection__section=section).all():
@@ -214,12 +215,12 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
                                                        captains_meeting=self.object,
                                                        subsection=subsection.subsection,
                                                        prefix=subsection.subsection.__str__(),
-                                                       form=form)
+                                                       form=form, request=self.request)
                         )
                 temp = sorted(temp, key=lambda x: x.init_subsection.sequence)
                 section_forms.append(temp)
         else:
-            for section in Section.objects.filter(tournament__name=TOURNAMENT_NAME).all():
+            for section in Section.objects.filter(tournament=self.object.round.pairing.tournament).all():
                 temp = []
                 for subsection in SubSection.objects.filter(section=section).all():
                     if not (subsection.type == 'cross' and \
@@ -228,7 +229,7 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
                             CaptainsMeetingSectionForm(request.POST, subsection=subsection,
                                                        captains_meeting=self.object,
                                                        prefix=subsection.__str__(),
-                                                       form=form)
+                                                       form=form,request=self.request)
                         )
                 temp = sorted(temp, key=lambda x: x.init_subsection.sequence)
                 section_forms.append(temp)
@@ -245,10 +246,71 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
             if not pronouns_form.is_valid():
                 is_valid = False
 
+        characters = []
+        wits = []
+        direct_atts = []
+        cross_atts = []
+        speeches = []
         for section in section_forms:
             for subsection_form in section:
                 if not subsection_form.is_valid():
                     is_valid = False
+                elif form.cleaned_data.get('submit'):
+                    #check for character
+                    character = subsection_form.cleaned_data.get('character')
+                    if character in characters:
+                        is_valid = False
+                        subsection_form.errors['character'] = "Each witness can only be called once."
+                    elif character:
+                        characters.append(character)
+
+                    if subsection_form.instance.subsection.role == 'wit' and \
+                        subsection_form.instance.subsection.type == 'direct':
+                        competitor = subsection_form.cleaned_data.get('competitor')
+                        if competitor in wits:
+                            is_valid = False
+                            subsection_form.errors['wits'] = f"{competitor} is portraying two witnesses."
+                        elif competitor:
+                            wits.append(competitor)
+
+                    if subsection_form.instance.subsection.role == 'att' and \
+                            subsection_form.instance.subsection.type == 'direct':
+                        competitor = subsection_form.cleaned_data.get('competitor')
+                        if competitor in direct_atts:
+                            is_valid = False
+                            subsection_form.errors['direct_atts'] = f"{competitor} is doing two directs."
+                        elif competitor:
+                            direct_atts.append(competitor)
+
+                    if subsection_form.instance.subsection.role == 'att' and \
+                            subsection_form.instance.subsection.type == 'cross':
+                        competitor = subsection_form.cleaned_data.get('competitor')
+                        if competitor in cross_atts:
+                            is_valid = False
+                            subsection_form.errors['cross_atts'] = f"{competitor} is doing two crosses."
+                        elif competitor:
+                            cross_atts.append(competitor)
+
+                    if subsection_form.instance.subsection.role == 'att' and \
+                            subsection_form.instance.subsection.type == 'statement':
+                        competitor = subsection_form.cleaned_data.get('competitor')
+                        if competitor in speeches:
+                            is_valid = False
+                            subsection_form.errors['speeches'] = f"{competitor} is doing both opening and closing."
+                        elif competitor:
+                            speeches.append(competitor)
+
+        if form.cleaned_data.get('submit'):
+            if direct_atts and cross_atts and \
+                sorted(direct_atts) != sorted(cross_atts):
+                is_valid = False
+                section_forms[0][0].errors['atts_num'] = 'The crossing attorneys and directing attorneys have a mismatch.'
+            for wit in wits:
+                if wit in direct_atts or wit in cross_atts:
+                    is_valid = False
+                    section_forms[0][0].errors[
+                        'att_n_wit'] = f'{wit} assigned as both an attorney and witness.'
+
 
         if is_valid:
             return self.form_valid(form, pronouns_forms, section_forms)
@@ -312,7 +374,7 @@ def edit_paradigm(request, judge):
             paradigm_preference_item_forms = [
                 ParadigmPreferenceItemForm(request.POST, paradigm=paradigm, paradigm_preference=each,
                                            prefix=each.__str__())
-                for each in ParadigmPreference.objects.filter(tournament__name=TOURNAMENT_NAME)
+                for each in ParadigmPreference.objects.filter(tournament=judge.user.tournament)
             ]
 
         is_true = True
@@ -342,7 +404,7 @@ def edit_paradigm(request, judge):
             paradigm_preference_item_forms = [
                 ParadigmPreferenceItemForm(paradigm=paradigm, paradigm_preference=each,
                                            prefix=each.__str__())
-                for each in ParadigmPreference.objects.filter(tournament__name=TOURNAMENT_NAME)
+                for each in ParadigmPreference.objects.filter(tournament=judge.user.tournament)
             ]
 
     return render(request, 'tourney/paradigm.html', {'judge': judge,

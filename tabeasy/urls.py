@@ -29,6 +29,7 @@ urlpatterns = [
     path('submission/', include('submission.urls', namespace='submission')),
     path('load_teams', views.load_teams),
     path('load_judges', views.load_judges),
+    path('load_sections', views.load_sections),
     url(r'^ajax_select/', include(ajax_select_urls)),
 ]
  

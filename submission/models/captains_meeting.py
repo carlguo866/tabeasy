@@ -118,9 +118,9 @@ class CaptainsMeeting(models.Model):
     # def d_cross_atts(self):
     #     return [self.p_wit1_cross_att, self.p_wit2_cross_att, self.p_wit3_cross_att]
     #
-    # @property
-    # def atts(self):
-    #     return self.p_direct_atts + self.d_direct_atts
+    @property
+    def atts(self):
+        return set([section.competitor for section in self.sections.all() if section.subsection.role=='att'])
     #
     # @property
     # def p_wits(self):
@@ -130,9 +130,9 @@ class CaptainsMeeting(models.Model):
     # def d_wits(self):
     #     return [self.d_wit1, self.d_wit2, self.d_wit3]
     #
-    # @property
-    # def wits(self):
-    #     return self.p_wits + self.d_wits
+    @property
+    def wits(self):
+        return set([section.competitor for section in self.sections.all() if section.subsection.role=='wit'])
     #
     # def p_characters(self):
     #     return [self.p_wit1_name, self.p_wit2_name, self.p_wit3_name]
@@ -169,11 +169,6 @@ class CaptainsMeeting(models.Model):
             #     errors.append('You didn\'t submit the Character Evidence Form!')
 
             # # characters
-            # characters = []
-            # for x in self.sections.all():
-            #     if captains_meeting_subsection.subsection.type == 'direct' and \
-            #         captains_meeting_subsection.subsection.role == 'wit':
-            #         characters.append(captains_meeting_subsection.character)
 
 
             # if len(self.characters()) !=  len(set(self.characters())):

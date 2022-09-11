@@ -74,9 +74,12 @@ class RoundForm(forms.ModelForm):
     # p_team = ajax_select_fields.AutoCompleteSelectField('p_team')
 
 
-    def __init__(self, pairing, other_formset, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        pairing = kwargs.pop('pairing', None)
+        self.other_formset = kwargs.pop('other_formset', None)
+        self.request = kwargs.pop('request', None)
+        tournament = self.request.user.tournament
         super(RoundForm, self).__init__(*args, **kwargs)
-        self.other_formset = other_formset
         if pairing == None:
             self.fields['p_team'].queryset = Team.objects.all()
             self.fields['d_team'].queryset = Team.objects.all()
@@ -85,8 +88,14 @@ class RoundForm(forms.ModelForm):
             if not pairing.final_submit:
                 for field in self.fields:
                     self.fields[field].required = False
-            self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)
-            self.fields['d_team'].queryset = Team.objects.filter(division=pairing.division)
+            if pairing.division:
+                self.fields['p_team'].queryset = Team.objects.filter(user__tournament=tournament,
+                                                                     division=pairing.division)
+                self.fields['d_team'].queryset = Team.objects.filter(user__tournament=tournament,
+                                                                     division=pairing.division)
+            else:
+                self.fields['p_team'].queryset = Team.objects.filter(user__tournament=tournament)
+                self.fields['d_team'].queryset = Team.objects.filter(user__tournament=tournament)
             available_judges_pk = [judge.pk for judge in Judge.objects.all()
                                    if judge.get_availability(pairing.round_num)]
             self.fields['presiding_judge'].queryset = \
@@ -138,7 +147,6 @@ class PairingFormSet(BaseInlineFormSet):
     # def __init__(self, *args, **kwargs):
     #     self.other_form = kwargs.pop('other_form')
     #     super(PairingFormSet, self).__init__(*args, **kwargs)
-
 
     def clean(self):
         super().clean()
@@ -207,6 +215,11 @@ class UpdateConflictForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple
     )
 
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(UpdateConflictForm, self).__init__(*args, **kwargs)
+        self.fields['conflicts'].queryset = Team.objects.filter(user__tournament=self.request.user.tournament)
+
 
 class UpdateJudgeFriendForm(forms.ModelForm):
     class Meta:
@@ -217,6 +230,10 @@ class UpdateJudgeFriendForm(forms.ModelForm):
         queryset=Judge.objects.all(),
         widget=forms.CheckboxSelectMultiple
     )
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(UpdateJudgeFriendForm, self).__init__(*args, **kwargs)
+        self.fields['judge_friends'].queryset = Judge.objects.filter(user__tournament=self.request.user.tournament)
 
 
 class CheckinJudgeForm(forms.Form):
@@ -227,11 +244,18 @@ class CheckinJudgeForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        round_num = kwargs.pop('round_num')
+        round_num = kwargs.pop('round_num', None)
+        request = kwargs.pop('request', None)
+
         super(CheckinJudgeForm, self).__init__(*args, **kwargs)
-        available_judges_pk = [judge.pk for judge in Judge.objects.all()
+        available_judges_pk = [judge.pk for judge in Judge.objects.filter(user__tournament=request.user.tournament)
                                if judge.get_availability(round_num)]
         self.fields['checkins'].queryset = Judge.objects.filter(checkin=False, pk__in=available_judges_pk)
 
 
+
+class CompetitorPronounsForm(forms.ModelForm):
+    class Meta:
+        model = Competitor
+        fields = ['pronouns']
 
