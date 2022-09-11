@@ -15,7 +15,7 @@ from submission.forms import CharacterPronounsForm
 from submission.models.section import Section, SubSection
 from tabeasy.settings import DEBUG
 from tabeasy.utils.mixins import JudgeOnlyMixin, PassRequestToFormViewMixin
-from tabeasy_secrets.secret import DIVISION_ROUND_NUM, str_int
+from tabeasy_secrets.secret import  str_int
 from tourney.forms import RoundForm, UpdateConflictForm, UpdateJudgeFriendForm, PairingFormSet, PairingSubmitForm, \
     JudgeForm, CheckinJudgeForm, CompetitorPronounsForm
 from submission.models.ballot import Ballot
@@ -190,9 +190,9 @@ def edit_pairing(request, round_num):
                     if form.instance.p_team == None or form.instance.d_team == None:
                         actual_round_num -= 1
                 if div1_formset[0].instance.pairing.division == 'Disney':
-                    random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
+                    random_choice = string.ascii_uppercase[:8][:actual_round_num]
                 else:
-                    random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
+                    random_choice = string.ascii_uppercase[8:2 * 8][:actual_round_num]
                 for round in Pairing.objects.get(pk=div1_pairing.pk).rounds.all():
                     if round.courtroom != None:
                         random_choice = random_choice.replace(round.courtroom, '')
@@ -213,9 +213,9 @@ def edit_pairing(request, round_num):
                     if form.instance.p_team == None or form.instance.d_team == None:
                         actual_round_num -= 1
                 if div2_formset[0].instance.pairing.division == 'Disney':
-                    random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
+                    random_choice = string.ascii_uppercase[:8][:actual_round_num]
                 else:
-                    random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
+                    random_choice = string.ascii_uppercase[8:2 * 8][:actual_round_num]
                 for round in Pairing.objects.get(pk=div2_pairing.pk).rounds.all():
                     if round.courtroom != None:
                         random_choice = random_choice.replace(round.courtroom, '')
@@ -290,10 +290,9 @@ def edit_pairing(request, round_num):
                 for form in formset:
                     if form.instance.p_team == None or form.instance.d_team == None:
                         actual_round_num -= 1
-                if formset[0].instance.pairing.division == 'Disney':
-                    random_choice = string.ascii_uppercase[:DIVISION_ROUND_NUM][:actual_round_num]
-                else:
-                    random_choice = string.ascii_uppercase[DIVISION_ROUND_NUM:2 * DIVISION_ROUND_NUM][:actual_round_num]
+
+                random_choice = string.ascii_uppercase[:tournament.division_team_num/2][:actual_round_num]
+
                 for round in Pairing.objects.get(pk=pairing.pk).rounds.all():
                     if round.courtroom != None:
                         random_choice = random_choice.replace(round.courtroom, '')
