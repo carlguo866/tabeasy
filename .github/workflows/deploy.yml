@@ -16,4 +16,4 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         password: ${{ secrets.SSH_PASSWORD }}
         script: |
-          . /home/chenyx/do_nothing.sh
+          . /home/chenyx/carl_master_deploy.sh
