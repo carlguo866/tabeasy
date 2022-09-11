@@ -15,14 +15,14 @@ class User(AbstractUser):
     )
     is_judge = models.BooleanField(default=True)
     is_team = models.BooleanField(default=False)
-    is_tab = models.BooleanField(default=False)
-
+    tournament = models.ForeignKey('tourney.Tournament', on_delete=models.SET_NULL, related_name='users',
+                                   related_query_name='user', null=True)
 
     def available_pairings(self):
         if not self.is_staff:
             return None
         else:
-            return [pairing for pairing in Pairing.objects.order_by('round_num').all() if pairing.team_submit]
+            return [pairing for pairing in Pairing.objects.filter(tournament=self.tournament).order_by('round_num').all() if pairing.team_submit]
 
     def __str__(self):
         if self.is_team:

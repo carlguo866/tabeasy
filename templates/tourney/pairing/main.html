@@ -10,7 +10,9 @@
 					<h3>Round {{ pairing.0.round_num }} Pairing</h3>
 					{% for div_pairing in pairing %}
 						<div class="row gx-2 pb-3">
-							<h4>{{ div_pairing }}</h4>
+							{% if pairing.division != None %}
+								<h4>{{ div_pairing }}</h4>
+							{% endif %}
 							{% if div_pairing.rounds.exists %}
 							<table class="table table-striped table-bordered table-responsive">
 								<thead class="table-light">

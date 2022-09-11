@@ -1,19 +1,13 @@
-import string
-import random
 from django import forms
-from django.contrib.postgres.forms import SimpleArrayField, SplitArrayField
 from django.core.exceptions import ValidationError
-from django.db.models import QuerySet
-from django.forms import MultipleChoiceField, BaseFormSet
+from django.forms import MultipleChoiceField
 from django.forms.models import ModelChoiceIterator, BaseInlineFormSet
 
 from tabeasy.settings import DEBUG
-from tabeasy_secrets.secret import DIVISION_ROUND_NUM
-from tourney.models.captains_meeting import Character, CharacterPronouns
 from tourney.models.judge import Judge
-from tourney.models.round import Pairing, Round, CaptainsMeeting
-from tourney.models.team import Team, TeamMember
-import ajax_select.fields as ajax_select_fields
+from tourney.models.round import Pairing, Round
+from tourney.models.team import Team
+from tourney.models.competitor import Competitor
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 INT_CHOICES = [(i,i) for i in range(11)]
@@ -80,9 +74,12 @@ class RoundForm(forms.ModelForm):
     # p_team = ajax_select_fields.AutoCompleteSelectField('p_team')
 
 
-    def __init__(self, pairing, other_formset, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        pairing = kwargs.pop('pairing', None)
+        self.other_formset = kwargs.pop('other_formset', None)
+        self.request = kwargs.pop('request', None)
+        tournament = self.request.user.tournament
         super(RoundForm, self).__init__(*args, **kwargs)
-        self.other_formset = other_formset
         if pairing == None:
             self.fields['p_team'].queryset = Team.objects.all()
             self.fields['d_team'].queryset = Team.objects.all()
@@ -91,8 +88,14 @@ class RoundForm(forms.ModelForm):
             if not pairing.final_submit:
                 for field in self.fields:
                     self.fields[field].required = False
-            self.fields['p_team'].queryset = Team.objects.filter(division=pairing.division)
-            self.fields['d_team'].queryset = Team.objects.filter(division=pairing.division)
+            if pairing.division:
+                self.fields['p_team'].queryset = Team.objects.filter(user__tournament=tournament,
+                                                                     division=pairing.division)
+                self.fields['d_team'].queryset = Team.objects.filter(user__tournament=tournament,
+                                                                     division=pairing.division)
+            else:
+                self.fields['p_team'].queryset = Team.objects.filter(user__tournament=tournament)
+                self.fields['d_team'].queryset = Team.objects.filter(user__tournament=tournament)
             available_judges_pk = [judge.pk for judge in Judge.objects.all()
                                    if judge.get_availability(pairing.round_num)]
             self.fields['presiding_judge'].queryset = \
@@ -144,7 +147,6 @@ class PairingFormSet(BaseInlineFormSet):
     # def __init__(self, *args, **kwargs):
     #     self.other_form = kwargs.pop('other_form')
     #     super(PairingFormSet, self).__init__(*args, **kwargs)
-
 
     def clean(self):
         super().clean()
@@ -213,6 +215,11 @@ class UpdateConflictForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple
     )
 
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(UpdateConflictForm, self).__init__(*args, **kwargs)
+        self.fields['conflicts'].queryset = Team.objects.filter(user__tournament=self.request.user.tournament)
+
 
 class UpdateJudgeFriendForm(forms.ModelForm):
     class Meta:
@@ -223,6 +230,10 @@ class UpdateJudgeFriendForm(forms.ModelForm):
         queryset=Judge.objects.all(),
         widget=forms.CheckboxSelectMultiple
     )
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(UpdateJudgeFriendForm, self).__init__(*args, **kwargs)
+        self.fields['judge_friends'].queryset = Judge.objects.filter(user__tournament=self.request.user.tournament)
 
 
 class CheckinJudgeForm(forms.Form):
@@ -233,87 +244,18 @@ class CheckinJudgeForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        round_num = kwargs.pop('round_num')
+        round_num = kwargs.pop('round_num', None)
+        request = kwargs.pop('request', None)
+
         super(CheckinJudgeForm, self).__init__(*args, **kwargs)
-        available_judges_pk = [judge.pk for judge in Judge.objects.all()
+        available_judges_pk = [judge.pk for judge in Judge.objects.filter(user__tournament=request.user.tournament)
                                if judge.get_availability(round_num)]
         self.fields['checkins'].queryset = Judge.objects.filter(checkin=False, pk__in=available_judges_pk)
 
 
-class EditPronounsForm(forms.ModelForm):
+
+class CompetitorPronounsForm(forms.ModelForm):
     class Meta:
-        model = CharacterPronouns
+        model = Competitor
         fields = ['pronouns']
-
-    def __init__(self, *args, **kwargs):
-        self.init_character = kwargs.pop('character', None)
-        self.init_captains_meeting = kwargs.pop('captains_meeting', None)
-        super(EditPronounsForm, self).__init__(*args, **kwargs)
-        if self.init_character:
-            self.instance.character = self.init_character
-        if self.init_captains_meeting:
-            self.instance.captains_meeting = self.init_captains_meeting
-
-
-
-class CaptainsMeetingForm(forms.ModelForm):
-
-    class Meta:
-        model = CaptainsMeeting
-        fields = '__all__'
-        exclude = ['round']
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop("request")
-        super(CaptainsMeetingForm, self).__init__(*args, **kwargs)
-        if self.request.user.is_judge:
-            for field in self.fields:
-                self.fields[field].widget.attrs['readonly'] = True
-
-        if not self.instance.submit:
-            for field in self.fields:
-                self.fields[field].required = False
-
-        for i, _ in enumerate(self.instance.character_evidence_options()):
-            self.fields[f'character_evidence_option{i + 1}_description'].required = False
-
-
-        p_team_members = TeamMember.objects.filter(team=self.instance.round.p_team)
-        self.fields['p_opener'].queryset = p_team_members
-        self.fields['p_wit1'].queryset = p_team_members
-        self.fields['p_wit1_direct_att'].queryset = p_team_members
-        self.fields['p_wit2'].queryset = p_team_members
-        self.fields['p_wit2_direct_att'].queryset = p_team_members
-        self.fields['p_wit3'].queryset = p_team_members
-        self.fields['p_wit3_direct_att'].queryset = p_team_members
-        self.fields['d_wit1_cross_att'].queryset = p_team_members
-        self.fields['d_wit2_cross_att'].queryset = p_team_members
-        self.fields['d_wit3_cross_att'].queryset = p_team_members
-        self.fields['p_closer'].queryset = p_team_members
-
-        d_team_members = TeamMember.objects.filter(team=self.instance.round.d_team)
-        self.fields['d_opener'].queryset = d_team_members
-        self.fields['d_wit1'].queryset = d_team_members
-        self.fields['d_wit1_direct_att'].queryset = d_team_members
-        self.fields['d_wit2'].queryset = d_team_members
-        self.fields['d_wit2_direct_att'].queryset = d_team_members
-        self.fields['d_wit3'].queryset = d_team_members
-        self.fields['d_wit3_direct_att'].queryset = d_team_members
-        self.fields['p_wit1_cross_att'].queryset = d_team_members
-        self.fields['p_wit2_cross_att'].queryset = d_team_members
-        self.fields['p_wit3_cross_att'].queryset = d_team_members
-        self.fields['d_closer'].queryset = d_team_members
-
-    def clean(self):
-        cleaned_data = super().clean()
-        errors = []
-        #after submission all fields need to be filled
-        # if cleaned_data.get('submit') == True:
-        #     for k,v in cleaned_data.items():
-        #         if v == None:
-        #             errors.append(f"{k} empty")
-
-        if errors != []:
-            raise ValidationError(errors)
-
-
 

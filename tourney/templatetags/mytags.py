@@ -4,6 +4,8 @@ import random
 from django import template
 from itertools import chain
 
+from django.core.exceptions import ValidationError
+
 register = template.Library()
 
 @register.filter(name='chr')
@@ -24,6 +26,23 @@ from django import template
 def call_method(obj, method_name, *args):
     method = getattr(obj, method_name)
     return method(*args)
+
+@register.simple_tag
+def get_competitor(subsection_list, subsection):
+    if subsection_list.filter(subsection=subsection).exists():
+        return subsection_list.get(subsection=subsection).competitor
+    else:
+        return None
+
+@register.simple_tag
+def get_character(subsection_list, section):
+    if subsection_list.filter(subsection__type='direct', subsection__role='wit',
+                           subsection__section=section).exists():
+        return subsection_list.get(subsection__type='direct',subsection__role='wit',
+                                        subsection__section=section).character
+    else:
+        return None
+
 
 
 
@@ -47,3 +66,15 @@ def chaffify(val, chaff_size = 150, chaff_modulus = 7):
     """
     chaff = random.randint(0, math.floor(chaff_size / chaff_modulus)) * chaff_modulus
     return val * chaff_size + chaff
+
+
+role_choices = [
+    ('att', 'attorneys'),
+    ('wit', 'witnesses')
+]
+@register.filter
+def display_role(q):
+    for choice in role_choices:
+        if choice[0] == q:
+            return choice[1]
+    return ''

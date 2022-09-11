@@ -1,15 +1,18 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from tourney.models.captains_meeting import CaptainsMeeting
-from tourney.models.team import Team, TeamMember
-import uuid
+from submission.models.captains_meeting import CaptainsMeeting
+from tourney.models.team import Team
 
 class Pairing(models.Model):
+    tournament = models.ForeignKey('tourney.Tournament', on_delete=models.CASCADE,
+                                   related_name='pairings', related_query_name='pairing', null=True)
     division_choices = [('Disney', 'Disney'), ('Universal', 'Universal')]
     division = models.CharField(
         max_length=100,
-        choices=division_choices
+        choices=division_choices,
+        null=True,
+        blank=True
     )
     round_num = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     team_submit = models.BooleanField(default=False)
@@ -24,7 +27,10 @@ class Pairing(models.Model):
         unique_together = ('division', 'round_num',)
 
     def __str__(self):
-        return f'Round {self.round_num} {self.division}'
+        if self.division != None:
+            return f'Round {self.round_num} {self.division}'
+        else:
+            return f'Round {self.round_num}'
 
 class Round(models.Model):
     pairing = models.ForeignKey(Pairing, on_delete=models.CASCADE, related_name='rounds', related_query_name='round', null=True)

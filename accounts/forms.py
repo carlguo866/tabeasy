@@ -18,7 +18,7 @@ class SignUpForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'password1', 'password2','tournament')
         help_texts = {
             'username': 'Used for login and as a unique identifier of your '
                         'account. You won’t be able to change it later, '

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+	{% for form in forms %}
+		{% if form.errors %}
+			{% for key, value in form.errors.items %}
+				<div class="alert alert-danger" role="alert">{{ value }}</div>
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
+	<h1>{{ judge }}'s Paradigm</h1>
+	<form method="post">
+		{% csrf_token %}
+		{% for field in paradigm_form %}
+			<div class="form-group col-md-12 p-1">
+				{% if field.help_text %}
+				<strong>{{ field.help_text }}</strong>
+				{% else %}
+				<strong>{{ field.label }}:</strong>
+				{% endif %}
+				<br>
+				{{ field }}
+			</div>
+		{% endfor %}
+
+		{% include "tourney/paradigm_preference.html" with combined_forms=forms %}
+		<br>
+		<button class='button button-primary' type="submit">Save</button>
+	</form>
+</div>
+
+{% endblock %}

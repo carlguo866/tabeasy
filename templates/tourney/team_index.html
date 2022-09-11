@@ -15,10 +15,21 @@
 					</div>
 					<div class="card-body text-start">
 						<ul class="list-group">
-							{% for member in user.team.members.all %}
-								<li class="list-group-item">{{ member }}</li>
+							{% for competitor in user.team.competitors.all %}
+								<li class="list-group-item">{{ competitor }}</li>
 							{% endfor %}
 						</ul>
+
+						<div class="row mt-3 mb-2 px-3">
+							<a class="button button-primary"
+								href="{% url 'tourney:edit_competitor_pronouns' %}">
+							Edit Member Pronouns
+							</a>
+						</div>
+{#						<ul class="list-group">#}
+{#							<li class="list-group-item">{{ member }}</li>#}
+{#						</ul>#}
+
 					</div>
 				</div>
 				<div class="card border gx-2">
@@ -30,7 +41,7 @@
 							{% for round in  user.team.rounds %}
 								{% if round.pairing.team_submit %}
 									<div class="card-text mb-4">
-										<a class="button button-primary py-2" href="{% url 'tourney:captains_meeting' round.captains_meeting.pk|int_str %}">
+										<a class="button button-primary py-2" href="{% url 'submission:captains_meeting' round.captains_meeting.pk|int_str %}">
 											{{ round }}
 										</a>
 									</div>
@@ -50,7 +61,7 @@
 						{% if user.team.published_ballots %}
 							{% for ballot in user.team.published_ballots %}
 								<div class="card-text mb-4">
-									<a class="button button-primary py-2" href="{% url 'ballot:view' ballot.pk|int_str %}">
+									<a class="button button-primary py-2" href="{% url 'submission:ballot' ballot.pk|int_str %}">
 										{{ ballot }}
 									</a>
 								</div>

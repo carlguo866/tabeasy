@@ -8,8 +8,12 @@
 			<thead class="table-light">
 				<tr>
 					<th scope="col"></th>
-					<th colspan="4" scope="colgroup">Disney</th>
-					<th colspan="4" scope="colgroup">Univeral</th>
+					{% if request.user.tournament.split_division %}
+						<th colspan="4" scope="colgroup">Disney</th>
+						<th colspan="4" scope="colgroup">Univeral</th>
+					{% else %}
+						<th colspan="4" scope="colgroup">Teams</th>
+					{% endif %}
 				</tr>
 				<tr>
 					<th scope="col">Rank</th>
@@ -17,26 +21,41 @@
 					<th>Total Ballots</th>
 					<th>CS</th>
 					<th>PD</th>
-					<th>Name</th>
-					<th>Total Ballots</th>
-					<th>CS</th>
-					<th>PD</th>
+					{% if request.user.tournament.split_division %}
+						<th>Name</th>
+						<th>Total Ballots</th>
+						<th>CS</th>
+						<th>PD</th>
+					{% endif %}
 				</tr>
 			</thead>
 			<tbody>
-				{% for div1_team, div2_team in div1_teams_ranked|zip:div2_teams_ranked %}
-					<tr>
-						<th scope="row">{{ forloop.counter }}</th>
-						<td>{{ div1_team }}</td>
-						<td>{{ div1_team.total_ballots }}</td>
-						<td>{{ div1_team.total_cs }}</td>
-						<td>{{ div1_team.total_pd }}</td>
-						<td>{{ div2_team }}</td>
-						<td>{{ div2_team.total_ballots }}</td>
-						<td>{{ div2_team.total_cs }}</td>
-						<td>{{ div2_team.total_pd }}</td>
-					</tr>
-				{% endfor %}
+				{% if request.user.tournament.split_division %}
+					{% for div1_team, div2_team in teams_ranked %}
+						<tr>
+							<th scope="row">{{ forloop.counter }}</th>
+							<td>{{ div1_team }}</td>
+							<td>{{ div1_team.total_ballots }}</td>
+							<td>{{ div1_team.total_cs }}</td>
+							<td>{{ div1_team.total_pd }}</td>
+							<td>{{ div2_team }}</td>
+							<td>{{ div2_team.total_ballots }}</td>
+							<td>{{ div2_team.total_cs }}</td>
+							<td>{{ div2_team.total_pd }}</td>
+						</tr>
+					{% endfor %}
+				{% else %}
+					{% for team in teams_ranked %}
+						<tr>
+							<th scope="row">{{ forloop.counter }}</th>
+							<td>{{ team }}</td>
+							<td>{{ team.total_ballots }}</td>
+							<td>{{ team.total_cs }}</td>
+							<td>{{ team.total_pd }}</td>
+						</tr>
+					{% endfor %}
+				{% endif %}
+
 			</tbody>
 		</table>
 	</div>

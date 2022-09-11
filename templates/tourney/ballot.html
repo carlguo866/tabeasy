@@ -5,6 +5,12 @@
 
 {% block content %}
 	<div class="container-md center">
+		{% if form.instance.submit %}
+			<div class="alert alert-primary" role="alert">
+				You have submitted your ballot. Thanks for judging!
+			</div>
+		{% endif %}
+
 		{% if form.errors %}
 			{% for key, value in form.errors.items %}
 				{% if value %}
@@ -26,31 +32,45 @@
 							<li class="list-group-item">Division: {{ object.round.pairing.division }}</li>
 							<li class="list-group-item">Judge Name: {{ object.judge }}</li>
 							<li class="list-group-item">
+								{% if object.judge == object.round.presiding_judge %}
+									You are presiding this round.
+								{% else %}
+									You are scoring this round.
+								{% endif %}
+							</li>
+
+							<li class="list-group-item">
 								<div>Click for:</div>
 								<div class="row my-2 px-3">
 									<a class="button button-primary"
-										href="{% url 'tourney:captains_meeting' object.round.captains_meeting.pk|int_str %}">
+										href="{% url 'submission:captains_meeting' object.round.captains_meeting.pk|int_str %}">
 									Captains Meeting Form
 									</a>
 								</div>
-								<div class="row my-2 px-3">
-									<a class="button button-primary"
-											href="https://drive.google.com/file/d/1bB7JTcoNOuLuxt9sq9C9Bt9eCFid1kyr/view">
-										Case
-									</a>
-								</div>
-								<div class="row my-2 px-3">
-									<a class="button button-primary"
-											href="https://drive.google.com/file/d/175kWK9MYN5SDuYXpS7-4tNE-8vyHOL0Q/view">
-										Rules of Evidence
-									</a>
-								</div>
-								<div class="row my-2 px-3">
-									<a class="button button-primary"
-											href="https://uchicago.zoom.us/j/9902974405?pwd=RC9jbmFCeU0xTUVlVFNUaGRxRjVRZz09">
-										Zoom Meeting
-									</a>
-								</div>
+								{% if request.user.tournament.case %}
+									<div class="row my-2 px-3">
+										<a class="button button-primary"
+												href="{{ request.user.tournament.case }}">
+											Case
+										</a>
+									</div>
+								{% endif %}
+								{% if request.user.tournament.roe %}
+									<div class="row my-2 px-3">
+										<a class="button button-primary"
+												href="{{ request.user.tournament.roe }}">
+											Rules of Evidence
+										</a>
+									</div>
+								{% endif %}
+								{% if request.user.tournament.zoom_link %}
+									<div class="row my-2 px-3">
+										<a class="button button-primary"
+												href="{{ request.user.tournament.zoom_link }}">
+											Zoom Meeting
+										</a>
+									</div>
+								{% endif %}
 							</li>
 							<li class="list-group-item">Captains Meeting Form Status:<br>
 								{% if object.round.captains_meeting.submit %}
@@ -73,8 +93,8 @@
 							<div class="card-text my-1 ">
 								<div class="pb-1">Team Roster:</div>
 								<ul class="list-group">
-									{% for member in object.round.p_team.members.all %}
-										<li class="list-group-item">{{ member }}</li>
+									{% for competitor in object.round.p_team.competitors.all %}
+										<li class="list-group-item">{{ competitor }}</li>
 									{% endfor %}
 								</ul>
 							</div>
@@ -89,40 +109,53 @@
 							<div class="card-text my-1 ">
 								<div class="pb-1">Team Roster:</div>
 								<ul class="list-group">
-									{% for member in object.round.d_team.members.all %}
-										<li class="list-group-item">{{ member }}</li>
+									{% for competitor in object.round.d_team.competitors.all %}
+										<li class="list-group-item">{{ competitor }}</li>
 									{% endfor %}
 								</ul>
 						</div>
 					</div>
 				</div>
 			</div>
-{#			<div class="col-md-4 mb-4 gx-2">#}
-{#			<div class="col-md-4 mb-4 gx-2"></div>#}
-{#			<div class="col-md-4 mb-4 gx-2"></div>#}
+			<div class="col-md-4 mb-4 gx-2">
+			<div class="col-md-4 mb-4 gx-2"></div>
+			<div class="col-md-4 mb-4 gx-2"></div>
 		</div>
 
 	<form method="post" class="form-inline">
 		{% csrf_token %}
 
-		{% for section in section_forms %}
+		{% for section_form in section_forms %}
 		<div class="card my-5">
-			<h4 class="card-header">{{ section.0.init_subsection.section }}</h4>
+			<h4 class="card-header">
+				{{ section_form.0.init_subsection.section.name }}
+				{% if not section_form.0.init_subsection.type == 'statement' %}
+				: {% get_character object.round.captains_meeting.sections section_form.0.init_subsection.section %}
+				{% endif %}
+			</h4>
 			<div class="card-body">
 				<div class="row">
-					{% if section.0.init_subsection.section.is_statement %}
+					{% if section_form.0.init_subsection.type == 'statement' %}
 						<div class="col-md-6 pe-4">
-							{% for subsection_form in section %}
-								{% if subsection_form.init_subsection.side == 'p' %}
+							{% for subsection_form in section_form %}
+								{% if subsection_form.init_subsection.side == 'P' %}
 									<div class="card border border-primary">
 										<div class="card-header">
-											{{ subsection_form.init_subsection }}
-		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
+											{{ subsection_form.init_subsection.help_text }}:
+											{% get_competitor object.round.captains_meeting.sections subsection_form.init_subsection %}
+{#											{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
 										</div>
 										<div class="card-body">
 											<div class="row my-2">
-												<div class="col-2 py-2">Score:</div>
-												<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% if request.user.is_team and request.user.tournament.publish_ballot_scores %}
+													<div class="col-2 py-2">Score:</div>
+													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% endif %}
+												{% if request.user.is_judge %}
+													<div class="col-2 py-2">Score:</div>
+													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% endif %}
+
 											</div>
 											<div class="row text-start">
 												<div class="p-1">Comments:</div>
@@ -134,17 +167,24 @@
 							{% endfor %}
 						</div>
 						<div class="col-md-6 ps-4">
-							{% for subsection_form in section %}
-								{% if subsection_form.init_subsection.side == 'd' %}
+							{% for subsection_form in section_form %}
+								{% if subsection_form.init_subsection.side == 'D' %}
 									<div class="card border border-primary">
 										<div class="card-header">
-											{{ subsection_form.init_subsection }}
-		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
+											{{ subsection_form.init_subsection.help_text }}:
+											{% get_competitor object.round.captains_meeting.sections subsection_form.init_subsection %}
+{#											{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
 										</div>
 										<div class="card-body">
 											<div class="row my-2">
-												<div class="col-2 py-2">Score:</div>
-												<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% if request.user.is_team and request.user.tournament.publish_ballot_scores %}
+													<div class="col-2 py-2">Score:</div>
+													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% endif %}
+												{% if request.user.is_judge %}
+													<div class="col-2 py-2">Score:</div>
+													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% endif %}
 											</div>
 											<div class="row text-start">
 												<div class="p-1">Comments:</div>
@@ -157,21 +197,28 @@
 						</div>
 					{% else %}
 						<div class="col-md-6 pe-4">
-							{% for subsection_form in section %}
+							{% for subsection_form in section_form %}
 								{% if subsection_form.init_subsection.role == 'att' %}
-									{% if subsection_form.init_subsection.side == 'p' %}
+									{% if subsection_form.init_subsection.side == 'P' %}
 										<div class="card border border-primary my-2">
 									{% else %}
 										<div class="card border border-secondary my-2">
 									{% endif %}
 										<div class="card-header">
-											{{ subsection_form.init_subsection }}
-		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
+											{{ subsection_form.init_subsection.help_text }}:
+											{% get_competitor object.round.captains_meeting.sections subsection_form.init_subsection %}
+{#											{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
 										</div>
 										<div class="card-body">
 											<div class="row my-2">
-												<div class="col-2 py-2">Score:</div>
-												<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% if request.user.is_team and request.user.tournament.publish_ballot_scores %}
+													<div class="col-2 py-2">Score:</div>
+													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% endif %}
+												{% if request.user.is_judge %}
+													<div class="col-2 py-2">Score:</div>
+													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% endif %}
 											</div>
 											<div class="row text-start">
 												<div class="p-1">Comments:</div>
@@ -183,21 +230,28 @@
 							{% endfor %}
 						</div>
 						<div class="col-md-6 ps-4">
-							{% for subsection_form in section %}
+							{% for subsection_form in section_form %}
 								{% if subsection_form.init_subsection.role == 'wit' %}
-									{% if subsection_form.init_subsection.side == 'p' %}
+									{% if subsection_form.init_subsection.side == 'P' %}
 										<div class="card border border-primary my-2">
 									{% else %}
 										<div class="card border border-secondary my-2">
 									{% endif %}
 										<div class="card-header">
-											{{ subsection_form.init_subsection }}
-		{#									{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
+											{{ subsection_form.init_subsection.help_text }}:
+											{% get_competitor object.round.captains_meeting.sections subsection_form.init_subsection %}
+{#											{{ form.p_open.label_tag }} {{ object.round.captains_meeting.p_opener }}#}
 										</div>
 										<div class="card-body">
 											<div class="row my-2">
-												<div class="col-2 py-2">Score:</div>
-												<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% if request.user.is_team and request.user.tournament.publish_ballot_scores %}
+													<div class="col-2 py-2">Score:</div>
+													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% endif %}
+												{% if request.user.is_judge %}
+													<div class="col-2 py-2">Score:</div>
+													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+												{% endif %}
 											</div>
 											<div class="row text-start">
 												<div class="p-1">Comments:</div>

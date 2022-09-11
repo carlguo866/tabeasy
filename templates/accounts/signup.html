@@ -20,8 +20,8 @@
 	<form method="post">
 		{% csrf_token %}
 		{% include "utils/combined_forms.html" with combined_forms=forms %}
-		<strong>Round Times:</strong><br>
-		<img src="{% static 'img/round_time.jpeg' %}" width="800" height="auto" class="mb-4">
+{#		<strong>Round Times:</strong><br>#}
+{#		<img src="{% static 'img/round_time.jpeg' %}" width="800" height="auto" class="mb-4">#}
 		<br>
 		<button class='button button-primary' type="submit">Sign up</button>
 	</form>

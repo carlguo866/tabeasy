@@ -34,7 +34,7 @@
 						<td>{{ ballot.d_pd }}</td>
 						<td>
 								<div class="m-2">
-									<a class="button button-primary py-2" href="{% url 'ballot:view' ballot.pk|int_str %}">
+									<a class="button button-primary py-2" href="{% url 'submission:ballot' ballot.pk|int_str %}">
 										View
 									</a>
 								</div>
