@@ -39,21 +39,21 @@ class RoundAdmin(admin.ModelAdmin):
 
 @admin.register(Judge)
 class JudgeAdmin(admin.ModelAdmin, DynamicArrayMixin):
-    list_display = ['pk', '__str__', 'get_tournament']
+    list_display = ['pk', '__str__']
     search_fields = ['user.username']
 
-    @display(ordering='user__tournament', description='Tournament')
-    def get_tournament(self, obj):
-        return obj.user.tournament
+    # @display(ordering='user__tournament', description='Tournament')
+    # def get_tournament(self, obj):
+    #     return obj.user.tournament
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
-    list_display = ['team_id','team_name','division','school', 'get_tournament']
+    list_display = ['team_id','team_name','division','school']
     search_fields = ['team_name']
 
-    @display(ordering='user__tournament', description='Tournament')
-    def get_tournament(self, obj):
-        return obj.user.tournament
+    # @display(ordering='user__tournament', description='Tournament')
+    # def get_tournament(self, obj):
+    #     return obj.user.tournament
 
 @admin.register(Competitor)
 class CompetitorAdmin(admin.ModelAdmin, DynamicArrayMixin):
