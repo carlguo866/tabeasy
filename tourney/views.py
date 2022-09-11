@@ -478,7 +478,10 @@ def load_teams(request):
                 continue
             pk = int(pk)
             team_name = worksheet.cell(i, 2).value
-            division = worksheet.cell(i, 3).value
+            if worksheet.cell(i, 3).value != None or worksheet.cell(i, 3).value != '':
+                division = worksheet.cell(i, 3).value
+            else:
+                division = None
             school = worksheet.cell(i, 4).value
             j = 5
             team_roster = []
@@ -499,7 +502,8 @@ def load_teams(request):
                     message += f'create team {pk}'
                     raw_password = worksheet.cell(i,17).value
                     username = ''.join(team_name.split(' '))
-                    user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False)
+                    user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False,
+                                tournament=request.user.tournament)
                     user.set_password(raw_password)
                     user.tournament = request.user.tournament
                     user.save()
@@ -584,7 +588,7 @@ def load_judges(request):
                     message += f'create judge {username}'
                     user = User(username=username,
                                 first_name=first_name, last_name=last_name,
-                                is_team=False, is_judge=True)
+                                is_team=False, is_judge=True, tournament=request.user.tournament)
                     user.set_password(raw_password)
                     user.save()
                     judge = Judge(user=user, preside=preside)
