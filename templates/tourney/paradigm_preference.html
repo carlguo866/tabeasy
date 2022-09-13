@@ -7,7 +7,7 @@
 {% for form in combined_forms %}
 	{% for field in form %}
 		<div class="form-group col-md-12 p-1">
-		<strong>On a scale of 1-10, I prefer {{ combined_forms.0.instance.paradigm_preference.role|display_role }} who...</strong>
+		<strong>On a scale of 1-10, I prefer {{ form.instance.paradigm_preference.role|display_role }} who...</strong>
 			<br>
 			{{ form.instance.paradigm_preference.low_end }}
 			{% render_field field class='form-range' style='width:400px' name='scale' oninput="this.nextElementSibling.value = this.value" %}

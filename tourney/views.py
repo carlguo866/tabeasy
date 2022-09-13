@@ -151,11 +151,12 @@ def edit_pairing(request, round_num):
     tournament = request.user.tournament
     if DEBUG:
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
-                                             max_num=tournament.division_team_num/2, validate_max=True)
+                                             max_num=int(tournament.division_team_num/2), validate_max=True,
+                                             extra=int(tournament.division_team_num/2))
     else:
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
-                                             max_num=tournament.division_team_num/2, validate_max=True,
-                                             extra=tournament.division_team_num/2)
+                                             max_num=int(tournament.division_team_num/2), validate_max=True,
+                                             extra=int(tournament.division_team_num/2))
 
     if request.user.tournament.split_division:
         if not Pairing.objects.filter(round_num=round_num).exists():
@@ -494,12 +495,13 @@ def load_teams(request):
             # elif len(team_roster) > 10:
             #     message += f' errors: team {pk} more than 10 members '
             # else:
+
             try:
                 if Team.objects.filter(pk=pk).exists():
-                    message += f'update team {pk}'
+                    message += f' update team {pk} '
                     Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
                 else:
-                    message += f'create team {pk}'
+                    message += f' create team {pk} '
                     raw_password = worksheet.cell(i,17).value
                     username = ''.join(team_name.split(' '))
                     user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False,
@@ -510,15 +512,15 @@ def load_teams(request):
                     Team.objects.create(team_id=pk, user=user, team_name=team_name,division=division,school=school)
                 for name in team_roster:
                     if Competitor.objects.filter(name=name).exists():
-                        message += f'update member {name}'
+                        message += f' update member {name} '
                         Competitor.objects.filter(name=name).update(team=Team.objects.filter(pk=pk)[0],name=name)
                     else:
-                        message += f'create member {name}'
+                        message += f' create member {name} '
                         Competitor.objects.create(name=name,team=Team.objects.filter(pk=pk)[0])
             except Exception as e:
                 message += str(e)
             else:
-                message += 'success'
+                message += ' success '
             list.append(message)
         return render(request, 'admin/load_excel.html', {"list": list})
 
@@ -606,7 +608,7 @@ def load_judges(request):
             except Exception as e:
                 message += str(e)
             else:
-                message += 'success'
+                message += ' success '
             list.append(message)
         return render(request, 'admin/load_excel.html', {"list": list})
 
