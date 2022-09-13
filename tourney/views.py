@@ -474,11 +474,16 @@ def load_teams(request):
         n = worksheet.max_row
         m = worksheet.max_column
         for i in range(2, n + 1):
+
             pk = worksheet.cell(i, 1).value
-            if pk is None:
+            if pk == None:
                 continue
-            pk = int(pk)
+
             team_name = worksheet.cell(i, 2).value
+            if Team.objects.filter(user__tournament=request.user.tournament, team_name=team_name).exists():
+                pk = Team.objects.get(user__tournament=request.user.tournament, team_name=team_name).pk
+            else:
+                pk = None
             if worksheet.cell(i, 3).value != None or worksheet.cell(i, 3).value != '':
                 division = worksheet.cell(i, 3).value
             else:
@@ -499,7 +504,7 @@ def load_teams(request):
             try:
                 if Team.objects.filter(pk=pk).exists():
                     message += f' update team {pk} '
-                    Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
+                    team = Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
                 else:
                     message += f' create team {pk} '
                     raw_password = worksheet.cell(i,17).value
@@ -509,11 +514,12 @@ def load_teams(request):
                     user.set_password(raw_password)
                     user.tournament = request.user.tournament
                     user.save()
-                    Team.objects.create(team_id=pk, user=user, team_name=team_name,division=division,school=school)
+                    team = Team.objects.create(user=user, team_name=team_name,division=division,school=school)
+
                 for name in team_roster:
-                    if Competitor.objects.filter(name=name).exists():
+                    if Competitor.objects.filter(team=team, name=name).exists():
                         message += f' update member {name} '
-                        Competitor.objects.filter(name=name).update(team=Team.objects.filter(pk=pk)[0],name=name)
+                        Competitor.objects.filter(team=team, name=name).update(team=Team.objects.filter(pk=pk)[0],name=name)
                     else:
                         message += f' create member {name} '
                         Competitor.objects.create(name=name,team=Team.objects.filter(pk=pk)[0])

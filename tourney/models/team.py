@@ -5,7 +5,7 @@ from django_better_admin_arrayfield.models.fields  import ArrayField
 
 # @functools.total_ordering
 class Team(models.Model):
-    team_id = models.IntegerField(primary_key=True, help_text="enter integer only")
+    team_id = models.BigAutoField(primary_key=True, help_text="enter integer only")
     user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='team', null=True,blank=True)
 
     team_name = models.CharField(

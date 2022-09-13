@@ -21,8 +21,9 @@ class Paradigm(models.Model):
     experience_years = models.DecimalField(default=0, max_digits=3, decimal_places=1, help_text='How many years of mock trial experience do you have?')
     experience_description = ArrayField(
         models.CharField(max_length=40, choices=experience_description_choices, null=True,
-                         help_text='Do you have any experience competing or judging in high school, collegiate or law school mock trial competitions?'),
-        size=6
+                         help_text='Do you have any experience competing or judging in high school, collegiate or law school mock trial competitions?',
+                        blank=True),
+        size=6, null=True, blank=True
     )
     affiliations = models.CharField(max_length=2000, null=True, blank=True)
     #scale On a scale of 1-10, I prefer mock trial attorneys who…
