@@ -503,10 +503,10 @@ def load_teams(request):
 
             try:
                 if Team.objects.filter(pk=pk).exists():
-                    message += f' update team {pk} '
-                    team = Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
+                    Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
+                    team = Team.objects.get(pk=pk)
+                    message += f' update team {team.pk} '
                 else:
-                    message += f' create team {pk} '
                     raw_password = worksheet.cell(i,17).value
                     username = ''.join(team_name.split(' '))
                     user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False,
@@ -515,14 +515,15 @@ def load_teams(request):
                     user.tournament = request.user.tournament
                     user.save()
                     team = Team.objects.create(user=user, team_name=team_name,division=division,school=school)
+                    message += f' create team {team.pk} '
 
                 for name in team_roster:
                     if Competitor.objects.filter(team=team, name=name).exists():
                         message += f' update member {name} '
-                        Competitor.objects.filter(team=team, name=name).update(team=Team.objects.filter(pk=pk)[0],name=name)
+                        Competitor.objects.filter(team=team, name=name).update(team=team,name=name)
                     else:
                         message += f' create member {name} '
-                        Competitor.objects.create(name=name,team=Team.objects.filter(pk=pk)[0])
+                        Competitor.objects.create(name=name,team=team)
             except Exception as e:
                 message += str(e)
             else:

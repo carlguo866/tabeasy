@@ -17,7 +17,8 @@ class Team(models.Model):
     division = models.CharField(
         max_length=100,
         choices=division_choices,
-        null=True
+        null=True,
+        blank=True
     )
     school = models.CharField(
         max_length=100,
