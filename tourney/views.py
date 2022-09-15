@@ -292,7 +292,7 @@ def edit_pairing(request, round_num):
                     if form.instance.p_team == None or form.instance.d_team == None:
                         actual_round_num -= 1
 
-                random_choice = string.ascii_uppercase[:round(tournament.division_team_num/2)][:actual_round_num]
+                random_choice = string.ascii_uppercase[:int(tournament.division_team_num/2)][:actual_round_num]
 
                 for round in Pairing.objects.get(pk=pairing.pk).rounds.all():
                     if round.courtroom != None:
