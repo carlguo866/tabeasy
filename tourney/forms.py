@@ -112,9 +112,11 @@ class RoundForm(forms.ModelForm):
         errors = []
 
         if self.instance.pairing.final_submit == True:
-            for k,v in cleaned_data.items():
-                if k != 'extra_judge' and v == None:
-                    errors.append(f"You haven't assigned {k} for {self.instance} yet before checking for conflicts")
+            if not cleaned_data.get('presiding_judge'):
+                errors.append(f"You haven't assigned presiding judge for {self.instance} yet before checking for conflicts")
+            if not cleaned_data.get('scoring_judge'):
+                errors.append(f"You haven't assigned presiding judge for {self.instance} yet before checking for conflicts")
+
 
         # check for judges
         if self.other_formset != None and self.instance.pairing.final_submit:
