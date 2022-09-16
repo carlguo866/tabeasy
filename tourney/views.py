@@ -151,11 +151,11 @@ def edit_pairing(request, round_num):
     tournament = request.user.tournament
     if DEBUG:
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
-                                             max_num=int(tournament.division_team_num/2), validate_max=True,
-                                             extra=int(tournament.division_team_num/2))
+                                             max_num=int(tournament.division_team_num/2), validate_max=True)
     else:
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
                                              max_num=int(tournament.division_team_num/2), validate_max=True,
+                                             min_num=int(tournament.division_team_num / 2), validate_min=True,
                                              extra=int(tournament.division_team_num/2))
 
     if request.user.tournament.split_division:

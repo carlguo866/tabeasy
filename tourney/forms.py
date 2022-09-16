@@ -111,7 +111,13 @@ class RoundForm(forms.ModelForm):
         cleaned_data = super().clean()
         errors = []
 
-        #check for judges
+        # if self.instance.pairing.final_submit:
+        if self.instance.pairing.final_submit == True:
+            for k,v in cleaned_data.items():
+                    if k != 'extra_judge' and v == None:
+                        errors.append(f"{k} empty")
+
+        # check for judges
         if self.other_formset != None and self.instance.pairing.final_submit:
             form_judges = [cleaned_data.get('presiding_judge'), cleaned_data.get('scoring_judge'),
                            cleaned_data.get('extra_judge')]
