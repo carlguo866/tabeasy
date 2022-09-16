@@ -21,9 +21,9 @@ class BallotForm(forms.ModelForm):
         self.request = kwargs.pop("request")
         super(BallotForm, self).__init__(*args, **kwargs)
 
-        if self.instance.round.pairing.round_num == 5 or not self.instance.submit:
-            for field in self.fields:
-                self.fields[field].required = False
+        # if self.instance.round.pairing.round_num == 5 or not self.instance.submit:
+        for field in self.fields:
+            self.fields[field].required = False
 
         if self.instance.submit:
             for field in self.fields:

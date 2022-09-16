@@ -5,7 +5,7 @@
 
 {% block content %}
 	<div class="container-md center">
-		{% if form.instance.submit %}
+		{% if form.instance.submit and not form.errors %}
 			<div class="alert alert-primary" role="alert">
 				You have submitted your ballot. Thanks for judging!
 			</div>
@@ -169,7 +169,7 @@
 						<div class="col-md-6 ps-4">
 							{% for subsection_form in section_form %}
 								{% if subsection_form.init_subsection.side == 'D' %}
-									<div class="card border border-primary">
+									<div class="card border border-secondary">
 										<div class="card-header">
 											{{ subsection_form.init_subsection.help_text }}:
 											{% get_competitor object.round.captains_meeting.sections subsection_form.init_subsection %}
