@@ -34,6 +34,14 @@
 							<li class="list-group-item">
 								{% if object.judge == object.round.presiding_judge %}
 									You are presiding this round.
+									{% if request.user.tournament.presiding_judge_script %}
+										<div class="row my-2 px-3">
+											<a class="button button-primary"
+													href="{{ request.user.tournament.presiding_judge_script }}">
+												Presiding Judge Script
+											</a>
+										</div>
+									{% endif %}
 								{% else %}
 									You are scoring this round.
 								{% endif %}

@@ -18,6 +18,7 @@ class Tournament(models.Model):
     case = models.URLField(max_length=200, null=True, blank=True)
     roe = models.URLField(max_length=200, null=True, blank=True)
     zoom_link = models.URLField(max_length=200, null=True, blank=True)
+    presiding_judge_script = models.URLField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.name
