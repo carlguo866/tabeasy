@@ -1,7 +1,7 @@
 import random
 import string
 import openpyxl
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
@@ -338,9 +338,18 @@ def edit_pairing(request, round_num):
 
 @user_passes_test(lambda u: u.is_staff)
 def delete_pairing(request, round_num):
-    if Pairing.objects.filter(round_num=round_num).exists():
-        Pairing.objects.filter(round_num=round_num).delete()
+    if Pairing.objects.filter(tournament=request.user.tournament, round_num=round_num).exists():
+        Pairing.objects.filter(tournament=request.user.tournament, round_num=round_num).delete()
     return redirect('tourney:pairing_index')
+
+@login_required
+def view_pairing(request, pk):
+    pairing = Pairing.objects.get(pk=pk)
+    if not pairing.team_submit:
+        context = {}
+    else:
+        context = {'pairing': [pairing]}
+    return render(request, 'tourney/pairing/view.html', context)
 
 @user_passes_test(lambda u: u.is_staff)
 def checkin_judges(request, round_num):

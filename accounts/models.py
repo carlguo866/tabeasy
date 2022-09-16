@@ -19,10 +19,7 @@ class User(AbstractUser):
                                    related_query_name='user', null=True)
 
     def available_pairings(self):
-        if not self.is_staff:
-            return None
-        else:
-            return [pairing for pairing in Pairing.objects.filter(tournament=self.tournament).order_by('round_num').all() if pairing.team_submit]
+        return [pairing for pairing in Pairing.objects.filter(tournament=self.tournament).order_by('round_num').all() if pairing.team_submit]
 
     def __str__(self):
         if self.is_team:

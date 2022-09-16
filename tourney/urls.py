@@ -4,6 +4,7 @@ from . import views
 app_name = 'tourney'
 urlpatterns = [
     path('pairing', views.pairing_index, name='pairing_index'),
+    path('pairing/<int:pk>', views.view_pairing, name='view_pairing'),
     path('pairing/edit/<int:round_num>', views.edit_pairing, name='edit_pairing'),
     path('pairing/delete/<int:round_num>', views.delete_pairing, name='delete_pairing'),
     path('pairing/next_pairing', views.next_pairing, name='next_pairing'),

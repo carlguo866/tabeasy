@@ -32,6 +32,26 @@
 
 					</div>
 				</div>
+
+				<div class="card border gx-2">
+					<div class="card-header">
+						Pairings
+					</div>
+					<div class="card-body text-start">
+						{% if user.available_pairings %}
+							{% for pairing in user.available_pairings %}
+								<div class="card-text mb-4">
+									<a class="button button-primary py-2" href="{% url 'tourney:view_pairing' pairing.pk %}">
+										{{ pairing }}
+									</a>
+								</div>
+							{% endfor %}
+						{% else %}
+							<div class="card-text">Pairings are not done yet. </div>
+						{% endif %}
+					</div>
+				</div>
+
 				<div class="card border gx-2">
 					<div class="card-header">
 						Captain Meeting Forms
