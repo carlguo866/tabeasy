@@ -25,13 +25,6 @@ class Team(models.Model):
         default='placeholder',
         null=True
     )
-    side_choices = [('P', 'Prosecution'), ('D', 'Defense')]
-    sides = ArrayField(
-        models.CharField(max_length=1, choices=side_choices),
-        size=4,
-        null=True,
-        blank=True
-    )
     def __str__(self):
         return self.user.__str__()
 
