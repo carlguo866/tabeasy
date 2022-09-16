@@ -151,11 +151,11 @@ def edit_pairing(request, round_num):
     tournament = request.user.tournament
     if DEBUG:
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
-                                             max_num=int(tournament.division_team_num/2), validate_max=True)
+                                             max_num=int(tournament.division_team_num/2), validate_max=True,
+                                             extra=int(tournament.division_team_num/2))
     else:
         RoundFormSet = inlineformset_factory(Pairing, Round, form=RoundForm, formset=PairingFormSet,
                                              max_num=int(tournament.division_team_num/2), validate_max=True,
-                                             min_num=int(tournament.division_team_num / 2), validate_min=True,
                                              extra=int(tournament.division_team_num/2))
 
     if request.user.tournament.split_division:
@@ -308,22 +308,21 @@ def edit_pairing(request, round_num):
             else:
                 both_true = False
 
-            pairings = [pairing]
-            for pairing in pairings:
-                if pairing.final_submit and not pairing.publish:
-                    for round in pairing.rounds.all():
-                        if not Ballot.objects.filter(round=round).exists():
-                            for judge in round.judges:
-                                Ballot.objects.create(round=round, judge=judge)
-                        else:
-                            for judge in round.judges:
-                                if not Ballot.objects.filter(round=round, judge=judge).exists():
-                                    Ballot.objects.create(round=round, judge=judge)
-                            for ballot in Ballot.objects.filter(round=round).all():
-                                if ballot.judge not in round.judges:
-                                    Ballot.objects.filter(round=round, judge=ballot.judge).delete()
-
             if both_true:
+                pairings = [pairing]
+                for pairing in pairings:
+                    if pairing.final_submit and not pairing.publish:
+                        for round in pairing.rounds.all():
+                            if not Ballot.objects.filter(round=round).exists():
+                                for judge in round.judges:
+                                    Ballot.objects.create(round=round, judge=judge)
+                            else:
+                                for judge in round.judges:
+                                    if not Ballot.objects.filter(round=round, judge=judge).exists():
+                                        Ballot.objects.create(round=round, judge=judge)
+                                for ballot in Ballot.objects.filter(round=round).all():
+                                    if ballot.judge not in round.judges:
+                                        Ballot.objects.filter(round=round, judge=ballot.judge).delete()
                 return redirect('tourney:pairing_index')
         else:
             formset = RoundFormSet(instance=pairing, prefix='div1',

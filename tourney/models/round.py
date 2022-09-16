@@ -53,7 +53,9 @@ class Round(models.Model):
         # if self.judge_panel.count() > 0:
         #     return [self.presiding_judge, self.scoring_judge] + [judge for judge in self.judge_panel.all()]
         # elif \
-        if self.extra_judge != None:
+        if not self.presiding_judge or not self.scoring_judge:
+            return []
+        elif self.extra_judge != None:
             return [self.presiding_judge, self.scoring_judge, self.extra_judge]
         else:
             return [self.presiding_judge, self.scoring_judge]
@@ -86,9 +88,9 @@ class Round(models.Model):
 
         if self.pairing.final_submit:
 
-            if self.presiding_judge.preside == 0:
-                errors.append(f'{self.presiding_judge} can\'t preside')
-            if len(self.judges) != len(set(self.judges)):
+            # if self.presiding_judge.preside == 0:
+            #     errors.append(f'{self.presiding_judge} can\'t preside')
+            if len(self.judges) != 0 and len(self.judges) != len(set(self.judges)):
                 errors.append(f'assigning one judge for two roles in {self}')
 
 

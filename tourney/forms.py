@@ -85,9 +85,9 @@ class RoundForm(forms.ModelForm):
             self.fields['d_team'].queryset = Team.objects.all()
             self.fields['presiding_judge'].queryset = Judge.objects.filter(preside__gt=0)
         else:
-            if not pairing.final_submit:
-                for field in self.fields:
-                    self.fields[field].required = False
+            # if not pairing.final_submit:
+            for field in self.fields:
+                self.fields[field].required = False
             if pairing.division:
                 self.fields['p_team'].queryset = Team.objects.filter(user__tournament=tournament,
                                                                      division=pairing.division)
@@ -111,11 +111,10 @@ class RoundForm(forms.ModelForm):
         cleaned_data = super().clean()
         errors = []
 
-        # if self.instance.pairing.final_submit:
         if self.instance.pairing.final_submit == True:
             for k,v in cleaned_data.items():
-                    if k != 'extra_judge' and v == None:
-                        errors.append(f"{k} empty")
+                if k != 'extra_judge' and v == None:
+                    errors.append(f"You haven't assigned {k} for {self.instance} yet before checking for conflicts")
 
         # check for judges
         if self.other_formset != None and self.instance.pairing.final_submit:
@@ -161,6 +160,7 @@ class PairingFormSet(BaseInlineFormSet):
         existing_judges = []
         existing_teams = []
         errors = []
+
         if self.instance.team_submit or self.instance.final_submit:
             for form in self.forms:
                 if self.can_delete and self._should_delete_form(form):
