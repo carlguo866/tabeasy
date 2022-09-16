@@ -3,12 +3,12 @@ from django.db import models
 from array_field_select.fields import ArrayField
 
 experience_description_choices = [
-    ('hs', 'I am a former High School Mock Trial Competitor'),
-    ('college', 'I am a current or former College Mock Trial Competitor'),
-    ('ls', 'I am a current or former Law School Mock Trial Competitor'),
-    ('judged', 'I have judged 1-2 Mock Trial Competitions in the past'),
-    ('judged_some', 'I have judged 3-5 Mock Trial Competitions in the past'),
-    ('judged_many', 'I have judged 5 or more Mock Trial Competitions in the past'),
+    ('hs', 'I am a former high school mock trial competitor.'),
+    ('college', 'I am a current or former college mock trial competitor.'),
+    ('ls', 'I am a current or former law school mock trial Competitor.'),
+    ('judged', 'I have judged 1-2 mock trial competitions in the past.'),
+    ('judged_some', 'I have judged 3-5 mock trial competitions in the past.'),
+    ('judged_many', 'I have judged five or more mock trial competitions in the past.'),
 ]
 
 
@@ -28,6 +28,9 @@ class Paradigm(models.Model):
     affiliations = models.CharField(max_length=2000, null=True, blank=True)
     #scale On a scale of 1-10, I prefer mock trial attorneys who…
     comments = models.TextField(max_length=5000, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.judge}'s Paradigm"
 
 role_choices = [
     ('att', 'Attorney'),

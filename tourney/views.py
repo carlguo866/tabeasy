@@ -12,6 +12,8 @@ from django.views.generic import UpdateView
 
 from accounts.models import User
 from submission.forms import CharacterPronounsForm
+from submission.models.paradigm import Paradigm, ParadigmPreferenceItem, ParadigmPreference, \
+    experience_description_choices
 from submission.models.section import Section, SubSection
 from tabeasy.settings import DEBUG
 from tabeasy.utils.mixins import JudgeOnlyMixin, PassRequestToFormViewMixin
@@ -626,6 +628,80 @@ def load_judges(request):
                 message += ' success '
             list.append(message)
         return render(request, 'admin/load_excel.html', {"list": list})
+
+
+
+@user_passes_test(lambda u: u.is_staff)
+def load_paradigms(request):
+    if "GET" == request.method:
+        return render(request, 'admin/load_excel.html', {})
+    else:
+        excel_file = request.FILES["excel_file"]
+        wb = openpyxl.load_workbook(excel_file)
+        worksheet = wb["Paradigms"]
+        list = []
+        n = worksheet.max_row
+        m = worksheet.max_column
+        headers = [None]
+        for i in range(1, m):
+            headers.append(worksheet.cell(1, i).value)
+
+        for i in range(2, n + 1):
+            username = worksheet.cell(i, 1).value
+            if username == None or username == '':
+                continue
+            paradigm_items = []
+            for j in range(2, worksheet.max_column):
+                value = worksheet.cell(i, j).value
+                if value:
+                    paradigm_items.append((headers[j], value))
+
+            message = ''
+            try:
+                if not Judge.objects.filter(user__username=username).exists():
+                    continue
+
+                if Paradigm.objects.filter(judge__user__username=username).exists():
+                    message += f'update judge paradigm {username}'
+                    paradigm = Paradigm.objects.get(judge__user__username=username)
+                else:
+                    paradigm = Paradigm.objects.create(judge=Judge.objects.get(user__username=username))
+
+                for name, value in paradigm_items:
+                    if name == 'experience_description':
+                        experiences = value.split(',')
+                        experiences_actual_vals = []
+                        for experience in experiences:
+                            experience = experience.strip()
+                            # message += str(experience)
+                            for (actual_val, display_val) in experience_description_choices:
+                                if experience == display_val:
+                                    experiences_actual_vals.append(actual_val)
+                        message += str(experiences_actual_vals)
+                        setattr(paradigm, name, experiences_actual_vals)
+                    elif name == 'experience_years':
+                        setattr(paradigm, name, int(value))
+                    else:
+                        try:
+                            paradigm_preference_pk = int(name)
+                            if ParadigmPreferenceItem.objects.filter(
+                                    paradigm=paradigm,paradigm_preference__pk=paradigm_preference_pk).exists():
+                                ParadigmPreferenceItem.objects.filter(
+                                    paradigm=paradigm, paradigm_preference__pk=paradigm_preference_pk).update(scale=int(value))
+                            else:
+                                ParadigmPreferenceItem.objects.create(
+                                    paradigm=paradigm, paradigm_preference=ParadigmPreference.objects.get(pk=paradigm_preference_pk),
+                                    scale=int(value))
+                        except ValueError:
+                            setattr(paradigm, name, value)
+                paradigm.save()
+            except Exception as e:
+                message += str(e)
+            else:
+                message += ' success '
+            list.append(message)
+        return render(request, 'admin/load_excel.html', {"list": list})
+
 
 @user_passes_test(lambda u: u.is_staff)
 def load_sections(request):

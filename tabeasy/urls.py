@@ -30,6 +30,7 @@ urlpatterns = [
     path('load_teams', views.load_teams),
     path('load_judges', views.load_judges),
     path('load_sections', views.load_sections),
+    path('load_paradigms', views.load_paradigms),
     url(r'^ajax_select/', include(ajax_select_urls)),
 ]
  
