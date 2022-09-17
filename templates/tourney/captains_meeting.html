@@ -14,6 +14,10 @@
 				{% endif %}
 			{% endfor %}
 		{% endif %}
+		<div class="alert alert-primary" role="alert">
+			Only ONE team should work on the captains meeting form at any given time.
+			Simultaneous changes would override each other. Prosecution should fill the form out first, and then the defense.
+		</div>
 
 		{% for section in section_forms%}
 			{% for subsection_form in section %}
@@ -75,6 +79,7 @@
 							{% endif %}
 							<li class="list-group-item"><span class="text-primary">Blue</span> denotes Prosecution,
 								and <span class="text-secondary">Purple</span> denotes Defense</li>
+
 							</ul>
 					</div>
 				</div>

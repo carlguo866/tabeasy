@@ -43,6 +43,11 @@ def get_character(subsection_list, section):
     else:
         return None
 
+# @register.simple_tag
+# def get_character_pronouns(subsection_list, section):
+#     character = get_character(subsection_list, section)
+#     if character:
+
 
 
 
@@ -72,6 +77,7 @@ role_choices = [
     ('att', 'attorneys'),
     ('wit', 'witnesses')
 ]
+
 @register.filter
 def display_role(q):
     for choice in role_choices:

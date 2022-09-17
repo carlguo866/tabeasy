@@ -19,10 +19,15 @@
 					<th>Ranks</th>
 					<th>Team</th>
 					<th>Side</th>
+					{% if request.user.tournament.split_division %}
+						<th>Division</th>
+					{% endif %}
 					<th>Name</th>
 					<th>Ranks</th>
 					<th>Team</th>
-					<th>Division</th>
+					{% if request.user.tournament.split_division %}
+						<th>Division</th>
+					{% endif %}
 					<th>Side</th>
 				</tr>
 			</thead>
@@ -35,14 +40,19 @@
 								{{ att.2 }}
 						</td>
 						<td>{{ att.0.team }}</td>
-						<td>{{ att.0.team.division }}</td>
+						{% if request.user.tournament.split_division %}
+							<td>{{ att.0.team.division }}</td>
+						{% endif %}
+
 						<td>{{ att.1 }}</td>
 						<td>{{ wit.0 }}</td>
 						<td>
 							{{ wit.2 }}
 						</td>
 						<td>{{ wit.0.team }}</td>
-						<td>{{ wit.0.team.division }}</td>
+						{% if request.user.tournament.split_division %}
+							<td>{{ wit.0.team.division }}</td>
+						{% endif %}
 						<td>{{ wit.1 }}</td>
 					</tr>
 				{% endfor %}

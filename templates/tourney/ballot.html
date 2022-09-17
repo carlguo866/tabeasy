@@ -139,6 +139,7 @@
 				{{ section_form.0.init_subsection.section.name }}
 				{% if not section_form.0.init_subsection.type == 'statement' %}
 				: {% get_character object.round.captains_meeting.sections section_form.0.init_subsection.section %}
+{#					({% get_character_pronouns object.round.captains_meeting.sections section_form.0.init_subsection.section %})#}
 				{% endif %}
 			</h4>
 			<div class="card-body">

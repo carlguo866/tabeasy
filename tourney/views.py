@@ -44,7 +44,7 @@ def results(request):
         dict = {'teams_ranked': [div1_teams, div2_teams]}
     else:
         teams = sort_teams([team for team in Team.objects.filter(user__tournament=tournament)])
-        dict = {'teams_ranked': [teams]}
+        dict = {'teams_ranked': teams}
     return render(request, 'tourney/tab/results.html', dict)
 
 @user_passes_test(lambda u: u.is_staff)
