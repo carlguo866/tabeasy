@@ -279,6 +279,7 @@
 
 		{% endfor %}
 
+		{% if request.user.is_judge or request.user.tournament.publish_ballot_scores %}
 		<div class="card my-5">
 			<h4 class="card-header">Individual Ranks</h4>
 			<div class="card-body">
@@ -354,6 +355,7 @@
 				</div>
 			</div>
 		</div>
+		{% endif %}
 
 	{% if request.user.is_judge %}
 		<input class="button btn-secondary" type="submit" value="Save"
