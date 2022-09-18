@@ -10,8 +10,13 @@
 			<thead class="table-light">
 				<tr>
 					<th scope="col"></th>
-					<th colspan="5" scope="colgroup">Attorneys</th>
-					<th colspan="5" scope="colgroup">Witnesses</th>
+					{% if request.user.tournament.split_division %}
+						<th colspan="5" scope="colgroup">Attorneys</th>
+						<th colspan="5" scope="colgroup">Witnesses</th>
+					{% else %}
+						<th colspan="4" scope="colgroup">Attorneys</th>
+						<th colspan="4" scope="colgroup">Witnesses</th>
+					{% endif %}
 				</tr>
 				<tr>
 					<th scope="col">#</th>

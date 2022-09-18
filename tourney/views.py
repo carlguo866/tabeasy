@@ -50,14 +50,15 @@ def results(request):
 @user_passes_test(lambda u: u.is_staff)
 def individual_awards(request):
     tournament = request.user.tournament
-    atts_ranked = [(member,'P',member.att_individual_score()[0]) for member in Competitor.objects.filter(team__user__tournament=tournament)
+    competitors = Competitor.objects.filter(team__user__tournament=tournament)
+    atts_ranked = [(member,'P',member.att_individual_score()[0]) for member in competitors
                    if member.att_individual_score()[0] >= 10]+ \
-                  [(member, 'D', member.att_individual_score()[1]) for member in Competitor.objects.filter(team__user__tournament=tournament)
+                  [(member, 'D', member.att_individual_score()[1]) for member in competitors
                    if member.att_individual_score()[1] >= 10]
     atts_ranked = sorted(atts_ranked, key=lambda x: -x[2])
-    wits_ranked = [(member,'P',member.wit_individual_score()[0]) for member in Competitor.objects.filter(team__user__tournament=tournament)
+    wits_ranked = [(member,'P',member.wit_individual_score()[0]) for member in competitors
                    if member.wit_individual_score()[0] >= 10]+ \
-                  [(member, 'D', member.wit_individual_score()[1]) for member in Competitor.objects.filter(team__user__tournament=tournament)
+                  [(member, 'D', member.wit_individual_score()[1]) for member in competitors
                    if member.wit_individual_score()[1] >= 10]
     wits_ranked = sorted(wits_ranked, key=lambda x: -x[2])
 
