@@ -156,11 +156,7 @@
 										</div>
 										<div class="card-body">
 											<div class="row my-2">
-												{% if request.user.is_team and request.user.tournament.publish_ballot_scores %}
-													<div class="col-2 py-2">Score:</div>
-													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
-												{% endif %}
-												{% if request.user.is_judge %}
+												{% if request.user.is_judge or request.user.tournament.publish_ballot_scores %}
 													<div class="col-2 py-2">Score:</div>
 													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
@@ -186,11 +182,7 @@
 										</div>
 										<div class="card-body">
 											<div class="row my-2">
-												{% if request.user.is_team and request.user.tournament.publish_ballot_scores %}
-													<div class="col-2 py-2">Score:</div>
-													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
-												{% endif %}
-												{% if request.user.is_judge %}
+												{% if request.user.is_judge or request.user.tournament.publish_ballot_scores %}
 													<div class="col-2 py-2">Score:</div>
 													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
@@ -220,11 +212,7 @@
 										</div>
 										<div class="card-body">
 											<div class="row my-2">
-												{% if request.user.is_team and request.user.tournament.publish_ballot_scores %}
-													<div class="col-2 py-2">Score:</div>
-													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
-												{% endif %}
-												{% if request.user.is_judge %}
+												{% if request.user.is_judge or request.user.tournament.publish_ballot_scores %}
 													<div class="col-2 py-2">Score:</div>
 													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
@@ -253,11 +241,7 @@
 										</div>
 										<div class="card-body">
 											<div class="row my-2">
-												{% if request.user.is_team and request.user.tournament.publish_ballot_scores %}
-													<div class="col-2 py-2">Score:</div>
-													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
-												{% endif %}
-												{% if request.user.is_judge %}
+												{% if request.user.is_judge or request.user.tournament.publish_ballot_scores %}
 													<div class="col-2 py-2">Score:</div>
 													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
