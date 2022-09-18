@@ -444,7 +444,7 @@ ul{
 #footer {
     display: flex;
     flex-direction: column;
-    height: 80px;
+    height: 100px;
     align-items: center;
     padding: 18px;
 }

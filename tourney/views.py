@@ -787,3 +787,6 @@ def load_sections(request):
                                   help_text=f'{tournament.p_choice} Closing',
                                   sequence=i)
     return redirect('index')
+
+def donate(request):
+    return render(request, 'donate.html')

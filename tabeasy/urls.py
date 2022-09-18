@@ -31,6 +31,7 @@ urlpatterns = [
     path('load_judges', views.load_judges),
     path('load_sections', views.load_sections),
     path('load_paradigms', views.load_paradigms),
+    path('donate', views.donate, name='donate'),
     url(r'^ajax_select/', include(ajax_select_urls)),
 ]
  
