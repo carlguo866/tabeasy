@@ -67,6 +67,7 @@ def individual_awards(request):
                    if wit_score[1] >= 10]
     wits_ranked = sorted(wits_ranked, key=lambda x: -x[2])
 
+
     dict = {'ranked': zip(atts_ranked,wits_ranked)}
     return render(request, 'tourney/tab/individual_awards.html', dict)
 
