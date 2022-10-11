@@ -19,6 +19,8 @@ class Tournament(models.Model):
     roe = models.URLField(max_length=200, null=True, blank=True)
     zoom_link = models.URLField(max_length=200, null=True, blank=True)
     presiding_judge_script = models.URLField(max_length=200, null=True, blank=True)
+    hide_comments = models.BooleanField(default=False)
+    one_judge = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

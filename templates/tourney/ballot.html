@@ -162,10 +162,12 @@
 												{% endif %}
 
 											</div>
-											<div class="row text-start">
-												<div class="p-1">Comments:</div>
-												{{ subsection_form.comment }}
-											</div>
+											{% if request.user.tournament.hide_comments %}
+												<div class="row text-start">
+													<div class="p-1">Comments:</div>
+													{{ subsection_form.comment }}
+												</div>
+											{% endif %}
 										</div>
 									</div>
 								{% endif %}
@@ -187,10 +189,12 @@
 													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
 											</div>
-											<div class="row text-start">
-												<div class="p-1">Comments:</div>
-												{{ subsection_form.comment }}
-											</div>
+											{% if request.user.tournament.hide_comments %}
+												<div class="row text-start">
+													<div class="p-1">Comments:</div>
+													{{ subsection_form.comment }}
+												</div>
+											{% endif %}
 										</div>
 									</div>
 								{% endif %}
@@ -217,10 +221,12 @@
 													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
 											</div>
-											<div class="row text-start">
-												<div class="p-1">Comments:</div>
-												{{ subsection_form.comment }}
-											</div>
+											{% if request.user.tournament.hide_comments %}
+												<div class="row text-start">
+													<div class="p-1">Comments:</div>
+													{{ subsection_form.comment }}
+												</div>
+											{% endif %}
 										</div>
 									</div>
 								{% endif %}
@@ -246,10 +252,12 @@
 													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
 											</div>
-											<div class="row text-start">
-												<div class="p-1">Comments:</div>
-												{{ subsection_form.comment }}
-											</div>
+											{% if request.user.tournament.hide_comments %}
+												<div class="row text-start">
+													<div class="p-1">Comments:</div>
+													{{ subsection_form.comment }}
+												</div>
+											{% endif %}
 										</div>
 									</div>
 								{% endif %}

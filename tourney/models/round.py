@@ -42,7 +42,7 @@ class Round(models.Model):
     presiding_judge = models.ForeignKey('Judge', on_delete=models.CASCADE, related_name='presiding_rounds',
                                     related_query_name='presiding_round', null=True)
     scoring_judge = models.ForeignKey('Judge', on_delete=models.CASCADE, related_name='scoring_rounds',
-                                    related_query_name='scoring_round', null=True)
+                                    related_query_name='scoring_round', null=True, blank=True)
     extra_judge = models.ForeignKey('Judge', on_delete=models.CASCADE, related_name='extra_rounds',
                                       related_query_name='extra_round', null=True, blank=True)
     # judge_panel = models.ManyToManyField('Judge', related_name='final_rounds', related_query_name='final_round',
@@ -53,12 +53,10 @@ class Round(models.Model):
         # if self.judge_panel.count() > 0:
         #     return [self.presiding_judge, self.scoring_judge] + [judge for judge in self.judge_panel.all()]
         # elif \
-        if not self.presiding_judge or not self.scoring_judge:
+        if not self.presiding_judge:
             return []
-        elif self.extra_judge != None:
-            return [self.presiding_judge, self.scoring_judge, self.extra_judge]
         else:
-            return [self.presiding_judge, self.scoring_judge]
+            return [ judge for judge in [self.presiding_judge, self.scoring_judge, self.extra_judge] if judge ]
 
     @property
     def teams(self):
