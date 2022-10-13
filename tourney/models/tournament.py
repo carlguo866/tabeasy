@@ -22,6 +22,7 @@ class Tournament(models.Model):
     hide_comments = models.BooleanField(default=False)
     one_judge = models.BooleanField(default=False)
 
+
     def __str__(self):
         return self.name
 

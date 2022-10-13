@@ -9,7 +9,7 @@ from tourney.models.round import Pairing, Round
 from tourney.models.team import Team
 from tourney.models.competitor import Competitor
 
-BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
+BOOL_CHOICESw = ((True, 'Yes'), (False, 'No'))
 INT_CHOICES = [(i,i) for i in range(11)]
 class TeamForm(forms.ModelForm):
     class Meta:

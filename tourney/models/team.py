@@ -51,7 +51,11 @@ class Team(models.Model):
 
     def p_ballot(self):
         if self.p_rounds.count() > 0:
-            return sum([ballot.p_ballot for round in self.p_rounds.all()
+            if self.user.tournament.one_judge:
+                return sum([ballot.p_ballot for round in self.p_rounds.all()
+                            for ballot in round.ballots.all() if ballot.judge == round.presiding_judge])
+            else:
+                return sum([ballot.p_ballot for round in self.p_rounds.all()
                         for ballot in round.ballots.all() if ballot.judge != round.extra_judge
                         and ballot.round.pairing.round_num != 5])
         else:
@@ -59,7 +63,11 @@ class Team(models.Model):
 
     def d_ballot(self):
         if self.d_rounds.count() > 0:
-            return sum([ballot.d_ballot for round in self.d_rounds.all()
+            if self.user.tournament.one_judge:
+                return sum([ballot.d_ballot for round in self.d_rounds.all()
+                        for ballot in round.ballots.all() if ballot.judge == round.presiding_judge])
+            else:
+                return sum([ballot.d_ballot for round in self.d_rounds.all()
                         for ballot in round.ballots.all() if ballot.judge != round.extra_judge
                         and ballot.round.pairing.round_num != 5])
         else:

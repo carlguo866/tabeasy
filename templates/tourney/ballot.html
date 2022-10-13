@@ -162,7 +162,7 @@
 												{% endif %}
 
 											</div>
-											{% if request.user.tournament.hide_comments %}
+											{% if not request.user.tournament.hide_comments %}
 												<div class="row text-start">
 													<div class="p-1">Comments:</div>
 													{{ subsection_form.comment }}
@@ -189,7 +189,7 @@
 													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
 											</div>
-											{% if request.user.tournament.hide_comments %}
+											{% if not request.user.tournament.hide_comments %}
 												<div class="row text-start">
 													<div class="p-1">Comments:</div>
 													{{ subsection_form.comment }}
@@ -221,7 +221,7 @@
 													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
 											</div>
-											{% if request.user.tournament.hide_comments %}
+											{% if not request.user.tournament.hide_comments %}
 												<div class="row text-start">
 													<div class="p-1">Comments:</div>
 													{{ subsection_form.comment }}
@@ -252,7 +252,7 @@
 													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
 											</div>
-											{% if request.user.tournament.hide_comments %}
+											{% if not request.user.tournament.hide_comments %}
 												<div class="row text-start">
 													<div class="p-1">Comments:</div>
 													{{ subsection_form.comment }}
