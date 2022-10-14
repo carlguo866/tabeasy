@@ -80,9 +80,10 @@ class Round(models.Model):
             for round in self.p_team.p_rounds.all():
                 if round != self and round.pairing != self.pairing and round.d_team == self.d_team:
                     errors.append(f"{self.p_team} and {self.d_team} played each other before")
-            for round in self.p_team.d_rounds.all():
-                if round != self and round.pairing != self.pairing and round.p_team == self.d_team:
-                    errors.append(f"{self.p_team} and {self.d_team} played each other before")
+            if self.pairing.conflict_other_side:
+                for round in self.p_team.d_rounds.all():
+                    if round != self and round.pairing != self.pairing and round.p_team == self.d_team:
+                        errors.append(f"{self.p_team} and {self.d_team} played each other before")
 
         if self.pairing.final_submit:
 

@@ -21,7 +21,7 @@ class Tournament(models.Model):
     presiding_judge_script = models.URLField(max_length=200, null=True, blank=True)
     hide_comments = models.BooleanField(default=False)
     one_judge = models.BooleanField(default=False)
-
+    conflict_other_side = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
