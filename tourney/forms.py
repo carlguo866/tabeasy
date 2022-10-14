@@ -96,7 +96,7 @@ class RoundForm(forms.ModelForm):
             else:
                 self.fields['p_team'].queryset = Team.objects.filter(user__tournament=tournament)
                 self.fields['d_team'].queryset = Team.objects.filter(user__tournament=tournament)
-            available_judges_pk = [judge.pk for judge in Judge.objects.all()
+            available_judges_pk = [judge.pk for judge in Judge.objects.filter(user__tournament=tournament)
                                    if judge.get_availability(pairing.round_num)]
             self.fields['presiding_judge'].queryset = \
                 Judge.objects.filter(pk__in=available_judges_pk, preside__gt=0,
