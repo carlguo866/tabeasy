@@ -16,7 +16,7 @@
 		{% endif %}
 		<div class="alert alert-primary" role="alert">
 			Only ONE team should work on the captains meeting form at any given time.
-			Simultaneous changes would override each other. Prosecution should fill the form out first, and then the defense should.
+			Simultaneous changes would override each other. {{request.user.tournament.p_choice}} should fill the form out first, and then the defense should.
 		</div>
 
 		{% for section in section_forms%}
@@ -77,7 +77,7 @@
 									{% endfor %}
 								</li>
 							{% endif %}
-							<li class="list-group-item"><span class="text-primary">Blue</span> denotes Prosecution,
+							<li class="list-group-item"><span class="text-primary">Blue</span> denotes {{request.user.tournament.p_choice}},
 								and <span class="text-secondary">Purple</span> denotes Defense</li>
 
 							</ul>
@@ -85,7 +85,7 @@
 				</div>
 				<div class="card border gx-2">
 					<h5 class="card-header">
-						Prosecution Team Info
+						{{request.user.tournament.p_choice}} Team Info
 					</h5>
 					<div class="card-body text-start">
 							<div class="card-text my-1">Team Name: {{ object.round.p_team }}</div>
@@ -162,7 +162,7 @@
 {##}
 {#								<div class="card-body">#}
 {#									<div class="card-text my-2">#}
-{#										Prosecution announces that they wish to pursue Robbery1 against the following victim(s):#}
+{#										{{request.user.tournament.p_choice}} announces that they wish to pursue Robbery1 against the following victim(s):#}
 {#									</div>#}
 {#									{% render_field form.p_charge class='form-select mt-1' name='p_charge' %}#}
 {#								</div>#}
@@ -195,7 +195,7 @@
 							<div class="col-md-6 pe-4">
 								<div class="card border border-primary">
 									<div class="card-header">
-										Prosecution
+										{{request.user.tournament.p_choice}}
 									</div>
 									<div class="card-body">
 										<ul class="list-group">
@@ -256,7 +256,7 @@
 				<div class="card-group my-3">
 					<div class="card border gx-2">
 						<div class="card-header">
-							Prosecution
+							{{request.user.tournament.p_choice}}
 						</div>
 						<div class="card-body text-start">
 							<ul class="list-group">

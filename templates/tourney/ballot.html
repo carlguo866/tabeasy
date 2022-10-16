@@ -87,14 +87,14 @@
 									Not Submitted
 								{% endif %}
 							</li>
-							<li class="list-group-item"><span class="text-primary">Blue</span> denotes Prosecution,
+							<li class="list-group-item"><span class="text-primary">Blue</span> denotes {{request.user.tournament.p_choice}},
 								and <span class="text-secondary">Purple</span> denotes Defense</li>
 						</ul>
 					</div>
 				</div>
 				<div class="card border gx-2">
 					<h5 class="card-header">
-						Prosecution Team Info
+						{{request.user.tournament.p_choice}} Team Info
 					</h5>
 					<div class="card-body text-start">
 							<div class="card-text my-1">Team Name: {{ object.round.p_team }}</div>
@@ -157,8 +157,8 @@
 										<div class="card-body">
 											<div class="row my-2">
 												{% if request.user.is_judge or request.user.tournament.publish_ballot_scores %}
-													<div class="col-2 py-2">Score:</div>
-													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+													<div class="col-md-2 col-sm-12 py-2">Score:</div>
+													<div class="col-md-10 col-sm-12">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
 
 											</div>
@@ -185,8 +185,8 @@
 										<div class="card-body">
 											<div class="row my-2">
 												{% if request.user.is_judge or request.user.tournament.publish_ballot_scores %}
-													<div class="col-2 py-2">Score:</div>
-													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+													<div class="col-md-2 col-sm-12 py-2">Score:</div>
+													<div class="col-md-10 col-sm-12">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
 											</div>
 											{% if not request.user.tournament.hide_comments %}
@@ -217,8 +217,8 @@
 										<div class="card-body">
 											<div class="row my-2">
 												{% if request.user.is_judge or request.user.tournament.publish_ballot_scores %}
-													<div class="col-2 py-2">Score:</div>
-													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+													<div class="col-md-2 col-sm-12 py-2">Score:</div>
+													<div class="col-md-10 col-sm-12">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
 											</div>
 											{% if not request.user.tournament.hide_comments %}
@@ -248,8 +248,8 @@
 										<div class="card-body">
 											<div class="row my-2">
 												{% if request.user.is_judge or request.user.tournament.publish_ballot_scores %}
-													<div class="col-2 py-2">Score:</div>
-													<div class="col-10">{% render_field subsection_form.score class="form-select" name="score" %}</div>
+													<div class="col-md-2 col-sm-12 py-2">Score:</div>
+													<div class="col-md-10 col-sm-12">{% render_field subsection_form.score class="form-select" name="score" %}</div>
 												{% endif %}
 											</div>
 											{% if not request.user.tournament.hide_comments %}
