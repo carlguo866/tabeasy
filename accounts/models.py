@@ -22,10 +22,7 @@ class User(AbstractUser):
         return [pairing for pairing in Pairing.objects.filter(tournament=self.tournament).order_by('round_num').all() if pairing.team_submit]
 
     def __str__(self):
-        if self.is_team:
-            return f"{self.team.team_name}"
+        if self.first_name != None and self.first_name != '':
+            return f"{self.first_name[0].upper() + self.first_name[1:]} {self.last_name[0].upper() + self.last_name[1:]}"
         else:
-            if self.first_name != None and self.first_name != '':
-                return f"{self.first_name[0].upper() + self.first_name[1:]} {self.last_name[0].upper() + self.last_name[1:]}"
-            else:
-                return f"{self.username}"
+            return f"{self.username}"
