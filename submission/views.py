@@ -199,7 +199,7 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
         else:
             pronouns_forms = [CharacterPronounsForm(request.POST, character=character, captains_meeting=self.object,
                                                     prefix=character.__str__(), form=form)
-                              for character in Character.objects.all()]
+                              for character in Character.objects.filter(tournament=self.object.round.pairing.tournament)]
 
 
         section_forms = []
