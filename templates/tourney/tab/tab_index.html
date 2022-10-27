@@ -9,13 +9,35 @@
 			<div class="card-group my-3">
 				<div class="card border gx-2">
 					<div class="card-header">
-						Pairing
+						Tournament
 
 					</div>
-					<div class="card-body text-start">
-						<a href="{% url 'tourney:pairing_index' %}">
-							<button type="button" class="button button-primary">Pairing</button>
-						</a>
+					<div class="card-body text-start center mt-2">
+
+						<div class="card-text mb-4">
+							<a class="button button-primary py-2" href="{% url 'tourney:pairing_index' %}">
+								Edit Pairings
+							</a>
+						</div>
+
+						<div class="card-text mb-4">
+							<a class="button button-primary py-2" href="#">
+								Tournament Settings
+							</a>
+						</div>
+
+						<div class="card-text mb-4">
+							<a class="button button-primary py-2" href="#">
+								Team List
+							</a>
+						</div>
+
+						<div class="card-text mb-4">
+							<a class="button button-primary py-2" href="#">
+								Judge List
+							</a>
+						</div>
+
 					</div>
 				</div>
 				<div class="card border gx-2">
