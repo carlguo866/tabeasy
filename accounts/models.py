@@ -25,7 +25,9 @@ class User(AbstractUser):
         if self.is_team:
             return self.team.team_name
         else:
-            if self.first_name != None and self.first_name != '':
+            if self.first_name and self.last_name:
                 return f"{self.first_name.title()} {self.last_name.title()}"
+            elif self.first_name:
+                return f"{self.first_name.title()}"
             else:
                 return f"{self.username}"
