@@ -26,6 +26,6 @@ class User(AbstractUser):
             return self.team.team_name
         else:
             if self.first_name != None and self.first_name != '':
-                return f"{self.first_name[0].upper() + self.first_name[1:]} {self.last_name[0].upper() + self.last_name[1:]}"
+                return f"{self.first_name.title()} {self.last_name.title()}"
             else:
                 return f"{self.username}"

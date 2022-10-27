@@ -1,33 +1,61 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block css %}
+
+	<style>
+	#intro {
+		height: 100vh;
+	}
+	/* Height for devices larger than 576px */
+	.navbar .nav-link {
+	color: #fff !important;
+	}
+</style>
+{% endblock css %}
 
 {% block content %}
-    {% if form.errors %}
-        <div class="alert alert-danger" role="alert">
-            Your username and password didn't match. Please try again.
-        </div>
-    {% endif %}
+		{% if form.errors %}
+				<div class="alert alert-danger" role="alert">
+						Your username and password didn't match. Please try again.
+				</div>
+		{% endif %}
 
-    {% if next %}
-        {% if user.is_authenticated %}
-            <div class="alert alert-primary" role="alert">
-                Your account doesn't have access to this page. To proceed,
-                please login with an account that has access.
-            </div>
-        {% else %}
-            <div class="alert alert-primary" role="alert">
-                Please login to see this page.
-            </div>
-        {% endif %}
-    {% else %}
-			<h1>Login</h1>
-    {% endif %}
+		{% if next %}
+				{% if user.is_authenticated %}
+						<div class="alert alert-primary" role="alert">
+								Your account doesn't have access to this page. To proceed,
+								please login with an account that has access.
+						</div>
+				{% else %}
+						<div class="alert alert-primary" role="alert">
+								Please login to see this page.
+						</div>
+				{% endif %}
+		{% endif %}
 
-		<form method="post">
-			{% csrf_token %}
-			{% include "utils/form_content.html" with form=form %}
-			<br>
-			<button class='button button-primary' type="submit">Login</button>
-		 	<input type="hidden" name="next" value="{{ next }}"/>
-		</form>
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-xl-5 col-md-8">
+					<form id='inputform' class="bg-white rounded shadow-5-strong p-5" method="post" action="{% url 'accounts:login' %}">
+						<h5 class="mb-4 center"><strong>Login</strong></h5>
+						{% csrf_token %}
+						<div class="form-outline mb-4">
+							<input name="username" type="text"  id="form1Example1" class="form-control" required/>
+							<label class="form-label" for="form1Example1">Username</label>
+						</div>
+
+						<!-- Password input -->
+						<div class="form-outline mb-4">
+							<input name="password" type="password" id="form1Example2" class="form-control" required/>
+							<label class="form-label" for="form1Example2">Password</label>
+						</div>
+
+						<!-- Submit button -->
+						<button type="submit" class="btn btn-primary btn-block">Sign in</button>
+						<input type="hidden" name="next" data-index="3" value="{{ next }}"/>
+					</form>
+				</div>
+			</div>
+		</div>
 
 {% endblock content %}

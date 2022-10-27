@@ -153,6 +153,8 @@ def pairing_index(request):
     else:
         next_round = 1
     dict = {'pairings': pairings, 'next_round': next_round }
+    if request.session.get('extra'):
+        dict.update(request.session['extra'])
     return render(request, 'tourney/pairing/main.html', dict)
 
 @user_passes_test(lambda u: u.is_staff)
@@ -347,9 +349,19 @@ def edit_pairing(request, round_num):
 
 @user_passes_test(lambda u: u.is_staff)
 def delete_pairing(request, round_num):
-    if Pairing.objects.filter(tournament=request.user.tournament, round_num=round_num).exists():
-        Pairing.objects.filter(tournament=request.user.tournament, round_num=round_num).delete()
+    errors = []
+    cur_pairing = Pairing.objects.filter(tournament=request.user.tournament, round_num=round_num)
+    if cur_pairing.exists():
+        pairing_list = Pairing.objects.filter(tournament=request.user.tournament\
+                                                     ).order_by('round_num')
+        if pairing_list[len(pairing_list)-1] == cur_pairing[0]:
+            Pairing.objects.filter(tournament=request.user.tournament, round_num=round_num).delete()
+        else:
+            errors.append('You can only delete the last pairing!')
+    request.session['extra'] = {'errors': errors}
     return redirect('tourney:pairing_index')
+
+        # request, 'tourney/pairing/main.html', {'errors':errors})
 
 @login_required
 def view_pairing(request, pk):

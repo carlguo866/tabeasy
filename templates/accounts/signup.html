@@ -9,22 +9,31 @@
 
 
 <div class="signup-container">
-	{% for form in forms %}
-		{% if form.errors %}
-			{% for key, value in form.errors.items %}
-				<div class="alert alert-danger" role="alert">{{ value }}</div>
-			{% endfor %}
-		{% endif %}
-	{% endfor %}
-	<h1>Judge Signup</h1>
-	<form method="post">
-		{% csrf_token %}
-		{% include "utils/combined_forms.html" with combined_forms=forms %}
+<div class="container-md center">
+	<h5>
+		If you plan to host a tournament on Tabeasy, please contact Carl Guo @ <a class="link-primary" href="mailto:carlguo@mit.edu">carlguo@mit.edu</a>.
+	</h5>
+	<h5>
+		If you are a competitor or judge, please contact your Tournament Officials for an account.
+	</h5>
+</div>
+
+{#	{% for form in forms %}#}
+{#		{% if form.errors %}#}
+{#			{% for key, value in form.errors.items %}#}
+{#				<div class="alert alert-danger" role="alert">{{ value }}</div>#}
+{#			{% endfor %}#}
+{#		{% endif %}#}
+{#	{% endfor %}#}
+{#	<h1>Judge Signup</h1>#}
+{#	<form method="post">#}
+{#		{% csrf_token %}#}
+{#		{% include "utils/combined_forms.html" with combined_forms=forms %}#}
 {#		<strong>Round Times:</strong><br>#}
 {#		<img src="{% static 'img/round_time.jpeg' %}" width="800" height="auto" class="mb-4">#}
-		<br>
-		<button class='button button-primary' type="submit">Sign up</button>
-	</form>
+{#		<br>#}
+{#		<button class='button button-primary' type="submit">Sign up</button>#}
+{#	</form>#}
 </div>
 
 {% endblock %}

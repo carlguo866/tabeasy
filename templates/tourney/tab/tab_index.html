@@ -22,13 +22,19 @@
 					<div class="card-header">
 						Results
 					</div>
-					<div class="card-body text-start">
-						<a href="{% url 'tourney:results' %}">
-							<button type="button" class="button button-primary mb-2">Teams</button>
-						</a>
-						<a href="{% url 'tourney:individual_awards' %}">
-							<button type="button" class="button button-primary mb-2">Individual Awards</button>
-						</a>
+					<div class="card-body text-start center mt-2">
+
+						<div class="card-text mb-4">
+							<a class="button button-primary py-2" href="{% url 'tourney:results' %}">
+								Results
+							</a>
+						</div>
+
+						<div class="card-text mb-4">
+							<a class="button button-primary py-2" href="{% url 'tourney:individual_awards' %}">
+								Individual Awards
+							</a>
+						</div>
 
 					</div>
 				</div>

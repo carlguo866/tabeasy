@@ -71,7 +71,7 @@
 				</a>
 
 				<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-						<li><a class="dropdown-item" href="{% url "index" %}">Login</a></li>
+						<li><a class="dropdown-item" href="{% url "accounts:login" %}">Login</a></li>
 						<li><a class="dropdown-item" href="{% url "accounts:signup" %}">Judge Signup</a></li>
 				</ul>
 			</div>
@@ -147,7 +147,7 @@
 		<span id="copyright-info">
 			Tabeasy is made to be completely free of charge. If you enjoy using the website,
 			please consider <a class="link-primary" href="{% url 'donate' %}">donating</a> or contact
-			<a class="link-primary" href="mailto:carlguo866@gmail.com">carlguo866@gmail.com</a> for future usage.
+			<a class="link-primary" href="mailto:carlguo@mit.edu">carlguo@mit.edu</a> for future usage.
 		</span>
 
 		<div id="footer-icon-container">
@@ -163,6 +163,6 @@
 <script type="text/javascript" src="{% static 'js/mdb.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
 <script src="https://kit.fontawesome.com/63d734a68c.js" crossorigin="anonymous"></script>
-	{% block js %}{% endblock js %}
+{% block js %}{% endblock js %}
 
 </html>

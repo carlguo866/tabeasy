@@ -4,10 +4,18 @@
 
 {% block content %}
 	<div class="container-md center">
+		{% if errors %}
+			{% for error in errors %}
+				<div class="alert alert-danger" role="alert">
+					{{ error }}
+				</div>
+			{% endfor %}
+		{% endif %}
+
 		<h1>Pairings</h1>
 			{% for pairing in pairings %}
-
-					<h3>Round {{ pairing.0.round_num }} Pairing</h3>
+				<div class="m-4">
+					<h3>Round {{ pairing.0.round_num }}</h3>
 					{% for div_pairing in pairing %}
 						<div class="row gx-2 pb-3">
 							{% if pairing.division != None %}
@@ -57,7 +65,7 @@
 								{% endif %}
 							</div>
 							<div class="div mx-2">
-								Published?
+								Results published after round ends?
 								{% if div_pairing.publish %}
 									<i class="fa-solid fa-check mx-1"></i>
 								{% else %}
@@ -70,20 +78,24 @@
 
 				<div class="d-flex justify-content-center">
 					<a href="{% url 'tourney:edit_pairing' pairing.0.round_num %}">
-						<button type="button" class="button button-primary m-2">Edit Round {{ pairing.0.round_num }} Pairing</button>
+						<button type="button" class="button button-primary m-2">Edit Pairing {{ pairing.0.round_num }} Pairing</button>
 					</a>
 {#					<a href="{% url 'tourney:delete_pairing' pairing.0.round_num %}">#}
 {#						<button type="button" class="button button-primary m-2">Delete Round {{ pairing.0.round_num }} Pairing</button>#}
 {#					</a>#}
 					<a href="{% url 'tourney:checkin_judges' pairing.0.round_num %}">
-						<button type="button" class="button button-primary m-2">Checkin Judges</button>
+						<button type="button" class="button button-primary m-2" >Checkin Judges</button>
+					</a>
+					<a href="{% url 'tourney:delete_pairing' pairing.0.round_num %}">
+						<button type="button" class="button button-primary m-2" onclick="return confirm('Are you sure you want to delete Pairing {{ pairing.0.round_num }}?');">Delete Pairing</button>
 					</a>
 
 				</div>
+			</div>
 			{% endfor %}
 
 	<a href="{% url 'tourney:edit_pairing' next_round %}">
-		<button type="button" class="button button-primary">Add</button>
+		<button type="button" class="button button-primary">Add Pairing</button>
 	</a>
 
 	<a href="{% url 'tourney:next_pairing' %}">
