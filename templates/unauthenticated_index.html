@@ -5,54 +5,112 @@
 {% endblock %}
 
 {% block content %}
-    <div class="homepage-container">
+
+		<div class="container-md center">
+			<h1 class="mt-5">Tabeasy
+				<img src="{% static "img/base/logo.png" %}" alt='' width="52.6" height="50" class="d-inline-block align-text-center">
+				&mdash;</h1>
+			<h2 class="mt-2s">Making Mock Trial Tournament Hosting Easy.</h2>
+
+			<div class="homepage-row center my-4">
+        <img src="{% static "img/homepage/downward_arrow.png" %}" id="chevron-down">
+      </div>
+
+			<div class="shadow-2-strong center my-4">
+        <img src="{% static "img/homepage/homepage_demo.jpg" %}">
+      </div>
+
+			<div class="homepage-row center my-4">
+        <img src="{% static "img/homepage/downward_arrow.png" %}" id="chevron-down">
+      </div>
+
+		</div>
+
+
+    <div class="homepage-container my-4">
       <div class="homepage-row">
         <div class="homepage-section">
-          <h1>Solve Chinese Characters Like Riddles</h1>
-            <div class="description-container">
-              Learning Chinese characters can be more intuitive, fun, and culturally meaningful.
-            </div>
+          <h1>No More Manual Tabrooms</h1>
+					<div class="description-container">
+						Tabulating a tournament by hand is difficult, tedious, and error-prone. Tabeasy can change that.
+					</div>
         </div>
-        <div class="homepage-section">
-          <img src="{% static "images/homepage/slice1.png" %}">
-        </div>
-      </div>
-      <div class="homepage-row center">
-        <img src="{% static "images/homepage/slice6.png" %}" id="chevron-down">
-      </div>
-      <div class="homepage-row reversed">
-        <div class="homepage-section">
-          <h1>Radical Breakdown</h1>
-            <div class="description-container">
-              Chinese characters can look intimidating. That's why we break them down into their basic building blocks (radicals) so you can stop memorizing and start understanding.
-            </div>
-        </div>
-        <div class="homepage-section">
-          <img src="{% static "images/homepage/slice3.png" %}" style="width:100%;">
-        </div>
-      </div>
-      <div class="homepage-row">
-        <div class="homepage-section">
-          <h1>Intelligent Review</h1>
-            <div class="description-container">
-              Stop forgetting, and cut the useless repetitions too -- our intelligent Spaced Repetition algorithm creates a personalized review plan based on your past performances, so that it works just right for you.
-            </div>
-        </div>
-        <div class="homepage-section">
-          <img src="{% static "images/homepage/slice4.png" %}">
-        </div>
-      </div>
-      <div class="homepage-row reversed">
-        <div class="homepage-section">
-          <h1>Visual chunking</h1>
-            <div class="description-container">
-              The color chunks make it easier for you to recall the composition of each character.
-            </div>
-        </div>
-        <div class="homepage-section">
-          <img src="{% static "images/homepage/slice5.png" %}" style="width:100%;">
+       	<div class="homepage-section">
+          <h1>Fast, Automated Tabulation System</h1>
+					<div class="description-container">
+						Pairing generation, ballot collection, &amp; award calculation, all within seconds.
+					</div>
         </div>
       </div>
     </div>
+
+		<div class="container-sm">
+			<div class="card">
+				<h3 class="card-header my-1">
+					User Testimonials:
+				</h3>
+				<div class="card-group my-3">
+					<div class="card gx-3">
+{#						<img src="{% static 'img/homepage/iain_profile_pic.jpeg' %}" width="250" class="rounded mx-auto d-block">#}
+						<div class="card-body">
+							<div class="card-text mx-2" style="font-size: 17px;">
+							"I’ve judged at two Tabeasy competitions, administrating the second, and I don’t see any need to use a different system. If you have a couple hours, an internet connection, and a love for this great activity, you owe it to your colleagues, students, and self to try Tabeasy."
+							</div>
+							<br>
+							<div class="text-end" style="font-size: 17px;">
+									&mdash; Iain Lampert, 2 times AMTA winner
+							</div>
+						</div>
+					</div>
+					<div class="card gx-3">
+						<div class="card-body">
+							<div class="card-text mx-2" style="font-size: 17px;">
+								"I’m extremely grateful to Carl for developing Tabeasy — a superb mock trial tabulation tool. Using it for three tournaments, everything was smooth, and it certainly saved us a tremendous amount of time."
+							</div>
+							<br>
+							<div class="text-end" style="font-size: 17px;">
+									&mdash; Max Wang, Director of PPMT, Biggest Chinese MT Tournament
+							</div>
+						</div>
+					</div>
+{#					<div class="card gx-3">#}
+{#						<img src="{% static 'img/homepage/iain_profile_pic.jpeg' %}" width="250" class="rounded mx-auto d-block">#}
+{#						<div class="card-body">#}
+{#							<div class="card-text mx-2" style="font-size: 17px;">#}
+{#							"I’ve judged at two Tabeasy competitions, administrating the second, and I don’t see any need to use a different system. If you have a couple hours, an internet connection, and a love for this great activity, you owe it to your colleagues, students, and self to try Tabeasy."#}
+{#							</div>#}
+{#							<div class="text-center" style="font-size: 17px;">#}
+{#									&mdash; Iain Lampert, 2 times AMTA winner#}
+{#							</div>#}
+{#						</div>#}
+{#					</div>#}
+				</div>
+			</div>
+		</div>
+
+		<div class="homepage-row center my-4">
+			<img src="{% static "img/homepage/downward_arrow.png" %}" id="chevron-down">
+		</div>
+
+		<h1 class="center">Try it now!</h1>
+		<div class="homepage-container my-4">
+      <div class="homepage-row">
+				<div class="homepage-section">
+					<div class="description-container">
+						If you plan to host a tournament on Tabeasy, please contact Carl Guo @ <a class="link-primary" href="mailto:carlguo@mit.edu">carlguo@mit.edu</a>.
+					</div>
+        </div>
+				<div class="homepage-section">
+          <div class="mb-4">
+						&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp; or &nbsp; &nbsp;
+						<a class="button button-primary py-2" style="font-size:20px" href="{% url 'accounts:login' %}">
+							Login
+						</a>
+					</div>
+        </div>
+      </div>
+    </div>
+		<br><br>
+
 
 {% endblock content %}
