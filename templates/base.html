@@ -45,6 +45,10 @@
 		</a>
 
 		{% if user.is_authenticated %}
+			<a class="navbar-item button button-primary" id="menu-toggle"
+				 href="javascript:void(0);" onclick="mobileMenuToggle()">
+				<i class="fa-solid fa-bars"></i>
+			</a>
 			<div class="navbar-item dropdown" id="menu">
 				<a class="button button-text-only dropdown-toggle" href="{% url "index" %}" role="button"
 					 id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
