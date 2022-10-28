@@ -72,16 +72,9 @@
 				 href="javascript:void(0);" onclick="mobileMenuToggle()">
 				<i class="far fa-bars"></i>
 			</a>
-			<div class="navbar-item dropdown" id="menu">
-				<a class="button button-text-only dropdown-toggle" href="{% url "index" %}" role="button"
-					 id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-					Account
-				</a>
-
-				<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-						<li><a class="dropdown-item" href="{% url "accounts:login" %}">Login</a></li>
-						<li><a class="dropdown-item" href="{% url "accounts:signup" %}">Signup</a></li>
-				</ul>
+			<div class="navbar-item" id="menu">
+				<a class="button button-text-only" href="{% url "accounts:login" %}">Login</a>
+				<a class="button button-text-only" href="{% url "accounts:signup" %}">Sign Up</a>
 			</div>
 
 		{% endif %}
