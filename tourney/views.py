@@ -591,7 +591,7 @@ def load_judges(request):
                 preside = 0
             availability = []
             for j in range(4, 9):
-                if worksheet.cell(i, j).value == 'y' or worksheet.cell(i, j).value == 'YES':
+                if worksheet.cell(i, j).value in ['y', 'YES', 'Y', 'Yes']:
                     availability.append(True)
                 else:
                     availability.append(False)
