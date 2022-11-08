@@ -45,30 +45,32 @@ class Team(models.Model):
             for round in self.rounds():
                 if round.pairing.publish:
                     for ballot in round.ballots.all():
-                        if ballot.judge != round.extra_judge:
+                        if self.user.tournament.judges == 3 or ballot.judge != round.extra_judge:
                             ballots.append(ballot)
         return ballots
 
     def p_ballot(self):
         if self.p_rounds.count() > 0:
-            if self.user.tournament.one_judge:
+            if self.user.tournament.judges == 1:
                 return sum([ballot.p_ballot for round in self.p_rounds.all()
                             for ballot in round.ballots.all() if ballot.judge == round.presiding_judge])
             else:
                 return sum([ballot.p_ballot for round in self.p_rounds.all()
-                        for ballot in round.ballots.all() if ballot.judge != round.extra_judge
+                        for ballot in round.ballots.all() if self.user.tournament.judges == 3  or \
+                            ballot.judge != round.extra_judge
                         and ballot.round.pairing.round_num != 5])
         else:
             return 0
 
     def d_ballot(self):
         if self.d_rounds.count() > 0:
-            if self.user.tournament.one_judge:
+            if self.user.tournament.judges == 1:
                 return sum([ballot.d_ballot for round in self.d_rounds.all()
                         for ballot in round.ballots.all() if ballot.judge == round.presiding_judge])
             else:
                 return sum([ballot.d_ballot for round in self.d_rounds.all()
-                        for ballot in round.ballots.all() if ballot.judge != round.extra_judge
+                        for ballot in round.ballots.all() if self.user.tournament.judges == 3  or \
+                            ballot.judge != round.extra_judge
                         and ballot.round.pairing.round_num != 5])
         else:
             return 0
@@ -89,10 +91,12 @@ class Team(models.Model):
     def total_pd(self):
         if self.d_rounds.count() > 0 or self.p_rounds.count() > 0:
             p_pd = sum([ballot.p_pd for round in self.p_rounds.all()
-                        for ballot in round.ballots.all() if ballot.judge != round.extra_judge
+                        for ballot in round.ballots.all() if self.user.tournament.judges == 3  or \
+                            ballot.judge != round.extra_judge
                         and ballot.round.pairing.round_num != 5])
             d_pd = sum([ballot.d_pd for round in self.d_rounds.all()
-                        for ballot in round.ballots.all() if ballot.judge != round.extra_judge
+                        for ballot in round.ballots.all() if self.user.tournament.judges == 3  or \
+                            ballot.judge != round.extra_judge
                         and ballot.round.pairing.round_num != 5])
             return p_pd + d_pd
         else:

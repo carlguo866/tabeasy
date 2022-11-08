@@ -114,7 +114,7 @@ class RoundForm(forms.ModelForm):
         if self.instance.pairing.final_submit == True:
             if not cleaned_data.get('presiding_judge'):
                 errors.append(f"You haven't assigned presiding judge for {self.instance} yet before checking for conflicts")
-            if not self.instance.pairing.tournament.one_judge and not cleaned_data.get('scoring_judge'):
+            if not self.instance.pairing.tournament.judges == 1 and not cleaned_data.get('scoring_judge'):
                 errors.append(f"You haven't assigned presiding judge for {self.instance} yet before checking for conflicts")
 
 

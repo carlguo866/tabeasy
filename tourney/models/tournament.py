@@ -20,7 +20,7 @@ class Tournament(models.Model):
     zoom_link = models.URLField(max_length=200, null=True, blank=True)
     presiding_judge_script = models.URLField(max_length=200, null=True, blank=True)
     hide_comments = models.BooleanField(default=False)
-    one_judge = models.BooleanField(default=False)
+    judges = models.IntegerField(default=2)
     conflict_other_side = models.BooleanField(default=True)
 
     def __str__(self):
