@@ -666,7 +666,7 @@ def load_judges(request):
             preside = worksheet.cell(i,3).value
             if preside == 'CIN' or 'No preference':
                 preside = 2
-            elif preside == ['Y', 'Presiding', 'Yes', 'y', 'YES']:
+            elif preside in ['Y', 'Presiding', 'Yes', 'y', 'YES']:
                 preside = 1
             else:
                 preside = 0
