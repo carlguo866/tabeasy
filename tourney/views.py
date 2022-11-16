@@ -803,6 +803,13 @@ def load_paradigms(request):
         return render(request, 'admin/load_excel.html', {"list": list})
 
 
+amta_witnesses = {
+        'P': ['Ari Felder', 'Aubrey Roy', 'Drew Hubbard', 'Jamie Savchenko'],
+        'D': ['Casey Koller', 'Kennedy Heisman', 'R. Moore'],
+        'other': ['D.B. Gelfand', 'Mandy Navarra', 'Shannon Shahid'],
+    }
+
+
 @user_passes_test(lambda u: u.is_staff)
 def load_sections(request):
     tournament = request.user.tournament
@@ -879,6 +886,15 @@ def load_sections(request):
                                   type='statement',
                                   help_text=f'{tournament.p_choice} Closing',
                                   sequence=i)
+    return redirect('index')
+
+
+@user_passes_test(lambda u: u.is_staff)
+def load_amta_witnesses(request):
+    tournament = request.user.tournament
+    for side, witnesses in amta_witnesses.items():
+        for witness in witnesses:
+            Character.objects.create(tournament=tournament, name=witness, side=side)
     return redirect('index')
 
 def donate(request):
