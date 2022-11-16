@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
+		{% for field in form %}
+		<div class="form-group col-md-12 p-1 my-2">
+			{% if field.help_text %}
+				<strong>{{ field.help_text }}</strong>
+				{% else %}
+				<strong>{{ field.label_tag }}</strong>
+			{% endif %}
+			<br>
+			{{ field }}
+		</div>
+		{% endfor %}
+		<br>
+    <input class="button button-primary" type="submit" value="Save">
+  </form>
+
+
+
+{% endblock content %}

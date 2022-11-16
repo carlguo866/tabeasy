@@ -89,6 +89,9 @@
 					<a href="{% url 'tourney:delete_pairing' pairing.0.round_num %}">
 						<button type="button" class="button button-primary m-2" onclick="return confirm('Are you sure you want to delete Pairing {{ pairing.0.round_num }}?');">Delete Pairing</button>
 					</a>
+					<a href="{% url 'tourney:next_pairing' pairing.0.round_num %}">
+						<button type="button" class="button button-primary m-2">(Tentative) Next Pairing</button>
+					</a>
 
 				</div>
 			</div>
@@ -98,11 +101,7 @@
 		<button type="button" class="button button-primary">Add Pairing</button>
 	</a>
 
-	<a href="{% url 'tourney:next_pairing' %}">
-		<button type="button" class="button button-primary">Next Pairing</button>
-	</a>
 
-
-	</div>
+</div>
 
 {% endblock content %}

@@ -9,6 +9,17 @@ class JudgeOnlyMixin(django.contrib.auth.mixins.UserPassesTestMixin):
                and self.request.user.is_judge
 
 
+
+class TabOnlyMixin(django.contrib.auth.mixins.UserPassesTestMixin):
+    permission_denied_message = "Only tab officers can access this page"
+
+    def test_func(self):
+        return self.request.user.is_authenticated \
+               and self.request.user.is_staff
+
+
+
+
 class PassRequestToFormViewMixin:
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

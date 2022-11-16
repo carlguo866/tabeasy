@@ -10,7 +10,7 @@ class Team(models.Model):
 
     team_name = models.CharField(
         max_length=100,
-        default='PPMT Team',
+        default='Team',
         null=True
     )
     division_choices = [('Disney', 'Disney'), ('Universal', 'Universal')]
@@ -22,7 +22,7 @@ class Team(models.Model):
     )
     school = models.CharField(
         max_length=100,
-        default='placeholder',
+        default='',
         null=True
     )
     def __str__(self):

@@ -13,9 +13,6 @@ class SignUpForm(UserCreationForm):
         help_text="Must contain at least 4 characters.",
     )
 
-    verification_code = forms.CharField(max_length=40, help_text='We sent this code by email in the instruction to verify that you are a judge.')
-
-
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'password1', 'password2','tournament')
@@ -27,11 +24,3 @@ class SignUpForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
-        self.fields['verification_code'].label = 'Verification Code'
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if cleaned_data.get('verification_code') != JUDGE_VERIFICATION_CODE:
-            raise ValidationError(
-                        f"Wrong validation code, or ... you are not a judge?")
-

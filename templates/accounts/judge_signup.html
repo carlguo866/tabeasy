@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+	<link rel='stylesheet' href='{% static 'styles/signup.css' %}'>
+{% endblock css %}
+
+{% block content %}
+
+
+<div class="signup-container">
+	{% for form in forms %}
+		{% if form.errors %}
+			{% for key, value in form.errors.items %}
+				<div class="alert alert-danger" role="alert">{{ value }}</div>
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
+	<h1>Judge Signup</h1>
+	<form method="post">
+		{% csrf_token %}
+		{% include "utils/combined_forms.html" with combined_forms=forms %}
+{#		<strong>Round Times:</strong><br>#}
+{#		<img src="{% static 'img/round_time.jpeg' %}" width="800" height="auto" class="mb-4">#}
+		<br>
+		<button class='button button-primary' type="submit">Sign up</button>
+	</form>
+</div>
+
+{% endblock %}

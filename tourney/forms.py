@@ -4,6 +4,7 @@ from django.forms import MultipleChoiceField
 from django.forms.models import ModelChoiceIterator, BaseInlineFormSet
 
 from tabeasy.settings import DEBUG
+from tourney.models import Tournament
 from tourney.models.judge import Judge
 from tourney.models.round import Pairing, Round
 from tourney.models.team import Team
@@ -11,10 +12,12 @@ from tourney.models.competitor import Competitor
 
 BOOL_CHOICESw = ((True, 'Yes'), (False, 'No'))
 INT_CHOICES = [(i,i) for i in range(11)]
+
+
 class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
-        fields = []
+        fields = ['team_name', 'school']
 
 JUDGE_AVAILABILITY_CHOICES = [
     ('available_round1', 'Round 1'),
@@ -22,6 +25,13 @@ JUDGE_AVAILABILITY_CHOICES = [
     ('available_round3', 'Round 3'),
     ('available_round4', 'Round 4'),
 ]
+
+
+class TournamentForm(forms.ModelForm):
+    class Meta:
+        model = Tournament
+        fields = '__all__'
+        exclude = ['split_division', 'rank_nums', 'conflict_other_side']
 
 class JudgeForm(forms.ModelForm):
 
@@ -55,6 +65,12 @@ class JudgeForm(forms.ModelForm):
             m.save()
         return m
 
+
+class CompetitorForm(forms.ModelForm):
+    class Meta:
+        model = Competitor
+        fields = '__all__'
+        exclude = ['name', 'pronouns']
 
 
 class PairingSubmitForm(forms.ModelForm):
@@ -154,6 +170,7 @@ class PairingFormSet(BaseInlineFormSet):
     # def __init__(self, *args, **kwargs):
     #     self.other_form = kwargs.pop('other_form')
     #     super(PairingFormSet, self).__init__(*args, **kwargs)
+
 
     def clean(self):
         super().clean()

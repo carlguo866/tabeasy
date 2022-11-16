@@ -16,12 +16,13 @@ from submission.models.paradigm import Paradigm, ParadigmPreferenceItem, Paradig
     experience_description_choices
 from submission.models.section import Section, SubSection
 from tabeasy.settings import DEBUG
-from tabeasy.utils.mixins import JudgeOnlyMixin, PassRequestToFormViewMixin
+from tabeasy.utils.mixins import JudgeOnlyMixin, PassRequestToFormViewMixin, TabOnlyMixin
 from tabeasy_secrets.secret import  str_int
 from tourney.forms import RoundForm, UpdateConflictForm, UpdateJudgeFriendForm, PairingFormSet, PairingSubmitForm, \
-    JudgeForm, CheckinJudgeForm, CompetitorPronounsForm
+    JudgeForm, CheckinJudgeForm, CompetitorPronounsForm, TournamentForm, CompetitorForm, TeamForm
 from submission.models.ballot import Ballot
 from submission.models.character import Character, CharacterPronouns
+from tourney.models import Tournament
 from tourney.models.judge import Judge
 from tourney.models.round import Round, Pairing
 from tourney.models.team import Team
@@ -73,13 +74,13 @@ def individual_awards(request):
 
 
 @user_passes_test(lambda u: u.is_staff)
-def next_pairing(request):
+def next_pairing(request, round_num):
     tournament = request.user.tournament
-    if Pairing.objects.filter(tournament=tournament).exists():
-        next_round = max([pairing.round_num for pairing in Pairing.objects.filter(tournament=tournament)])+1
-    else:
-        next_round = 1
-
+    # if Pairing.objects.filter(tournament=tournament).exists():
+    #     next_round = max([pairing.round_num for pairing in Pairing.objects.filter(tournament=tournament)])+1
+    # else:
+    #     next_round = 1
+    next_round = round_num +1
     if tournament.split_division:
         if next_round % 2 == 0:
             i_d_teams = sort_teams([team for team in Team.objects.filter(division='Disney')
@@ -374,7 +375,6 @@ def view_pairing(request, pk):
 
 @user_passes_test(lambda u: u.is_staff)
 def checkin_judges(request, round_num):
-
     if request.method == "POST":
         form = CheckinJudgeForm(request.POST, round_num=round_num, request=request)
         if form.is_valid():
@@ -386,6 +386,80 @@ def checkin_judges(request, round_num):
         form = CheckinJudgeForm(round_num=round_num, request=request)
 
     return render(request, 'tourney/tab/checkin_judges.html',{'form':form, 'round_num':round_num})
+
+
+
+@user_passes_test(lambda u: u.is_staff)
+def view_teams(request):
+    teams = Team.objects.filter(user__tournament=request.user.tournament)
+    return render(request, 'tourney/tab/view_teams.html',{'teams': teams})
+
+
+
+@user_passes_test(lambda u: u.is_staff)
+def view_judges(request):
+    judges = Judge.objects.filter(user__tournament=request.user.tournament)
+    return render(request, 'tourney/tab/view_judges.html',{'judges': judges})
+
+@user_passes_test(lambda u: u.is_staff)
+def view_individual_judge(request, pk):
+    judge = Judge.objects.get(pk=pk)
+
+    if request.method == 'POST':
+        user_form = UpdateConflictForm(data=request.POST, instance=judge, request=request)
+        judge_form = JudgeForm(data=request.POST, instance=judge)
+        if user_form.is_valid() and judge_form.is_valid():
+            user = user_form.save()
+            judge_form.save()
+            return redirect('index')
+    else:
+        user_form = UpdateConflictForm(instance=judge, request=request)
+        judge_form = JudgeForm(instance=judge)
+
+    context = {'conflict_form': user_form, 'preference_form': judge_form}
+    return render(request, 'tourney/tab/view_individual_judge.html', context)
+
+
+@user_passes_test(lambda u: u.is_staff)
+def view_individual_team(request, pk):
+    tournament = request.user.tournament
+    # if not Team.objects.filter(user__tournament=tournament, pk=pk).exists():
+    #     team = Team.objects.create(user__tournament=tournament)
+    # else:
+    team = Team.objects.get(user__tournament=tournament,pk=pk)
+
+    FormSet = inlineformset_factory(Team, Competitor,fields=('name', 'pronouns'),
+                                         max_num=12, validate_max=True,
+                                         extra=6)
+
+    if request.method == 'POST':
+        formset = FormSet(request.POST, request.FILES,prefix='competitors', instance=team)
+        team_form = TeamForm(data=request.POST, instance=team)
+        if formset.is_valid() and team_form.is_valid():
+            team_form.save()
+            formset.save()
+            return redirect('index')
+    else:
+        formset = FormSet(prefix='competitors', instance=team)
+        team_form = TeamForm(instance=team)
+
+    context = {'formset': formset, 'team_form': team_form}
+    return render(request, 'tourney/tab/view_individual_team.html', context)
+
+
+
+@user_passes_test(lambda u: u.is_staff)
+def delete_individual_judge(request, pk):
+    Judge.objects.get(pk=pk).delete()
+    return redirect('tourney:view_judges')
+
+
+@user_passes_test(lambda u: u.is_staff)
+def delete_individual_team(request, pk):
+    Team.objects.get(pk=pk).delete()
+    return redirect('tourney:view_teams')
+
+
 
 @user_passes_test(lambda u: u.is_staff)
 def clear_checkin(request):
@@ -426,6 +500,18 @@ def view_captains_meeting_status(request, pairing_id):
 # #         if form.is_valid():
 # #
 # #     return render(request, 'tourney/add_conflict.html', {'form':form})
+
+class TournamentUpdateView(TabOnlyMixin, UpdateView):
+    model = Tournament
+    form_class = TournamentForm
+    template_name = 'utils/generic_form_help_text.html'
+
+    def get_object(self, queryset=None):
+        return self.request.user.tournament
+
+    success_url = reverse_lazy('index')
+
+
 
 class ConflictUpdateView(JudgeOnlyMixin, PassRequestToFormViewMixin, UpdateView):
     model = Judge
@@ -534,7 +620,7 @@ def load_teams(request):
                 if Team.objects.filter(pk=pk).exists():
                     Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
                     team = Team.objects.get(pk=pk)
-                    message += f' update team {team.pk} '
+                    message += f' update team {team.pk} \n'
                 else:
                     raw_password = worksheet.cell(i,17).value
                     username = ''.join(team_name.split(' '))
@@ -544,19 +630,19 @@ def load_teams(request):
                     user.tournament = request.user.tournament
                     user.save()
                     team = Team.objects.create(user=user, team_name=team_name,division=division,school=school)
-                    message += f' create team {team.pk} '
+                    message += f' create team {team.pk} \n'
 
                 for name in team_roster:
                     if Competitor.objects.filter(team=team, name=name).exists():
-                        message += f' update member {name} '
+                        message += f' update member {name} \n'
                         Competitor.objects.filter(team=team, name=name).update(team=team,name=name)
                     else:
-                        message += f' create member {name} '
+                        message += f' create member {name} \n'
                         Competitor.objects.create(name=name,team=team)
             except Exception as e:
                 message += str(e)
             else:
-                message += ' success '
+                message += ' success \n'
             list.append(message)
         return render(request, 'admin/load_excel.html', {"list": list})
 
@@ -603,7 +689,7 @@ def load_judges(request):
             message = ''
             try:
                 if Judge.objects.filter(user__username=username).exists():
-                    message += f'update judge {username}'
+                    message += f'update judge {username} \n'
                     judge = Judge.objects.get(user__username=username)
                     user = judge.user
                     user.first_name = first_name
@@ -623,7 +709,7 @@ def load_judges(request):
                         setattr(judge, f'available_round{i+1}', availability[i])
                     judge.save()
                 else:
-                    message += f'create judge {username}'
+                    message += f'create judge {username} \n'
                     user = User(username=username,
                                 first_name=first_name, last_name=last_name,
                                 is_team=False, is_judge=True, tournament=request.user.tournament)
@@ -644,7 +730,7 @@ def load_judges(request):
             except Exception as e:
                 message += str(e)
             else:
-                message += ' success '
+                message += ' success \n'
             list.append(message)
         return render(request, 'admin/load_excel.html', {"list": list})
 
