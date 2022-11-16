@@ -624,7 +624,7 @@ def load_teams(request):
                     user.set_password(raw_password)
                     user.tournament = request.user.tournament
                     user.save()
-                    team = Team.objects.create(user=user, team_name=team_name,division=division,school=school)
+                    team = Team.objects.create(user=user, team_name=team_name,school=school)
                     message += f' create team {team.pk} \n'
 
                 for name in team_roster:
