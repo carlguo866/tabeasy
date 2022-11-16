@@ -38,7 +38,8 @@ class BallotForm(forms.ModelForm):
                 self.fields[field].disabled = True
 
         if self.request.user.is_staff:
-            self.fields['submit'].disabled = False
+            for field in self.fields:
+                self.fields[field].disabled = False
 
         if self.instance.round.captains_meeting.submit == True:
             att_list = Competitor.objects.filter(pk__in=[att.pk for att in self.instance.round.captains_meeting.atts])
