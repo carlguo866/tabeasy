@@ -3,7 +3,7 @@ import openpyxl
 import random
 import string
 if __name__ == '__main__':
-    excel_file = '/Users/carlguo/Desktop/testexcel.xlsx'
+    excel_file = '/Users/carlguo/Desktop/UAlbany Invitationals.xlsx'
     wb = openpyxl.load_workbook(excel_file)
     worksheet = wb["Teams"]
     list = []
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     for i in range(2, n + 1):
         worksheet.cell(row=i, column=17).value =''.join(random.choices(string.ascii_letters + string.digits, k=4))
         if worksheet.cell(row=i, column=2).value != None:
-            worksheet.cell(row=i, column=16).value = ''.join(worksheet.cell(row=i, column=2).value.split(' '))
+            worksheet.cell(row=i, column=16).value = ''.join(worksheet.cell(row=i, column=1).value.split(' '))
 
     worksheet = wb["Judges"]
     list = []

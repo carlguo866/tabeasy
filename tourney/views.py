@@ -589,22 +589,17 @@ def load_teams(request):
         n = worksheet.max_row
         m = worksheet.max_column
         for i in range(2, n + 1):
-
-            pk = worksheet.cell(i, 1).value
-            if pk == None:
-                continue
-
-            team_name = worksheet.cell(i, 2).value
+            team_name = worksheet.cell(i, 1).value
             if Team.objects.filter(user__tournament=request.user.tournament, team_name=team_name).exists():
                 pk = Team.objects.get(user__tournament=request.user.tournament, team_name=team_name).pk
             else:
                 pk = None
-            if worksheet.cell(i, 3).value != None or worksheet.cell(i, 3).value != '':
-                division = worksheet.cell(i, 3).value
-            else:
-                division = None
-            school = worksheet.cell(i, 4).value
-            j = 5
+            # if worksheet.cell(i, 3).value != None or worksheet.cell(i, 3).value != '':
+            #     division = worksheet.cell(i, 3).value
+            # else:
+            #     division = None
+            school = worksheet.cell(i, 2).value
+            j = 3
             team_roster = []
             while j <= m and worksheet.cell(i,j).value != None and worksheet.cell(i,j).value != '':
                 team_roster.append(worksheet.cell(i,j).value)
@@ -671,7 +666,7 @@ def load_judges(request):
             preside = worksheet.cell(i,3).value
             if preside == 'CIN' or 'No preference':
                 preside = 2
-            elif preside == 'y' or 'Presiding':
+            elif preside == ['Y', 'Presiding', 'Yes', 'y', 'YES']:
                 preside = 1
             else:
                 preside = 0
