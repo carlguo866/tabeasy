@@ -664,7 +664,7 @@ def load_judges(request):
                 last_name = ' '
             raw_password = worksheet.cell(i,10).value
             preside = worksheet.cell(i,3).value
-            if preside == 'CIN' or 'No preference':
+            if preside in ['CIN','No preference']:
                 preside = 2
             elif preside in ['Y', 'Presiding', 'Yes', 'y', 'YES']:
                 preside = 1
