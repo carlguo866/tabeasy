@@ -21,7 +21,10 @@ class Character(models.Model):
     name = models.CharField(max_length=50, default='')
     side = models.CharField(max_length=5, choices=side_choices, null=True)
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+        else:
+            return 'placeholder'
 
 class CharacterPronouns(models.Model):
     character = models.ForeignKey(Character, on_delete=models.CASCADE, related_name='characters',
