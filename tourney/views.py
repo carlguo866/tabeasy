@@ -427,7 +427,7 @@ def view_individual_team(request, pk):
     #     team = Team.objects.create(user__tournament=tournament)
     # else:
     team = Team.objects.get(user__tournament=tournament,pk=pk)
-    if not (request.user.team == team or request.user.is_staff):
+    if not (request.user.is_team and request.user.team == team) and not request.user.is_staff:
         return HttpResponseNotFound('<h1>Page not found</h1>')
 
     FormSet = inlineformset_factory(Team, Competitor,fields=('name', 'pronouns'),
