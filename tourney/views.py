@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
@@ -420,13 +420,15 @@ def view_individual_judge(request, pk):
     return render(request, 'tourney/tab/view_individual_judge.html', context)
 
 
-@user_passes_test(lambda u: u.is_staff)
+@login_required
 def view_individual_team(request, pk):
     tournament = request.user.tournament
     # if not Team.objects.filter(user__tournament=tournament, pk=pk).exists():
     #     team = Team.objects.create(user__tournament=tournament)
     # else:
     team = Team.objects.get(user__tournament=tournament,pk=pk)
+    if not (request.user.team == team or request.user.is_staff):
+        return HttpResponseNotFound('<h1>Page not found</h1>')
 
     FormSet = inlineformset_factory(Team, Competitor,fields=('name', 'pronouns'),
                                          max_num=12, validate_max=True,

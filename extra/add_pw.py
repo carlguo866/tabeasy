@@ -3,7 +3,7 @@ import openpyxl
 import random
 import string
 if __name__ == '__main__':
-    excel_file = '/Users/carlguo/Desktop/UAlbany Invitationals.xlsx'
+    excel_file = '/Users/carlguo/Desktop/Tabeasy Info Template.xlsx'
     wb = openpyxl.load_workbook(excel_file)
     worksheet = wb["Teams"]
     list = []

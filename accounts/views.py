@@ -42,7 +42,7 @@ def team_signup(request):
                                          extra=6)
 
     if request.method == 'POST':
-        user_form = SignUpForm(data=request.POST)
+        user_form = SignUpForm(data=request.POST, team_signup=True)
         team_form = TeamForm(data=request.POST)
         if user_form.is_valid() and team_form.is_valid():
             user = user_form.save()
@@ -56,9 +56,9 @@ def team_signup(request):
             formset = FormSet(request.POST, request.FILES, instance=team)
             if formset.is_valid():
                 formset.save()
-                return redirect('index')
+                return redirect('tourney:view_teams')
     else:
-        user_form = SignUpForm()
+        user_form = SignUpForm(team_signup=True)
         formset = FormSet()
         team_form = TeamForm()
 
@@ -79,7 +79,7 @@ def judge_signup(request):
             judge = judge_form.save(commit=False)
             judge.user = user
             judge.save()
-            return redirect('index')
+            return redirect('tourney:view_judges')
     else:
         user_form = SignUpForm()
         judge_form = JudgeForm()

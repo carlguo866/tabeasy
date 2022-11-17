@@ -110,6 +110,10 @@ class BallotSectionForm(forms.ModelForm):
             for field in self.fields:
                 self.fields[field].disabled = True
 
+        if self.request.user.is_staff:
+            for field in self.fields:
+                self.fields[field].disabled = False
+
 class CharacterPronounsForm(forms.ModelForm):
     class Meta:
         model = CharacterPronouns

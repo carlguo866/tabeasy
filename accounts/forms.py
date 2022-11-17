@@ -23,4 +23,10 @@ class SignUpForm(UserCreationForm):
         }
 
     def __init__(self, *args, **kwargs):
+        team_signup = kwargs.pop('team_signup', None)
         super(SignUpForm, self).__init__(*args, **kwargs)
+        if team_signup:
+            del self.fields['first_name']
+            del self.fields['last_name']
+
+
