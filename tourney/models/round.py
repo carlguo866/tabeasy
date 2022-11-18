@@ -71,8 +71,11 @@ class Round(models.Model):
         errors = []
 
         if self.pairing.team_submit or self.pairing.final_submit:
+            if not self.p_team or not self.d_team:
+                errors.append('One team did not get an opponent to compete against!')
+                raise ValidationError(errors)
             if self.p_team == self.d_team:
-                errors.append('one team cant compete against itself')
+                errors.append(f'{self.p_team} can\'t compete against itself!')
             if self.p_team.next_side(self.pairing.round_num) == 'd':
                 errors.append(f"{self.p_team} is supposed to play d this round")
             if self.d_team.next_side(self.pairing.round_num) == 'p':

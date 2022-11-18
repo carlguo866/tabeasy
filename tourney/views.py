@@ -408,10 +408,11 @@ def view_individual_judge(request, pk):
     if request.method == 'POST':
         user_form = UpdateConflictForm(data=request.POST, instance=judge, request=request)
         judge_form = JudgeForm(data=request.POST, instance=judge)
-        if user_form.is_valid() and judge_form.is_valid():
-            user = user_form.save()
+        if user_form.is_valid():
+            user_form.save()
+        if judge_form.is_valid():
             judge_form.save()
-            return redirect('index')
+        return redirect('tourney:view_judges')
     else:
         user_form = UpdateConflictForm(instance=judge, request=request)
         judge_form = JudgeForm(instance=judge)
@@ -440,7 +441,7 @@ def view_individual_team(request, pk):
         if formset.is_valid() and team_form.is_valid():
             team_form.save()
             formset.save()
-            return redirect('index')
+            return redirect('tourney:view_teams')
     else:
         formset = FormSet(prefix='competitors', instance=team)
         team_form = TeamForm(instance=team)
