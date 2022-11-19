@@ -1,6 +1,5 @@
 # Tabeasy
-An automated tabulation website for mock trial tournaments available at [tabeasy.org](https://tabeasy.org/).
-Currently in use for Peer Potential Mock Trial (PPMT) 2022, the largest Chinese high school mock trial tournament. 
+An automated tabulation website for mock trial tournaments available at [tabeasy.org](https://tabeasy.org/). Used by 5+ tournaments, 1000+ people. 
 
 ## Installation 
 1. clone this repo
