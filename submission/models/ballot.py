@@ -18,22 +18,22 @@ class Ballot(models.Model):
                               related_name='ballots',
                               related_query_name='ballot')
 
-    att_rank_1 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_query_name='att_rank_1',
+    att_rank_1 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='att_rank_1',
                                    related_name='att_rank_1',null=True)
-    att_rank_2 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_query_name='att_rank_2',
+    att_rank_2 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='att_rank_2',
                                    related_name='att_rank_2',null=True)
-    att_rank_3 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_query_name='att_rank_3',
+    att_rank_3 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='att_rank_3',
                                    related_name='att_rank_3',null=True)
-    att_rank_4 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_query_name='att_rank_4',
+    att_rank_4 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='att_rank_4',
                                    related_name='att_rank_4',null=True)
 
-    wit_rank_1 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_query_name='wit_rank_1',
+    wit_rank_1 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='wit_rank_1',
                                    related_name='wit_rank_1',null=True)
-    wit_rank_2 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_query_name='wit_rank_2',
+    wit_rank_2 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='wit_rank_2',
                                    related_name='wit_rank_2',null=True)
-    wit_rank_3 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_query_name='wit_rank_3',
+    wit_rank_3 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='wit_rank_3',
                                    related_name='wit_rank_3',null=True)
-    wit_rank_4 = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_query_name='wit_rank_4',
+    wit_rank_4 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='wit_rank_4',
                                    related_name='wit_rank_4',null=True)
 
     submit = models.BooleanField(default=False, help_text='Submit')
