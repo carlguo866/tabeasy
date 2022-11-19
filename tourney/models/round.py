@@ -102,14 +102,14 @@ class Round(models.Model):
                         errors.append(f"{judge} is not available for Round {self.pairing.round_num}")
                     #check conflict
                     for team in self.teams:
-                        if not team.byebuster and team in judge.conflicts.all():
+                        if team in judge.conflicts.all():
                             errors.append(f"{judge} conflicted with team {team}")
 
                     #check if judged
                     judged = judge.judged(self.pairing.round_num)
                     if judged != []:
                         for team in self.teams:
-                            if team in judged:
+                            if not team.byebuster and team in judged:
                                 errors.append(f"{judge} has judged team {team}")
 
         if errors != []:
