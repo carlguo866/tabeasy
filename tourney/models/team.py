@@ -25,6 +25,8 @@ class Team(models.Model):
         default='',
         null=True
     )
+
+    byebuster = models.BooleanField(default=False)
     def __str__(self):
         return self.user.__str__()
 

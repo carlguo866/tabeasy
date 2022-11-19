@@ -17,7 +17,7 @@ INT_CHOICES = [(i,i) for i in range(11)]
 class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
-        fields = ['team_name', 'school']
+        fields = ['team_name', 'school', 'byebuster']
 
 JUDGE_AVAILABILITY_CHOICES = [
     ('available_round1', 'Round 1'),
