@@ -57,9 +57,9 @@ class CaptainsMeetingSection(models.Model):
                                     related_query_name='section',null=True)
     subsection =  models.ForeignKey(SubSection, on_delete=models.CASCADE, related_name='captains_meetings',
                                     related_query_name='captains_meeting',null=True)
-    competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE, related_name='roles',
+    competitor = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_name='roles',
                                     related_query_name='role',null=True)
-    character = models.ForeignKey(Character, models.CASCADE, related_name='round_characters',
+    character = models.ForeignKey(Character, models.SET_NULL, related_name='round_characters',
                                   related_query_name='round_character', null=True, blank=True)
 
     def __str__(self):
