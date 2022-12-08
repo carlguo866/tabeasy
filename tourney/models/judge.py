@@ -55,7 +55,7 @@ class Judge(models.Model):
 
     @property
     def available_ballots(self):
-        ballots = self.ballots().all()
+        ballots = self.ballots.all()
         return [ballot for ballot in ballots if ballot.round.pairing.tournament == self.tournament ]
 
     def judged(self, round_num):
