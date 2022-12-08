@@ -53,8 +53,9 @@ class Judge(models.Model):
                     +[round for round in self.extra_rounds.all()]
         return sorted(queryset, key=lambda x: x.pairing.round_num)
 
+    @property
     def available_ballots(self):
-        ballots = self.ballots()
+        ballots = self.ballots().all()
         return [ballot for ballot in ballots if ballot.round.pairing.tournament == self.tournament ]
 
     def judged(self, round_num):
