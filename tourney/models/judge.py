@@ -55,7 +55,8 @@ class Judge(models.Model):
         return sorted(queryset, key=lambda x: x.pairing.round_num)
 
     def available_ballots(self):
-        return Ballot.objects.filter(round__pairing__tournament=self.tournament, judge=self)
+        ballots = self.ballots()
+        return [ballot for ballot in ballots if ballot.round.pairing.tournament == self.tournament ]
 
     def judged(self, round_num):
         judged = []
