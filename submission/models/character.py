@@ -27,7 +27,7 @@ class Character(models.Model):
             return 'placeholder'
 
 class CharacterPronouns(models.Model):
-    character = models.ForeignKey(Character, on_delete=models.CASCADE, related_name='characters',
+    character = models.ForeignKey(Character, on_delete=models.SET_NULL, related_name='characters',
                                   related_query_name='character')
     captains_meeting = models.ForeignKey(CaptainsMeeting, on_delete=models.CASCADE, related_name='captains_meetings',
                                   related_query_name='captains_meeting')

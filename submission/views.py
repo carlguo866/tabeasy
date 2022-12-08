@@ -374,7 +374,7 @@ def edit_paradigm(request, judge):
             paradigm_preference_item_forms = [
                 ParadigmPreferenceItemForm(request.POST, paradigm=paradigm, paradigm_preference=each,
                                            prefix=each.__str__())
-                for each in ParadigmPreference.objects.filter(tournament=judge.user.tournament)
+                for each in ParadigmPreference.objects.all()
             ]
 
         is_true = True
@@ -404,7 +404,7 @@ def edit_paradigm(request, judge):
             paradigm_preference_item_forms = [
                 ParadigmPreferenceItemForm(paradigm=paradigm, paradigm_preference=each,
                                            prefix=each.__str__())
-                for each in ParadigmPreference.objects.filter(tournament=judge.user.tournament)
+                for each in ParadigmPreference.objects.all()
             ]
 
     return render(request, 'tourney/paradigm.html', {'judge': judge,

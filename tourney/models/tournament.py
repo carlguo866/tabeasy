@@ -15,7 +15,7 @@ class Tournament(models.Model):
     p_choice = models.CharField(max_length=40, choices=p_choices,
                                 help_text='Is your case a Civil or Criminal case')
     publish_ballot_scores = models.BooleanField(default=False,
-                                                help_text='Do you want to publish scores ballot or just the comments?')
+                                                help_text='Do you want to publish scores or just the comments for the ballots?')
     split_division = models.BooleanField(default=False)
     division_team_num = models.IntegerField(default=10,
                                             help_text='How many teams do you have?')

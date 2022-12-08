@@ -37,8 +37,8 @@ role_choices = [
     ('wit', 'Witness')
 ]
 class ParadigmPreference(models.Model):
-    tournament = models.ForeignKey('tourney.Tournament', on_delete=models.SET_NULL, related_name='paradigm_preferences',
-                                   related_query_name='paradigm_preference', null=True)
+    # tournament = models.ForeignKey('tourney.Tournament', on_delete=models.SET_NULL, related_name='paradigm_preferences',
+    #                                related_query_name='paradigm_preference', null=True)
     role = models.CharField(max_length=40, choices=role_choices)
     low_end = models.CharField(max_length=40, null=True, blank=True)
     high_end = models.CharField(max_length=40, null=True, blank=True)
