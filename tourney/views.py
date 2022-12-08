@@ -1,4 +1,5 @@
 import random
+import re
 import string
 import openpyxl
 from django.contrib.auth.decorators import user_passes_test, login_required
@@ -634,6 +635,7 @@ def load_teams(request):
                     message += f' create team {team.pk} \n'
 
                 for name in team_roster:
+                    name = re.sub(r'\([^)]*\)', '', name).strip()
                     if Competitor.objects.filter(team=team, name=name).exists():
                         message += f' update member {name} \n'
                         Competitor.objects.filter(team=team, name=name).update(team=team,name=name)
