@@ -80,7 +80,7 @@
 					</div>
 					<div class="card-body text-start center">
 
-						{% for ballot in request.user.judge.ballots.all %}
+						{% for ballot in request.user.judge.available_ballots.all %}
 							{% if ballot.round.pairing.final_submit %}
 								<div class="card-text mb-4">
 									<a class="button button-primary py-2" href="{% url 'submission:ballot' ballot.pk|int_str %}">

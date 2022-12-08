@@ -2,6 +2,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django_better_admin_arrayfield.models.fields import ArrayField
 
+from submission.models.ballot import Ballot
 from tourney.models.team import Team
 from tourney.models.tournament import Tournament
 
@@ -53,6 +54,8 @@ class Judge(models.Model):
                     +[round for round in self.extra_rounds.all()]
         return sorted(queryset, key=lambda x: x.pairing.round_num)
 
+    def available_ballots(self):
+        return Ballot.objects.filter(round__pairing__tournament=self.tournament, judge=self)
 
     def judged(self, round_num):
         judged = []

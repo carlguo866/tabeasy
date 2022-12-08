@@ -28,9 +28,9 @@ class Pairing(models.Model):
 
     def __str__(self):
         if self.division != None:
-            return f'Round {self.round_num} {self.division}'
+            return f'Round {self.round_num} {self.division} {self.tournament}'
         else:
-            return f'Round {self.round_num}'
+            return f'Round {self.round_num} {self.tournament}'
 
 class Round(models.Model):
     pairing = models.ForeignKey(Pairing, on_delete=models.CASCADE, related_name='rounds', related_query_name='round', null=True)
@@ -63,7 +63,7 @@ class Round(models.Model):
         return [self.p_team, self.d_team]
 
     def __str__(self):
-        return f'Round {self.pairing.round_num} Courtroom {self.courtroom}'
+        return f'Round {self.pairing.round_num} Courtroom {self.courtroom} {self.pairing.tournament} '
 
 
     def clean(self):
