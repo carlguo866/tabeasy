@@ -3,6 +3,7 @@ from django.db import models
 from django_better_admin_arrayfield.models.fields import ArrayField
 
 from tourney.models.team import Team
+from tourney.models.tournament import Tournament
 
 
 class Judge(models.Model):

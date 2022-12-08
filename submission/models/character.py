@@ -1,7 +1,7 @@
 from django.db import models
 
 from submission.models.captains_meeting import CaptainsMeeting
-from tourney.models import Tournament
+from tourney.models.tournament import Tournament
 
 pronoun_choices = [
     ('he', 'he/him'),
