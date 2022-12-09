@@ -34,11 +34,11 @@
 					{% for div1_team, div2_team in teams_ranked %}
 						<tr>
 							<th scope="row">{{ forloop.counter }}</th>
-							<td>{{ div1_team }}</td>
+							<td>{{ div1_team }} ({{ div1_team.school }})</td>
 							<td>{{ div1_team.total_ballots }}</td>
 							<td>{{ div1_team.total_cs }}</td>
 							<td>{{ div1_team.total_pd }}</td>
-							<td>{{ div2_team }}</td>
+							<td>{{ div2_team }} ({{ div2_team.school }})</td>
 							<td>{{ div2_team.total_ballots }}</td>
 							<td>{{ div2_team.total_cs }}</td>
 							<td>{{ div2_team.total_pd }}</td>
@@ -48,7 +48,7 @@
 					{% for team in teams_ranked %}
 						<tr>
 							<th scope="row">{{ forloop.counter }}</th>
-							<td>{{ team }}</td>
+							<td>{{ team }} ({{ team.school }})</td>
 							<td>{{ team.total_ballots }}</td>
 							<td>{{ team.total_cs }}</td>
 							<td>{{ team.total_pd }}</td>
