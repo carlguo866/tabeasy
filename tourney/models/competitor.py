@@ -32,10 +32,11 @@ class Competitor(models.Model):
         }
         for k, v in dict.items():
             for ballot in k:
-                if ballot.round.p_team == self.team:
-                    p_total += v
-                else:
-                    d_total += v
+                if ballot.judge != ballot.round.extra_judge:
+                    if ballot.round.p_team == self.team:
+                        p_total += v
+                    else:
+                        d_total += v
         tournament = self.team.user.tournament
         if tournament.individual_award_rank_plus_record:
             p_total += self.team.p_ballot()
@@ -53,10 +54,11 @@ class Competitor(models.Model):
         }
         for k, v in dict.items():
             for ballot in k:
-                if ballot.round.p_team == self.team:
-                    p_total += v
-                else:
-                    d_total += v
+                if ballot.judge != ballot.round.extra_judge:
+                    if ballot.round.p_team == self.team:
+                        p_total += v
+                    else:
+                        d_total += v
         tournament = self.team.user.tournament
         if tournament.individual_award_rank_plus_record:
             p_total += self.team.p_ballot()
