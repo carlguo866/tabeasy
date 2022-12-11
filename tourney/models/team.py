@@ -78,6 +78,7 @@ class Team(models.Model):
             return 0
 
     def total_ballots(self):
+        # self.total_ballots = self.p_ballot() + self.d_ballot()
         return self.p_ballot() + self.d_ballot()
 
     def total_cs(self):

@@ -56,17 +56,17 @@ def individual_awards(request):
                          for member in Competitor.objects.filter(team__user__tournament=tournament)]
     atts_ranked = [(member,'P',att_score[0])
                    for member, att_score, wit_score in competitor_scores
-                   if tournament.judges == 1 or att_score[0] >= 1]+ \
+                   if tournament.judges == 1 or att_score[0] >= 10]+ \
                   [(member, 'D', att_score[1])
                    for member, att_score, wit_score in competitor_scores
-                   if tournament.judges == 1 or att_score[1] >= 1]
+                   if tournament.judges == 1 or att_score[1] >= 10]
     atts_ranked = sorted(atts_ranked, key=lambda x: -x[2])
     wits_ranked = [(member,'P',wit_score[0])
                    for member, att_score, wit_score in competitor_scores
-                   if tournament.judges == 1 or wit_score[0] >= 1]+ \
+                   if tournament.judges == 1 or wit_score[0] >= 10]+ \
                   [(member, 'D', wit_score[1])
                    for member, att_score, wit_score in competitor_scores
-                   if tournament.judges == 1 or wit_score[1] >= 1]
+                   if tournament.judges == 1 or wit_score[1] >= 10]
     wits_ranked = sorted(wits_ranked, key=lambda x: -x[2])
 
 
