@@ -12,6 +12,11 @@ class Competitor(models.Model):
     name = models.CharField(max_length=30)
     team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='competitors',related_query_name='competitor')
     pronouns = models.CharField(max_length=20, choices=pronoun_choices, null=True, blank=True)
+    p_att = models.IntegerField(default=0)
+    d_att = models.IntegerField(default=0)
+    p_wit = models.IntegerField(default=0)
+    d_wit = models.IntegerField(default=0)
+
 
     def __str__(self):
         if self.pronouns == None:
@@ -21,7 +26,7 @@ class Competitor(models.Model):
                 if i == self.pronouns:
                     return f"{self.name} ({j})"
 
-    def att_individual_score(self):
+    def calc_att_individual_score(self):
         p_total = 0
         d_total = 0
         dict = {
@@ -39,11 +44,12 @@ class Competitor(models.Model):
                         d_total += v
         tournament = self.team.user.tournament
         if tournament.individual_award_rank_plus_record:
-            p_total += self.team.p_ballot()
-            d_total += self.team.d_ballot()
-        return [p_total, d_total]
+            p_total += self.team.p_ballots
+            d_total += self.team.d_ballots
+        self.p_att = p_total
+        self.d_att = d_total
 
-    def wit_individual_score(self):
+    def calc_wit_individual_score(self):
         p_total = 0
         d_total = 0
         dict = {
@@ -61,12 +67,18 @@ class Competitor(models.Model):
                         d_total += v
         tournament = self.team.user.tournament
         if tournament.individual_award_rank_plus_record:
-            p_total += self.team.p_ballot()
-            d_total += self.team.d_ballot()
-        return [p_total, d_total]
+            p_total += self.team.p_ballots
+            d_total += self.team.d_ballots
+        self.p_wit = p_total
+        self.d_wit = d_total
 
     def __lt__(self, other):
         return self.id < other.id
 
     class Meta:
         ordering = ['id']
+
+    def save(self, *args, **kwargs):
+        self.calc_wit_individual_score()
+        self.calc_att_individual_score()
+        super().save(*args, **kwargs)

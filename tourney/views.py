@@ -31,7 +31,7 @@ from tourney.models.competitor import Competitor
 
 def sort_teams(teams):
     return list(reversed(sorted(teams,
-                        key=lambda x: (x.total_ballots(), x.total_cs(), x.total_pd()))))
+                        key=lambda x: (x.total_ballots, x.total_cs, x.total_pd))))
 
 def index(request):
     return render(request, 'index.html')
@@ -52,7 +52,7 @@ def results(request):
 @user_passes_test(lambda u: u.is_staff)
 def individual_awards(request):
     tournament = request.user.tournament
-    competitor_scores = [(member,member.att_individual_score(), member.wit_individual_score())
+    competitor_scores = [(member, (member.p_att,member.d_att) , (member.p_wit,member.d_wit))
                          for member in Competitor.objects.filter(team__user__tournament=tournament)]
     atts_ranked = [(member,'P',att_score[0])
                    for member, att_score, wit_score in competitor_scores
@@ -907,3 +907,17 @@ def load_amta_witnesses(request):
 
 def donate(request):
     return render(request, 'donate.html')
+
+@user_passes_test(lambda u: u.is_staff)
+def refresh(request):
+    tournament = request.user.tournament
+    teams = [team for team in Team.objects.filter(user__tournament=tournament)]
+    errors = []
+    for team in teams:
+        team.save()
+        errors.append(f"{team} {team.total_ballots}")
+        for competitor in team.competitors.all():
+            competitor.save()
+    for team in teams:
+        team.save()
+    return redirect('index') #, {'errors': errors}

@@ -19,6 +19,19 @@
 			{% endfor %}
 		{% endif %}
 
+		{% for section in section_forms%}
+			{% for subsection_form in section %}
+				{% if subsection_form.errors %}
+					{% for key, value in subsection_form.errors.items %}
+						{% if value %}
+							<div class="alert alert-danger" role="alert">{{ value }}</div>
+						{% endif %}
+					{% endfor %}
+				{% endif %}
+			{% endfor %}
+		{% endfor %}
+
+
 		<h3>Ballot</h3>
 		<div class="row">
 			<div class="card-group my-3">

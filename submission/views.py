@@ -97,22 +97,41 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
         for section in section_forms:
             for subsection_form in section:
                 if not subsection_form.is_valid():
-                    raise ValidationError(subsection_form.errors)
+                    is_valid = False
+                if subsection_form.cleaned_data.get('score') == 0:
+                    subsection_form.errors['zero'] = f'You cannot score a 0 for {subsection_form.instance}!'
                     is_valid = False
         if not form.is_valid():
             is_valid = False
         if is_valid:
             return self.form_valid(form, section_forms)
         else:
-            return self.form_invalid(form)
+            return self.form_invalid(form, section_forms)
 
     def form_valid(self, form, section_forms):
         for section in section_forms:
             for subsection_form in section:
                 subsection_form.save()
+
         return super().form_valid(form)
 
+    def form_invalid(self, form, section_forms):
+        context = self.get_context_data()
+        context['section_forms'] = section_forms
+        return self.render_to_response(context)
+
     def get_success_url(self):
+        if self.ballot.submit:
+            for opponent in self.ballot.round.p_team.opponents():
+                opponent.save()
+            for opponent in self.ballot.round.d_team.opponents():
+                opponent.save()
+            self.ballot.round.p_team.save()
+            self.ballot.round.d_team.save()
+            for opponent in self.ballot.round.p_team.opponents():
+                opponent.save()
+            for opponent in self.ballot.round.d_team.opponents():
+                opponent.save()
         return self.request.path
 
 
@@ -347,7 +366,7 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
 
         return super().form_valid(form)
 
-    def form_invalid(self, form,pronouns_forms, section_forms):
+    def form_invalid(self, form, pronouns_forms, section_forms):
         context = self.get_context_data()
         context['pronouns_forms'] = pronouns_forms
         context['section_forms'] = section_forms

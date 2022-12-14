@@ -66,7 +66,7 @@ class CaptainsMeetingAdmin(admin.ModelAdmin):
 
 @admin.register(ParadigmPreference)
 class ParadigmPreferenceAdmin(admin.ModelAdmin):
-    list_display = ['tournament','role','low_end', 'high_end']
+    list_display = ['role','low_end', 'high_end']
 
 class ParadigmPreferenceItemInlineAdmin(admin.TabularInline):
     model = ParadigmPreferenceItem

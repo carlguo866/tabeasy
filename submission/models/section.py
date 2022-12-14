@@ -50,11 +50,13 @@ class BallotSection(models.Model):
                                     related_query_name='ballot_section',null=True)
     score = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
     comment = models.TextField(max_length=5000, null=True, blank=True)
-
-    # def clean(self):
     #
+    # def clean(self):
     #     if self.ballot.submit and self.score == 0:
     #         raise ValidationError("You can't put in a 0 as your score!")
+
+    def __str__(self):
+        return self.subsection.__str__()
 
 
 class CaptainsMeetingSection(models.Model):

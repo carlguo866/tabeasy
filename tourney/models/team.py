@@ -7,6 +7,11 @@ from django_better_admin_arrayfield.models.fields  import ArrayField
 class Team(models.Model):
     team_id = models.BigAutoField(primary_key=True, help_text="enter integer only")
     user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='team', null=True,blank=True)
+    p_ballots = models.FloatField(default=0)
+    d_ballots = models.FloatField(default=0)
+    total_ballots = models.FloatField(default=0)
+    total_cs = models.FloatField(default=0)
+    total_pd = models.FloatField(default=0)
 
     team_name = models.CharField(
         max_length=100,
@@ -27,6 +32,7 @@ class Team(models.Model):
     )
 
     byebuster = models.BooleanField(default=False)
+
     def __str__(self):
         return self.user.__str__()
 
@@ -41,6 +47,16 @@ class Team(models.Model):
         else:
             return None
 
+    def opponents(self):
+        teams = []
+        for p_round in self.p_rounds.all():
+            if p_round.pairing.round_num != 5:
+                teams.append(p_round.d_team)
+        for d_round in self.d_rounds.all():
+            if d_round.pairing.round_num != 5:
+                teams.append(d_round.p_team)
+        return teams
+
     def published_ballots(self):
         ballots = []
         if self.rounds() != None:
@@ -51,47 +67,40 @@ class Team(models.Model):
                             ballots.append(ballot)
         return ballots
 
-    def p_ballot(self):
+    def calc_p_ballots(self):
         if self.p_rounds.count() > 0:
             if self.user.tournament.judges == 1:
-                return sum([ballot.p_ballot for round in self.p_rounds.all()
+                self.p_ballots = sum([ballot.p_ballot for round in self.p_rounds.all()
                             for ballot in round.ballots.all() if ballot.judge == round.presiding_judge])
             else:
-                return sum([ballot.p_ballot for round in self.p_rounds.all()
+                self.p_ballots = sum([ballot.p_ballot for round in self.p_rounds.all()
                         for ballot in round.ballots.all() if self.user.tournament.judges == 3  or \
                             ballot.judge != round.extra_judge
                         and ballot.round.pairing.round_num != 5])
         else:
-            return 0
+            self.p_ballots = 0
 
-    def d_ballot(self):
+    def calc_d_ballots(self):
         if self.d_rounds.count() > 0:
             if self.user.tournament.judges == 1:
-                return sum([ballot.d_ballot for round in self.d_rounds.all()
+                self.d_ballots = sum([ballot.d_ballot for round in self.d_rounds.all()
                         for ballot in round.ballots.all() if ballot.judge == round.presiding_judge])
             else:
-                return sum([ballot.d_ballot for round in self.d_rounds.all()
+                self.d_ballots = sum([ballot.d_ballot for round in self.d_rounds.all()
                         for ballot in round.ballots.all() if self.user.tournament.judges == 3  or \
                             ballot.judge != round.extra_judge
                         and ballot.round.pairing.round_num != 5])
         else:
-            return 0
+            self.d_ballots = 0
 
-    def total_ballots(self):
+    def calc_total_ballots(self):
         # self.total_ballots = self.p_ballot() + self.d_ballot()
-        return self.p_ballot() + self.d_ballot()
+        self.total_ballots = self.p_ballots + self.d_ballots
 
-    def total_cs(self):
-        cs = 0
-        for p_round in self.p_rounds.all():
-            if p_round.pairing.round_num != 5:
-                cs += p_round.d_team.total_ballots()
-        for d_round in self.d_rounds.all():
-            if d_round.pairing.round_num != 5:
-                cs += d_round.p_team.total_ballots()
-        return cs
+    def calc_total_cs(self):
+        self.total_cs = sum([ opponent.total_ballots for opponent in self.opponents()])
 
-    def total_pd(self):
+    def calc_total_pd(self):
         if self.d_rounds.count() > 0 or self.p_rounds.count() > 0:
             p_pd = sum([ballot.p_pd for round in self.p_rounds.all()
                         for ballot in round.ballots.all() if self.user.tournament.judges == 3  or \
@@ -101,9 +110,9 @@ class Team(models.Model):
                         for ballot in round.ballots.all() if self.user.tournament.judges == 3  or \
                             ballot.judge != round.extra_judge
                         and ballot.round.pairing.round_num != 5])
-            return p_pd + d_pd
+            self.total_pd = p_pd + d_pd
         else:
-            return 0
+            self.total_pd = 0
 
     def current_rounds(self):
         return self.p_rounds.count() + self.d_rounds.count()
@@ -121,6 +130,14 @@ class Team(models.Model):
                 if d_round.pairing.round_num == round_num-1:
                     return 'p'
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.calc_p_ballots()
+        self.calc_d_ballots()
+        self.calc_total_ballots()
+        self.calc_total_cs()
+        self.calc_total_pd()
+        super().save(*args, **kwargs)
     # def __lt__(self, other):
     #     if self.total_ballots() == other.total_ballots():
     #         if self.total_cs() == other.total_cs():
