@@ -631,10 +631,10 @@ def load_teams(request):
                         user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False,
                                     tournament=request.user.tournament)
                         user.set_password(raw_password)
-
                         user.save()
                         with transaction.atomic():
                             team = Team(user=user, team_name=team_name, school=school)
+                            team.save()
                         message += f' create team {team.pk} \n'
 
                 for name in team_roster:
