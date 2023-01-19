@@ -48,7 +48,7 @@ class JudgeAdmin(admin.ModelAdmin, DynamicArrayMixin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin, DynamicArrayMixin):
-    list_display = ['team_id','team_name','division','school']
+    list_display = ['team_name','division','school']
     search_fields = ['team_name']
 
     # @display(ordering='user__tournament', description='Tournament')

@@ -5,8 +5,8 @@ from django_better_admin_arrayfield.models.fields  import ArrayField
 
 # @functools.total_ordering
 class Team(models.Model):
-    team_id = models.BigAutoField(primary_key=True, help_text="enter integer only")
-    user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='team', null=True,blank=True)
+    user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, primary_key=True,
+                                related_name='team')
     p_ballots = models.FloatField(default=0)
     d_ballots = models.FloatField(default=0)
     total_ballots = models.FloatField(default=0)

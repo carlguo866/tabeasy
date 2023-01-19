@@ -5,6 +5,7 @@ import openpyxl
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.forms import inlineformset_factory
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
@@ -620,19 +621,21 @@ def load_teams(request):
 
             try:
                 if Team.objects.filter(pk=pk).exists():
-                    Team.objects.filter(pk=pk).update(team_name=team_name,division=division,school=school)
+                    Team.objects.filter(pk=pk).update(team_name=team_name,school=school)
                     team = Team.objects.get(pk=pk)
                     message += f' update team {team.pk} \n'
                 else:
                     raw_password = worksheet.cell(i,17).value
-                    username = ''.join(team_name.split(' '))
-                    user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False,
-                                tournament=request.user.tournament)
-                    user.set_password(raw_password)
-                    user.tournament = request.user.tournament
-                    user.save()
-                    team = Team.objects.create(user=user, team_name=team_name,school=school)
-                    message += f' create team {team.pk} \n'
+                    if raw_password:
+                        username = ''.join(team_name.split(' '))
+                        user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False,
+                                    tournament=request.user.tournament)
+                        user.set_password(raw_password)
+
+                        user.save()
+                        with transaction.atomic():
+                            team = Team(user=user, team_name=team_name, school=school)
+                        message += f' create team {team.pk} \n'
 
                 for name in team_roster:
                     name = re.sub(r'\([^)]*\)', '', name).strip()
@@ -641,7 +644,7 @@ def load_teams(request):
                         Competitor.objects.filter(team=team, name=name).update(team=team,name=name)
                     else:
                         message += f' create member {name} \n'
-                        Competitor.objects.create(name=name,team=team)
+                        Competitor.objects.create(name=name, team=team)
             except Exception as e:
                 message += str(e)
             else:

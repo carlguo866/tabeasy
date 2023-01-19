@@ -22,7 +22,7 @@ class User(AbstractUser):
         return [pairing for pairing in Pairing.objects.filter(tournament=self.tournament).order_by('round_num').all() if pairing.team_submit]
 
     def __str__(self):
-        if self.is_team:
+        if self.is_team and getattr(self, "team", None):
             return self.team.team_name
         else:
             if self.first_name and self.last_name:
