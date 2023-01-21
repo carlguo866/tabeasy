@@ -60,7 +60,9 @@ class Competitor(models.Model):
         }
         for k, v in dict.items():
             for ballot in k:
-                if ballot.judge != ballot.round.extra_judge:
+                if (self.team.user.tournament.judges == 3) or \
+                        (self.team.user.tournament.judges == 2 and ballot.judge != ballot.round.extra_judge) \
+                        or (self.team.user.tournament.judges == 1 and ballot.judge == ballot.round.presiding_judge):
                     if ballot.round.p_team == self.team:
                         p_total += v
                     else:
