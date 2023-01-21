@@ -136,9 +136,11 @@ class Ballot(models.Model):
         self.round.d_team.calc_total_pd()
 
         for att in [self.att_rank_1,self.att_rank_2,self.att_rank_3,self.att_rank_4]:
-            att.calc_att_individual_score()
+            if att:
+                att.calc_att_individual_score()
 
         for wit in [self.wit_rank_1, self.wit_rank_2, self.wit_rank_3, self.wit_rank_4]:
-            wit.calc_wit_individual_score()
+            if wit:
+                wit.calc_wit_individual_score()
 
 
