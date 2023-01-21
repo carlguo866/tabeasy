@@ -98,9 +98,9 @@ class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFor
             for subsection_form in section:
                 if not subsection_form.is_valid():
                     is_valid = False
-                if subsection_form.cleaned_data.get('score') == 0:
-                    subsection_form.errors['zero'] = f'You cannot score a 0 for {subsection_form.instance}!'
-                    is_valid = False
+                # if subsection_form.cleaned_data.get('score') == 0:
+                #     subsection_form.errors['zero'] = f'You cannot score a 0 for {subsection_form.instance}!'
+                #     is_valid = False
         if not form.is_valid():
             is_valid = False
         if is_valid:
