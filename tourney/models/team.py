@@ -137,6 +137,10 @@ class Team(models.Model):
         self.calc_total_ballots()
         self.calc_total_cs()
         self.calc_total_pd()
+        for competitor in self.competitors.all():
+            competitor.calc_att_individual_score()
+            competitor.calc_wit_individual_score()
+
         super().save(*args, **kwargs)
     # def __lt__(self, other):
     #     if self.total_ballots() == other.total_ballots():
