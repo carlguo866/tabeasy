@@ -105,17 +105,17 @@ class Team(models.Model):
             p_pd = sum([ballot.p_pd for round in self.p_rounds.all()
                         for ballot in round.ballots.all()
                         if self.user.tournament.judges == 3 or \
-                        (self.user.tournamnet.judges == 2 and
+                        (self.user.tournament.judges == 2 and
                          ballot.judge != round.extra_judge) or \
-                        (self.user.tournamnet.judges == 1 and
+                        (self.user.tournament.judges == 1 and
                          ballot.judge == round.presiding_judge)
                         and ballot.round.pairing.round_num != 5])
             d_pd = sum([ballot.d_pd for round in self.d_rounds.all()
                         for ballot in round.ballots.all()
                         if self.user.tournament.judges == 3  or \
-                            (self.user.tournamnet.judges == 2 and
+                            (self.user.tournament.judges == 2 and
                             ballot.judge != round.extra_judge) or \
-                            (self.user.tournamnet.judges == 1 and
+                            (self.user.tournament.judges == 1 and
                             ballot.judge == round.presiding_judge)
                         and ballot.round.pairing.round_num != 5])
             self.total_pd = p_pd + d_pd
