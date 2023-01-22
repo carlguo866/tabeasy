@@ -98,17 +98,25 @@ class Team(models.Model):
         self.total_ballots = self.p_ballots + self.d_ballots
 
     def calc_total_cs(self):
-        self.total_cs = sum([ opponent.total_ballots for opponent in self.opponents()])
+        self.total_cs = sum([opponent.total_ballots for opponent in self.opponents()])
 
     def calc_total_pd(self):
         if self.d_rounds.count() > 0 or self.p_rounds.count() > 0:
             p_pd = sum([ballot.p_pd for round in self.p_rounds.all()
-                        for ballot in round.ballots.all() if self.user.tournament.judges == 3  or \
-                            ballot.judge != round.extra_judge
+                        for ballot in round.ballots.all()
+                        if self.user.tournament.judges == 3 or \
+                        (self.user.tournamnet.judges == 2 and
+                         ballot.judge != round.extra_judge) or \
+                        (self.user.tournamnet.judges == 1 and
+                         ballot.judge == round.presiding_judge)
                         and ballot.round.pairing.round_num != 5])
             d_pd = sum([ballot.d_pd for round in self.d_rounds.all()
-                        for ballot in round.ballots.all() if self.user.tournament.judges == 3  or \
-                            ballot.judge != round.extra_judge
+                        for ballot in round.ballots.all()
+                        if self.user.tournament.judges == 3  or \
+                            (self.user.tournamnet.judges == 2 and
+                            ballot.judge != round.extra_judge) or \
+                            (self.user.tournamnet.judges == 1 and
+                            ballot.judge == round.presiding_judge)
                         and ballot.round.pairing.round_num != 5])
             self.total_pd = p_pd + d_pd
         else:
