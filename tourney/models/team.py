@@ -1,5 +1,6 @@
 import functools
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django_better_admin_arrayfield.models.fields  import ArrayField
 
@@ -148,6 +149,8 @@ class Team(models.Model):
         for competitor in self.competitors.all():
             competitor.save()
         super().save(*args, **kwargs)
+
+
     # def __lt__(self, other):
     #     if self.total_ballots() == other.total_ballots():
     #         if self.total_cs() == other.total_cs():
