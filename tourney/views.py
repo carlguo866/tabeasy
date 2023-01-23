@@ -918,9 +918,9 @@ def refresh(request):
     errors = []
     for team in teams:
         team.save()
-        errors.append(f"{team} {team.total_ballots}")
+        # errors.append(f"{team} {team.total_ballots}")
         # for competitor in team.competitors.all():
         #     competitor.save()
     for team in teams:
         team.save()
-    return redirect('index') #, {'errors': errors}
+    return redirect('tourney:results') #, {'errors': errors}
