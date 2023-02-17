@@ -40,7 +40,7 @@ class RoundAdmin(admin.ModelAdmin):
 @admin.register(Judge)
 class JudgeAdmin(admin.ModelAdmin, DynamicArrayMixin):
     list_display = ['pk', '__str__']
-    search_fields = ['first_name', 'last_name']
+    search_fields = ['user__username']
 
     # @display(ordering='user__tournament', description='Tournament')
     # def get_tournament(self, obj):
