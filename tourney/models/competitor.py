@@ -9,7 +9,7 @@ pronoun_choices = [
 ]
 
 class Competitor(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=60)
     team = models.ForeignKey(Team,on_delete=models.CASCADE,related_name='competitors',related_query_name='competitor')
     pronouns = models.CharField(max_length=20, choices=pronoun_choices, null=True, blank=True)
     p_att = models.IntegerField(default=0)
