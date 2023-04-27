@@ -59,13 +59,15 @@ class Judge(models.Model):
         return [ballot for ballot in ballots if ballot.round.pairing.tournament == self.user.tournament ]
 
     def judged(self, round_num):
-        judged = []
+        p_judged = []
+        d_judged = []
         for round in self.rounds:
             if round == None or round.p_team == None or round.d_team == None:
                 continue
             if round.pairing.round_num != round_num:
-                judged += [Team.objects.get(pk=round.p_team.pk),Team.objects.get(pk=round.d_team.pk)]
-        return judged
+                p_judged.append(Team.objects.get(pk=round.p_team.pk))
+                d_judged.append(Team.objects.get(pk=round.d_team.pk))
+        return p_judged, d_judged
 
 
     def __str__(self):

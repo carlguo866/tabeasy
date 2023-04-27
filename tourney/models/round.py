@@ -86,7 +86,7 @@ class Round(models.Model):
             if self.pairing.tournament.conflict_other_side:
                 for round in self.p_team.d_rounds.all():
                     if round != self and round.pairing != self.pairing and round.p_team == self.d_team:
-                        errors.append(f"{self.p_team} and {self.d_team} played each other before")
+                        errors.append(f"{self.p_team} and {self.d_team} played each other before on the same side")
 
         if self.pairing.final_submit:
 
@@ -106,10 +106,16 @@ class Round(models.Model):
                             errors.append(f"{judge} conflicted with team {team}")
 
                     #check if judged
-                    judged = judge.judged(self.pairing.round_num)
-                    if judged != []:
-                        for team in self.teams:
-                            if not team.byebuster and team in judged:
+                    p_judged, d_judged = judge.judged(self.pairing.round_num)
+                    if p_judged or d_judged:
+                        if not self.p_team.byebuster and self.p_team in p_judged:
+                            errors.append(f"{judge} has judged team {team}")
+                        if not self.d_team.byebuster and self.d_team in d_judged:
+                            errors.append(f"{judge} has judged team {team}")
+                        if self.pairing.tournament.conflict_other_side:
+                            if not self.p_team.byebuster and self.p_team in d_judged:
+                                errors.append(f"{judge} has judged team {team}")
+                            if not self.d_team.byebuster and self.d_team in p_judged:
                                 errors.append(f"{judge} has judged team {team}")
 
         if errors != []:
