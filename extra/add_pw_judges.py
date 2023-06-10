@@ -2,7 +2,7 @@ import openpyxl
 import random
 import string
 if __name__ == '__main__':
-    excel_file = '/Users/carlguo/Desktop/Judge List.xlsx'
+    excel_file = 'NOT SHOWN'
     wb = openpyxl.load_workbook(excel_file)
     worksheet = wb["Sheet1"]
     list = []
