@@ -143,7 +143,7 @@
 			<div class="col-md-4 mb-4 gx-2"></div>
 		</div>
 
-	<form method="post" class="form-inline">
+	<form method="post" enctype="multipart/form-data" class="form-inline">
 		{% csrf_token %}
 
 		{% for section_form in section_forms %}
@@ -362,14 +362,56 @@
 		</div>
 		{% endif %}
 
+		<!-- {% render_field form.upload class="form-select" name="upload" %} -->
+
 	{% if request.user.is_judge %}
+		<div class="row mb-4">
+			<div class="col-md-6 ps-4">
+				<div class="card border">
+					<div class="card-header">
+						Upload PDF Ballot
+					</div>
+					<div class="card-body text-start">
+						{% render_field form.upload class="form-control" name="upload" %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		
 		<input class="button btn-secondary" type="submit" value="Save"
 					style="position:fixed; top: 100px; right: 20px">
 		<div class="form-check" style="position:fixed; top: 150px; right: 20px">
 			{% render_field form.submit class='form-check-input' name="submit" %}
 			<span class="form-check-label"> Submit </span>
 		</div>
+	{% else %}
+		<!-- {% if form.instance.upload %}
+			<div class="row">
+				<span>View PDF ballot at:</span>
+				<a href="{{ form.instance.upload.url }}" download>
+					{{ form.instance.upload.name }}
+				</a>
+			</div>
+		{% endif %} -->
 	{% endif %}
+	{% if form.instance.upload %}
+	<div class="row mb-4">
+		<div class="col-md-4 ps-4">
+			<div class="card border">
+				<div class="card-header">
+					Download PDF Ballot & Comment
+				</div>
+				<div class="card-body text-start text-center">
+					<a href="{{ form.instance.upload.url }}" download class="button btn-secondary py-2">
+						Click Me
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+
 	</form>
 </div>
 {% endblock content %}

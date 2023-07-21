@@ -15,7 +15,8 @@ from django.contrib.messages import constants as message_constants
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR + MEDIA_URL
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -29,9 +30,9 @@ SECRET_KEY = '!psbk-ul+3tant@d3g_7p1n_0%u$3va*tk(r9xbm-a#b607=_e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 SESSION_COOKIE_SECURE = False
-SECURE_SSL_REDIRECT = False 
+SECURE_SSL_REDIRECT = False
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -144,8 +145,8 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 
-LOGIN_REDIRECT_URL='/'
-AUTH_USER_MODEL='accounts.User'
+LOGIN_REDIRECT_URL = '/'
+AUTH_USER_MODEL = 'accounts.User'
 AUTHENTICATION_BACKENDS = ['accounts.auth_backend.EmailUsernameBackend']
 
 # email settings
@@ -153,7 +154,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_SSL = True
 DEFAULT_FROM_EMAIL = 'Tabeasy<noreply@tabeasy.org>'
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
- 
+
 # overwrite with local secret setting
 try:
     from tabeasy_secrets.secret import *

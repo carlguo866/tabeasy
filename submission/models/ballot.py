@@ -10,6 +10,12 @@ from tourney.models.team import Team
 from tourney.models.competitor import Competitor
 import uuid
 
+
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return "ballot_{0}/{1}".format(instance.id, filename)
+
+
 class Ballot(models.Model):
     round = models.ForeignKey(Round, on_delete=models.CASCADE,
                               related_name='ballots',
@@ -19,23 +25,23 @@ class Ballot(models.Model):
                               related_query_name='ballot')
 
     att_rank_1 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='att_rank_1',
-                                   related_name='att_rank_1',null=True)
+                                   related_name='att_rank_1', null=True)
     att_rank_2 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='att_rank_2',
-                                   related_name='att_rank_2',null=True)
+                                   related_name='att_rank_2', null=True)
     att_rank_3 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='att_rank_3',
-                                   related_name='att_rank_3',null=True)
+                                   related_name='att_rank_3', null=True)
     att_rank_4 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='att_rank_4',
-                                   related_name='att_rank_4',null=True)
+                                   related_name='att_rank_4', null=True)
 
     wit_rank_1 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='wit_rank_1',
-                                   related_name='wit_rank_1',null=True)
+                                   related_name='wit_rank_1', null=True)
     wit_rank_2 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='wit_rank_2',
-                                   related_name='wit_rank_2',null=True)
+                                   related_name='wit_rank_2', null=True)
     wit_rank_3 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='wit_rank_3',
-                                   related_name='wit_rank_3',null=True)
+                                   related_name='wit_rank_3', null=True)
     wit_rank_4 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='wit_rank_4',
-                                   related_name='wit_rank_4',null=True)
-
+                                   related_name='wit_rank_4', null=True)
+    upload = models.FileField(upload_to=user_directory_path, null=True)
     submit = models.BooleanField(default=False, help_text='Submit')
 
     def att_ranks(self):
@@ -44,13 +50,13 @@ class Ballot(models.Model):
     def wit_ranks(self):
         return [self.wit_rank_1, self.wit_rank_2, self.wit_rank_3, self.wit_rank_4]
 
-
     def __str__(self):
         return f"Round {self.round.pairing.round_num} {self.judge}"
 
     def p_total_score(self):
         p_total_score = 0
-        scores = [ballot_section.score for ballot_section in self.sections.filter(subsection__side='P').all()]
+        scores = [ballot_section.score for ballot_section in self.sections.filter(
+            subsection__side='P').all()]
         for score in scores:
             if score:
                 p_total_score += score
@@ -58,7 +64,8 @@ class Ballot(models.Model):
 
     def d_total_score(self):
         d_total_score = 0
-        scores = [ballot_section.score for ballot_section in self.sections.filter(subsection__side='D').all()]
+        scores = [ballot_section.score for ballot_section in self.sections.filter(
+            subsection__side='D').all()]
         for score in scores:
             if score:
                 d_total_score += score
@@ -135,12 +142,10 @@ class Ballot(models.Model):
         self.round.d_team.calc_total_cs()
         self.round.d_team.calc_total_pd()
 
-        for att in [self.att_rank_1,self.att_rank_2,self.att_rank_3,self.att_rank_4]:
+        for att in [self.att_rank_1, self.att_rank_2, self.att_rank_3, self.att_rank_4]:
             if att:
                 att.calc_att_individual_score()
 
         for wit in [self.wit_rank_1, self.wit_rank_2, self.wit_rank_3, self.wit_rank_4]:
             if wit:
                 wit.calc_wit_individual_score()
-
-

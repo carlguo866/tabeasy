@@ -16,6 +16,8 @@ Including another URLconf
 from django.conf.urls import url
 from django.views.generic.base import RedirectView
 from django.contrib import admin
+from django.conf.urls.static import static
+from django.conf import settings
 from django.urls import include, path
 from ajax_select import urls as ajax_select_urls
 
@@ -34,5 +36,4 @@ urlpatterns = [
     path('load_paradigms', views.load_paradigms),
     path('donate', views.donate, name='donate'),
     url(r'^ajax_select/', include(ajax_select_urls)),
-]
- 
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
