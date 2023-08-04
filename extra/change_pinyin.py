@@ -1,21 +1,16 @@
 import pinyin
 import openpyxl
 if __name__ == '__main__':
-    excel_file = '/Users/carlguo/Desktop/PPMT Team.xlsx'
+    excel_file = '/Users/carlguo/Desktop/PPMT 2023 Tabeasy.xlsx'
     wb = openpyxl.load_workbook(excel_file)
     worksheet = wb["Teams"]
     list = []
     n = worksheet.max_row
     m = worksheet.max_column
     for i in range(2, n + 1):
-        pk = worksheet.cell(i, 1).value
-        if pk is None:
-            continue
-        pk = int(pk)
-        team_name = worksheet.cell(i, 2).value
-        division = worksheet.cell(i, 3).value
-        school = worksheet.cell(i, 4).value
-        j = 5
+        team_name = worksheet.cell(i, 1).value
+        school = worksheet.cell(i, 2).value
+        j = 3
         team_roster = []
         while j <= m and worksheet.cell(i, j).value != None and worksheet.cell(i, j).value != '':
             if len(worksheet.cell(i, j).value) <= 3:

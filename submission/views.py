@@ -6,8 +6,9 @@ from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
 from submission.forms import BallotForm, BallotSectionForm, CaptainsMeetingForm, CharacterPronounsForm, \
-    CaptainsMeetingSectionForm, ParadigmForm, ParadigmPreferenceItemForm
+    CaptainsMeetingSectionForm, ParadigmForm, ParadigmPreferenceItemForm, SpiritForm
 from submission.models.ballot import Ballot
+from submission.models.spirit import Spirit
 from submission.models.captains_meeting import CaptainsMeeting
 from submission.models.character import CharacterPronouns, Character
 from submission.models.paradigm import ParadigmPreference, ParadigmPreferenceItem, Paradigm
@@ -15,6 +16,8 @@ from submission.models.section import BallotSection, Section, SubSection, Captai
 from tabeasy.utils.mixins import PassRequestToFormViewMixin
 from tabeasy_secrets.secret import str_int
 from tourney.models import Judge
+from tourney.models.team import Team
+from django.contrib.auth.decorators import user_passes_test
 
 
 class BallotUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassRequestToFormViewMixin, UpdateView):
@@ -374,6 +377,38 @@ class CaptainsMeetingUpdateView(LoginRequiredMixin, UserPassesTestMixin, PassReq
 
     def get_success_url(self):
         return reverse_lazy('index')
+    
+
+
+@user_passes_test(lambda u: (u.is_staff or u.is_team))
+def edit_spirit(request, team_pk): 
+    team = Team.objects.get(pk=team_pk) 
+    if not request.user.is_staff and request.user.team != team:
+        return redirect('index')
+        
+    if Spirit.objects.filter(team=team).exists():
+        spirit = Spirit.objects.get(team=team)
+    else:
+        spirit = Spirit.objects.create(team=team)
+    
+    if request.method == "POST":
+        spirit_form = SpiritForm(request.POST, instance=spirit, request=request)
+        if spirit_form.is_valid():
+            spirit_form.save()
+            for opponent in team.opponents():
+                opponent.save()
+            return redirect('index')
+        else: 
+            spirit_form.errors['error'] = "The form did not save because of some errors"
+            return render(request, 'tourney/spirit.html', {'form': spirit_form, 
+                                                    'team': team})
+    else: 
+        spirit_form = SpiritForm(instance=spirit, request=request)
+    
+    
+    return render(request, 'tourney/spirit.html', {'form': spirit_form, 
+                                                    'team': team})
+
 
 def edit_paradigm(request, judge):
     judge = Judge.objects.get(user__username=judge)

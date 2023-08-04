@@ -13,6 +13,7 @@ class Team(models.Model):
     total_ballots = models.FloatField(default=0)
     total_cs = models.FloatField(default=0)
     total_pd = models.FloatField(default=0)
+    spirit_score = models.IntegerField(default=0)
 
     team_name = models.CharField(
         max_length=100,
@@ -45,6 +46,16 @@ class Team(models.Model):
             return self.p_rounds.order_by('pairing__round_num').all()
         elif self.d_rounds.exists():
             return self.d_rounds.order_by('pairing__round_num').all()
+        else:
+            return None
+        
+    def round_opponent(self, round_num): 
+        p_rounds = self.p_rounds.filter(pairing__round_num=round_num)
+        d_rounds = self.d_rounds.filter(pairing__round_num=round_num)
+        if p_rounds.exists():
+            return p_rounds.first().d_team
+        elif d_rounds.exists():
+            return d_rounds.first().p_team
         else:
             return None
 
@@ -122,7 +133,15 @@ class Team(models.Model):
             self.total_pd = p_pd + d_pd
         else:
             self.total_pd = 0
-
+    
+    def calc_spirit_score(self):
+        spirit_score = 0
+        for i in range(5): 
+            opponent = self.round_opponent(i+1)
+            if opponent and opponent.spirit and opponent.spirit.submit: 
+                spirit_score += opponent.spirit.get_score(i+1) 
+        self.spirit_score = spirit_score
+    
     def current_rounds(self):
         return self.p_rounds.count() + self.d_rounds.count()
 
@@ -146,6 +165,7 @@ class Team(models.Model):
         self.calc_total_ballots()
         self.calc_total_cs()
         self.calc_total_pd()
+        self.calc_spirit_score()
         for competitor in self.competitors.all():
             competitor.save()
         super().save(*args, **kwargs)

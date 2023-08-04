@@ -17,6 +17,7 @@ from submission.forms import CharacterPronounsForm
 from submission.models.paradigm import Paradigm, ParadigmPreferenceItem, ParadigmPreference, \
     experience_description_choices
 from submission.models.section import Section, SubSection
+from submission.models.spirit import Spirit
 from tabeasy.settings import DEBUG
 from tabeasy.utils.mixins import JudgeOnlyMixin, PassRequestToFormViewMixin, TabOnlyMixin
 from tabeasy_secrets.secret import  str_int
@@ -491,6 +492,24 @@ def view_ballot_status(request, pairing_id):
     ballots = sorted(ballots, key=lambda x: x.round.courtroom)
     return render(request, 'tourney/tab/view_ballots_status.html', {'ballots': ballots})
 
+
+@user_passes_test(lambda u: u.is_staff)
+def view_spirit_status(request): 
+    tournament = request.user.tournament
+    teams = Team.objects.filter(user__tournament=tournament)
+    teams = sorted(teams, key=lambda x: x.spirit_score, reverse=True)
+    return render(request, 'tourney/tab/view_spirit_status.html', {'teams': teams})
+
+@user_passes_test(lambda u: u.is_staff)
+def add_spirit_forms(request): 
+    tournament = request.user.tournament
+    teams = Team.objects.filter(user__tournament=tournament)
+    for team in teams:
+        if not Spirit.objects.filter(team=team).exists():
+            spirit = Spirit.objects.create(team=team)
+    return redirect('tourney:view_spirit_status')
+        
+
 @user_passes_test(lambda u: u.is_staff)
 def view_captains_meeting_status(request, pairing_id):
     pairing = Pairing.objects.get(pk=pairing_id)
@@ -651,7 +670,6 @@ def load_teams(request):
                 message += ' success \n'
             list.append(message)
         return render(request, 'admin/load_excel.html', {"list": list})
-
 
 
 @user_passes_test(lambda u: u.is_staff)

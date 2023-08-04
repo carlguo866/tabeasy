@@ -6,6 +6,7 @@ from submission.models.captains_meeting import CaptainsMeeting
 from submission.models.character import CharacterPronouns, Character
 from submission.models.paradigm import Paradigm, ParadigmPreferenceItem
 from submission.models.section import BallotSection, CaptainsMeetingSection
+from submission.models.spirit import Spirit
 from tourney.models import Competitor
 from django.forms.widgets import NumberInput
 
@@ -144,6 +145,36 @@ class CharacterPronounsForm(forms.ModelForm):
         if errors != []:
             raise ValidationError(errors)
 
+class SpiritForm(forms.ModelForm): 
+    class Meta: 
+        model = Spirit
+        fields = '__all__'
+        exclude = ['team']
+        widgets = {
+            'round1': forms.Select(choices=INT_CHOICES),
+            'round2': forms.Select(choices=INT_CHOICES),
+            'round3': forms.Select(choices=INT_CHOICES),
+            'round4': forms.Select(choices=INT_CHOICES),
+        }
+    
+    def __init__(self, *args, **kwargs): 
+        self.request = kwargs.pop("request")
+        super(SpiritForm, self).__init__(*args, **kwargs)
+        if self.request.user.is_judge and not self.request.user.is_staff:
+            for field in self.fields:
+                self.fields[field].disabled = True
+
+        if not self.instance.submit:
+            for field in self.fields:
+                self.fields[field].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = []
+        #after submission all fields need to be filled
+
+        if errors != []:
+            raise ValidationError(errors)
 
 class CaptainsMeetingForm(forms.ModelForm):
 

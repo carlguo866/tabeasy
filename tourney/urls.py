@@ -14,6 +14,8 @@ urlpatterns = [
     path('clear_checkin/', views.clear_checkin, name='clear_checkin'),
     path('checkin_all_judges/<int:round_num>', views.checkin_all_judges, name='checkin_all_judges'),
     path('view_ballot_status/<int:pairing_id>', views.view_ballot_status, name='view_ballot_status'),
+    path('view_spirit_status', views.view_spirit_status, name='view_spirit_status'),
+    path('add_spirit_forms', views.add_spirit_forms, name='add_spirit_forms'),
     path('tournament_setting', views.TournamentUpdateView.as_view(),  name='tournament_setting'),
     path('team', views.view_teams, name='view_teams'),
     path('team/<int:pk>', views.view_individual_team, name='view_individual_team'),
@@ -37,5 +39,6 @@ urlpatterns = [
     path('judge/judge_preference',
          views.JudgePreferenceUpdateView.as_view(),
          name='edit_preference'),
+    
 
 ]

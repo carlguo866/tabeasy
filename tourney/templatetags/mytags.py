@@ -20,7 +20,9 @@ def add_array_(array1, array2):
 def zip_lists(a, b):
   return zip(a, b)
 
-from django import template
+@register.filter(name='round_opponent')
+def round_opponent_(team, round_num):
+  return team.round_opponent(round_num)
 
 @register.simple_tag
 def call_method(obj, method_name, *args):

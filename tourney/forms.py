@@ -10,15 +10,19 @@ from tourney.models.round import Pairing, Round
 from tourney.models.team import Team
 from tourney.models.competitor import Competitor
 
-BOOL_CHOICESw = ((True, 'Yes'), (False, 'No'))
+BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 INT_CHOICES = [(i,i) for i in range(11)]
 
+public_choices = [
+    ( True,'Ballot Scores'),
+    ( False, 'Comments Only')
+]
 
 class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = ['team_name', 'school', 'byebuster']
-
+        
 JUDGE_AVAILABILITY_CHOICES = [
     ('available_round1', 'Round 1'),
     ('available_round2', 'Round 2'),
@@ -32,9 +36,12 @@ class TournamentForm(forms.ModelForm):
         model = Tournament
         fields = '__all__'
         exclude = ['split_division', 'rank_nums', 'conflict_other_side']
+    
+    publish_ballot_scores = forms.ChoiceField(choices = public_choices, label="Do you want to publish ballot scores or just comments?", initial='', widget=forms.Select())
 
+
+    
 class JudgeForm(forms.ModelForm):
-
     availability = forms.MultipleChoiceField(
         choices=JUDGE_AVAILABILITY_CHOICES,
         widget=forms.CheckboxSelectMultiple,
@@ -77,6 +84,7 @@ class PairingSubmitForm(forms.ModelForm):
     class Meta:
         model = Pairing
         fields = ['team_submit', 'final_submit', 'publish']
+        
 
 class RoundForm(forms.ModelForm):
     class Meta:
