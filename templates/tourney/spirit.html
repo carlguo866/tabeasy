@@ -18,22 +18,22 @@
     <form method="post">
         {% csrf_token %}
         <div class="form-group col-md-6 p-1">
-            <strong>Rating for Round 1 Opponent: Team {{team|round_opponent:1}}:</strong>
+            <strong>Rating for Round 1 Opponent: Team {{team|round_opponent:1}}</strong>
             <br>
             {% render_field form.round1 class='form-select' name="round1" %}
         </div>
         <div class="form-group col-md-6 p-1">
-            <strong>Rating for Round 2 Opponent: Team {{team|round_opponent:2}}:</strong>
+            <strong>Rating for Round 2 Opponent: Team {{team|round_opponent:2}}</strong>
             <br>
             {% render_field form.round2 class='form-select' name="round2" %}
         </div>
         <div class="form-group col-md-6 p-1">
-            <strong>Rating for Round 3 Opponent: Team {{team|round_opponent:3}}:</strong>
+            <strong>Rating for Round 3 Opponent: Team {{team|round_opponent:3}}</strong>
             <br>
             {% render_field form.round3 class='form-select' name="round3" %}
         </div>
         <div class="form-group col-md-6 p-1">
-            <strong>Rating for Round 4 Opponent: Team {{team|round_opponent:4}}:</strong>
+            <strong>Rating for Round 4 Opponent: Team {{team|round_opponent:4}}</strong>
             <br>
             {% render_field form.round4 class='form-select' name="round4" %}
         </div>
