@@ -36,8 +36,8 @@ class Tournament(models.Model):
     judges = models.IntegerField(default=2,
                                  help_text='How many judges do you count into the result?')
     conflict_other_side = models.BooleanField(default=True)
-    
-    spirit_award = models.BooleanField(default=False)
+    hide_captains_meeting = models.BooleanField(default=False, help_text='Hide the captains meeting?')
+    spirit = models.BooleanField(default=False)
     
     def __str__(self):
         return self.name

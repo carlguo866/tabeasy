@@ -5,7 +5,7 @@ from tourney.models.team import Team
  
 class Spirit(models.Model): 
     team = models.OneToOneField(Team, on_delete=models.CASCADE, primary_key=True,
-                                related_name='spirit')
+                                related_name='spirit', default="")
     
     round1 = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
     

@@ -30,12 +30,13 @@
 							Edit Team Info
 							</a>
 						</div>
-
-						<div class="row mt-3 mb-2 px-3">
-							<a class="button button-primary" href="{% url 'submission:spirit' request.user.team.pk %}">
-								Spirit Award
-							</a>
-						</div>
+						{% if user.tournament.spirit %}
+							<div class="row mt-3 mb-2 px-3">
+								<a class="button button-primary" href="{% url 'submission:spirit' request.user.team.pk %}">
+									Spirit Award
+								</a>
+							</div>
+						{% endif %}
 {#						<ul class="list-group">#}
 {#							<li class="list-group-item">{{ member }}</li>#}
 {#						</ul>#}
@@ -67,18 +68,22 @@
 						Captain Meeting Forms
 					</div>
 					<div class="card-body text-start">
-						{% if user.team.rounds %}
-							{% for round in  user.team.rounds %}
-								{% if round.pairing.team_submit %}
-									<div class="card-text mb-4">
-										<a class="button button-primary py-2" href="{% url 'submission:captains_meeting' round.captains_meeting.pk|int_str %}">
-											{{ round }}
-										</a>
-									</div>
-								{% endif %}
-							{% endfor %}
+						{% if not user.tournament.hide_captains_meeting %}
+							{% if user.team.rounds %}
+								{% for round in  user.team.rounds %}
+									{% if round.pairing.team_submit %}
+										<div class="card-text mb-4">
+											<a class="button button-primary py-2" href="{% url 'submission:captains_meeting' round.captains_meeting.pk|int_str %}">
+												{{ round }}
+											</a>
+										</div>
+									{% endif %}
+								{% endfor %}
+							{% else %}
+								<div class="card-text">You are not assigned to a round yet. </div>
+							{% endif %}
 						{% else %}
-							<div class="card-text">You are not assigned to a round yet. </div>
+							<div class="card-text">Captain's Meeting forms are not digital for this tournament. </div>
 						{% endif %}
 					</div>
 				</div>
