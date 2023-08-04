@@ -6,6 +6,8 @@ p_choices = [
     ('Prosecution','Criminal'),
     ('Plaintiff','Civil')
 ]
+
+
 class Tournament(models.Model):
     name = models.CharField(max_length=40, help_text='Tournament Name:')
     wit_nums = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(3)],default=3,
@@ -15,7 +17,7 @@ class Tournament(models.Model):
     p_choice = models.CharField(max_length=40, choices=p_choices,
                                 help_text='Is your case a Civil or Criminal case')
     publish_ballot_scores = models.BooleanField(default=False,
-                                                help_text='Do you want to publish scores or just the comments for the ballots?')
+                                                help_text='Do you want to publish ballot scores or just comments?')
     split_division = models.BooleanField(default=False)
     division_team_num = models.IntegerField(default=10,
                                             help_text='How many teams do you have?')
@@ -34,7 +36,9 @@ class Tournament(models.Model):
     judges = models.IntegerField(default=2,
                                  help_text='How many judges do you count into the result?')
     conflict_other_side = models.BooleanField(default=True)
-
+    
+    spirit_award = models.BooleanField(default=False)
+    
     def __str__(self):
         return self.name
 

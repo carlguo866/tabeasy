@@ -13,4 +13,8 @@ urlpatterns = [
     path('paradigm/<str:judge>',
          views.edit_paradigm,
          name='paradigm'),
+    
+    path('spirit/<int:team_pk>', 
+         views.edit_spirit, 
+         name='spirit')
 ]
