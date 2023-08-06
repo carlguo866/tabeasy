@@ -37,6 +37,20 @@
             <br>
             {% render_field form.round4 class='form-select' name="round4" %}
         </div>
+
+
+        <div class="form-group col-md-6 p-2">
+            {{ form.q1.help_text }}
+            <br>
+            {% render_field form.q1 class='form-text' name="q1" %}
+        </div>
+
+        <div class="form-group col-md-6 p-2">
+            {{ form.q2.help_text }}
+            <br>
+            {% render_field form.q2 class='form-text' name="q2" %}
+        </div>
+
         <input class="button btn-secondary" type="submit" value="Save" style="position:fixed; top: 100px; right: 20px">
         <div class="form-check" style="position:fixed; top: 150px; right: 20px">
             {% render_field form.submit class='form-check-input' name="submit" %}
