@@ -13,7 +13,7 @@
                 <th scope="col">1st Round</th>
                 <th scope="col">2nd Round</th>
                 <th scope="col">3rd Round</th>
-                <th scope="col">4th Round</th>
+                <!-- <th scope="col">4th Round</th> -->
                 <th scope="col">Edit</th>
                 <th scope="col">Submit?</th>
                 <th scope="col">Team Total</th>
@@ -26,7 +26,7 @@
                 <td>{{team|round_opponent:1}}: {{ team.spirit.round1 }}</td>
                 <td>{{team|round_opponent:2}}: {{ team.spirit.round2 }}</td>
                 <td>{{team|round_opponent:3}}: {{ team.spirit.round3 }}</td>
-                <td>{{team|round_opponent:4}}: {{ team.spirit.round4 }}</td>
+                <!-- <td>{{team|round_opponent:4}}: {{ team.spirit.round4 }}</td> -->
                 <td>
                     <div class="m-2">
                         <a class="button button-primary py-2" href="{% url 'submission:spirit' team.pk %}">

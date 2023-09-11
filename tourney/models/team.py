@@ -136,7 +136,7 @@ class Team(models.Model):
     
     def calc_spirit_score(self):
         spirit_score = 0
-        for i in range(5): 
+        for i in range(4): 
             opponent = self.round_opponent(i+1)
             if opponent and opponent.spirit and opponent.spirit.submit: 
                 spirit_score += opponent.spirit.get_score(i+1) 

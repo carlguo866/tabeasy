@@ -154,7 +154,7 @@ class SpiritForm(forms.ModelForm):
             'round1': forms.Select(choices=INT_CHOICES),
             'round2': forms.Select(choices=INT_CHOICES),
             'round3': forms.Select(choices=INT_CHOICES),
-            'round4': forms.Select(choices=INT_CHOICES),
+            # 'round4': forms.Select(choices=INT_CHOICES),
         }
     
     def __init__(self, *args, **kwargs): 

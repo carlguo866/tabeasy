@@ -12,7 +12,7 @@ class Spirit(models.Model):
     round2 = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
     
     round3 = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
-    round4 = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
+    # round4 = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
     
     q1 = models.TextField(max_length=5000, null=True, blank=True, help_text="Please list any reasons that you think one of the teams you competed against is especially deserving of the Spirit Award. Please provide a specific example, if possible.")
     
@@ -20,15 +20,15 @@ class Spirit(models.Model):
     submit = models.BooleanField(default=False, help_text='Submit')
 
     def get_score(self, round_num): 
-        assert round_num in [1,2,3,4]
+        assert round_num in [1,2,3]
         if round_num == 1: 
             return self.round1
         elif round_num == 2:
             return self.round2
         elif round_num == 3:
             return self.round3
-        elif round_num == 4:
-            return self.round4
+        # elif round_num == 4:
+        #     return self.round4
 
     def __str__(self):
         return f"{self.team.__str__()} Spirit Form" 
