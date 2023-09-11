@@ -12,6 +12,7 @@ from tourney.models import Judge, Team, Competitor
 from django.views.generic import UpdateView
 from tourney.forms import TournamentForm
 
+
 def signup(request):
     if request.method == 'POST':
         user_form = SignUpForm(data=request.POST)
@@ -58,12 +59,14 @@ def team_signup(request):
             if formset.is_valid():
                 formset.save()
                 return redirect('tourney:view_teams')
+        else: 
+            context = {'user_form': user_form, 'team_form': team_form}    
     else:
         user_form = SignUpForm(team_signup=True)
         formset = FormSet()
         team_form = TeamForm()
 
-    context = {'user_form': user_form, 'formset': formset, 'team_form': team_form}
+        context = {'user_form': user_form, 'formset': formset, 'team_form': team_form}
     return render(request, 'accounts/team_signup.html', context)
 
 @user_passes_test(lambda u: u.is_staff)
@@ -124,7 +127,7 @@ def create_tournament(request):
             user.tournament = tournament
             user.save()
 
-            return redirect('index')
+            return redirect('load_sections')
     else:   
         form = TournamentForm()
    

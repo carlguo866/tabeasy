@@ -644,7 +644,7 @@ def generate_passwords(request):
                 random.choices(string.ascii_letters + string.digits, k=4))
             if not worksheet.cell(row=i, column=16).value:
                 wb_changed = True
-                worksheet.cell(row=i, column=16).value = ''.join(
+                worksheet.cell(row=i, column=16).value = request.user.tournament.short_name+'_'+''.join(
                     worksheet.cell(row=i, column=1).value.split(' '))
                 
         worksheet = wb["Judges"]
@@ -662,7 +662,7 @@ def generate_passwords(request):
             if not worksheet.cell(row=i, column=9).value and first_name and last_name:
                 wb_changed = True
                 worksheet.cell(
-                    row=i, column=9).value = f"{first_name.lower()}_{last_name.lower()}"
+                    row=i, column=9).value = f"{request.user.tournament.short_name}_{first_name.lower()}_{last_name.lower()}"
                 
                 
         response = HttpResponse(content_type='application/vnd.ms-excel')
@@ -715,16 +715,15 @@ def load_teams_wrapper(request, wb):
             team_roster.append(worksheet.cell(i,j).value)
             j+=1
         message = ''
-        
+        username = worksheet.cell(i,16).value
         try:
             if Team.objects.filter(pk=pk).exists():
                 Team.objects.filter(pk=pk).update(team_name=team_name,school=school)
                 team = Team.objects.get(pk=pk)
-                message += f' update team {team.pk} \n'
+                message += f' update {team_name} \n'
             else:
                 raw_password = worksheet.cell(i,17).value
                 if raw_password:
-                    username = ''.join(team_name.split(' '))
                     user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False,
                                 tournament=request.user.tournament)
                     user.set_password(raw_password)
@@ -732,20 +731,28 @@ def load_teams_wrapper(request, wb):
                     with transaction.atomic():
                         team = Team(user=user, team_name=team_name, school=school)
                         team.save()
-                    message += f' create team {team.pk} \n'
-
+                    message += f' create {team_name} \n'
+            created_roster = [] 
+            updated_roster = [] 
             for name in team_roster:
                 name = re.sub(r'\([^)]*\)', '', name).strip()
                 if Competitor.objects.filter(team=team, name=name).exists():
-                    message += f' update member {name} \n'
+                    updated_roster.append(name)
                     Competitor.objects.filter(team=team, name=name).update(team=team,name=name)
                 else:
-                    message += f' create member {name} \n'
+                    created_roster.append(name)
                     Competitor.objects.create(name=name, team=team)
+            if created_roster:
+                str_created_roster = ' , '.join(created_roster)
+                message += f' created roster {str_created_roster} \n'
+            if updated_roster:
+                str_updated_roster = ','.join(updated_roster)
+                message += f' updated roster {str_updated_roster} \n'
+            
         except Exception as e:
             message += str(e)
         else:
-            message += ' success \n'
+            message = ' SUCCESS ' + message
             
         list.append(message)
     return list, wb_changed
@@ -822,7 +829,7 @@ def load_judges_wrapper(request, wb):
         except Exception as e:
             message += str(e)
         else:
-            message += ' success \n'
+            message = ' SUCCESS ' + message
         list.append(message)
     return list, wb_changed
 

@@ -4,6 +4,8 @@ from django.core.exceptions import ValidationError
 from accounts.models import User
 from tabeasy_secrets.secret import JUDGE_VERIFICATION_CODE
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import RegexValidator
+
 
 class SignUpForm(UserCreationForm):
     password1 = forms.CharField(
@@ -25,6 +27,10 @@ class SignUpForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         team_signup = kwargs.pop('team_signup', None)
         super(SignUpForm, self).__init__(*args, **kwargs)
+        
+        validator = RegexValidator(r'^[a-zA-Z0-9_-]+$',
+                               'You can only enter alphanumerics')
+        self.fields['username'].validators = [validator]
         if team_signup:
             del self.fields['first_name']
             del self.fields['last_name']

@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 
 p_choices = [
     ('Prosecution','Criminal'),
@@ -13,6 +13,8 @@ p_choices = [
 
 class Tournament(models.Model):
     name = models.CharField(max_length=40, help_text='Tournament Name:')
+    short_name = models.CharField(max_length=10, help_text='Shortened Tournament Name:', 
+                                      validators=[RegexValidator(r'^[a-zA-Z0-9_-]+$','You can only enter alphanumerics')])
     wit_nums = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(3)],default=3,
                                    help_text='How many witnesses does each side call?')
     rank_nums = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)],default=5,
