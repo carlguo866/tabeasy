@@ -57,9 +57,13 @@
 
 				<ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 					<li><a class="dropdown-item" href="{% url "index" %}">Profile</a></li>
-{#					{% if user.is_staff %}#}
+{#					{% if user.is_superuser %}#}
 {#						<li><a class="dropdown-item" href="{% url "admin:index" %}">Django Admin</a></li>#}
 {#					{% endif %}#}
+					{% if user.is_superuser %}
+						<li><a class="dropdown-item" href="{% url "accounts:edit_tournament" %}">Select Tournament</a></li>
+						<li><a class="dropdown-item" href="{% url "accounts:create_tournament" %}">Add Tournament</a></li>
+					{% endif %}
 					{% if user.is_team == False %}
 						<li><a class="dropdown-item" href="{% url "accounts:change_password" %}">Change Password</a></li>
 					{% endif %}

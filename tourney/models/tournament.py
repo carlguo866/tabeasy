@@ -7,6 +7,9 @@ p_choices = [
     ('Plaintiff','Civil')
 ]
 
+# def user_directory_path(instance, filename):
+#     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+#     return "tournament_{0}/{1}".format(instance.id, filename)
 
 class Tournament(models.Model):
     name = models.CharField(max_length=40, help_text='Tournament Name:')

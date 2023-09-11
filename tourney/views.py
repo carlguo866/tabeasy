@@ -7,10 +7,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import inlineformset_factory
-from django.http import HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
+from tabeasy.settings import DEBUG
+from django.core.files.storage import FileSystemStorage
 
 from accounts.models import User
 from submission.forms import CharacterPronounsForm
@@ -456,6 +458,26 @@ def view_individual_team(request, pk):
     return render(request, 'tourney/tab/view_individual_team.html', context)
 
 
+@user_passes_test(lambda u: u.is_staff)
+def edit_characters(request):
+    tournament = request.user.tournament
+    
+    FormSet = inlineformset_factory(Tournament, Character,fields=('name', 'side'),
+                                         max_num=12, validate_max=True,
+                                         extra=6)
+
+    if request.method == 'POST':
+        formset = FormSet(request.POST, request.FILES,prefix='characters', instance=tournament)
+        if formset.is_valid():
+            formset.save()
+            return redirect('index')
+    else:
+        formset = FormSet(prefix='characters', instance=tournament)
+
+    context = {'formset': formset}
+    return render(request, 'tourney/tab/edit_characters.html', context)
+
+
 
 @user_passes_test(lambda u: u.is_staff)
 def delete_individual_judge(request, pk):
@@ -536,7 +558,7 @@ class TournamentUpdateView(TabOnlyMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user.tournament
 
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('load_sections')
 
 
 
@@ -605,72 +627,204 @@ def edit_competitor_pronouns(request):
     })
 
 @user_passes_test(lambda u: u.is_staff)
-def load_teams(request):
+def generate_passwords(request): 
     if "GET" == request.method:
         return render(request, 'admin/load_excel.html', {})
     else:
         excel_file = request.FILES["excel_file"]
         wb = openpyxl.load_workbook(excel_file)
         worksheet = wb["Teams"]
-        list = []
         n = worksheet.max_row
         m = worksheet.max_column
+        wb_changed = False
         for i in range(2, n + 1):
-            team_name = worksheet.cell(i, 1).value
-            if Team.objects.filter(user__tournament=request.user.tournament, team_name=team_name).exists():
-                pk = Team.objects.get(user__tournament=request.user.tournament, team_name=team_name).pk
-            else:
-                pk = None
-            # if worksheet.cell(i, 3).value != None or worksheet.cell(i, 3).value != '':
-            #     division = worksheet.cell(i, 3).value
-            # else:
-            #     division = None
-            school = worksheet.cell(i, 2).value
-            j = 3
-            team_roster = []
-            while j <= m and worksheet.cell(i,j).value != None and worksheet.cell(i,j).value != '':
-                team_roster.append(worksheet.cell(i,j).value)
-                j+=1
-            message = ''
-            # if len(team_roster) < 6:
-            #     message += f' errors: team {pk} less than 6 members '
-            # elif len(team_roster) > 10:
-            #     message += f' errors: team {pk} more than 10 members '
-            # else:
+            if not worksheet.cell(row=i, column=17).value:
+                wb_changed = True
+                worksheet.cell(row=i, column=17).value = ''.join(
+                random.choices(string.ascii_letters + string.digits, k=4))
+            if not worksheet.cell(row=i, column=16).value:
+                wb_changed = True
+                worksheet.cell(row=i, column=16).value = ''.join(
+                    worksheet.cell(row=i, column=1).value.split(' '))
+                
+        worksheet = wb["Judges"]
+        n = worksheet.max_row
+        m = worksheet.max_column
+        wb_changed = False
+        for i in range(2, n + 1):
+            first_name = worksheet.cell(i, 1).value
+            last_name = worksheet.cell(i, 2).value
+            
+            if not worksheet.cell(row=i, column=10).value:
+                wb_changed = True
+                worksheet.cell(row=i, column=10).value = ''.join(
+                    random.choices(string.ascii_letters + string.digits, k=4))
+            if not worksheet.cell(row=i, column=9).value and first_name and last_name:
+                wb_changed = True
+                worksheet.cell(
+                    row=i, column=9).value = f"{first_name.lower()}_{last_name.lower()}"
+                
+                
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        wb.save(response)
+        return response
 
-            try:
-                if Team.objects.filter(pk=pk).exists():
-                    Team.objects.filter(pk=pk).update(team_name=team_name,school=school)
-                    team = Team.objects.get(pk=pk)
-                    message += f' update team {team.pk} \n'
+@user_passes_test(lambda u: u.is_staff)
+def load_teams_and_judges(request): 
+    if "GET" == request.method:
+        return render(request, 'admin/load_excel.html', {})
+    else:
+        excel_file = request.FILES["excel_file"]
+        wb = openpyxl.load_workbook(excel_file)
+        team_list, wb_changed = load_teams_wrapper(request, wb)
+        judge_list, wb_changed2 = load_judges_wrapper(request, wb)
+        return render(request, 'admin/load_excel.html', {"list": team_list + judge_list})
+
+
+@user_passes_test(lambda u: u.is_staff)
+def load_teams(request):
+    if "GET" == request.method:
+        return render(request, 'admin/load_excel.html', {})
+    else:
+        excel_file = request.FILES["excel_file"]
+        wb = openpyxl.load_workbook(excel_file)
+        response_list, wb_changed = load_teams_wrapper(request, wb)
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        wb.save(response)
+        return render(request, 'admin/load_excel.html', {"list": response_list})
+
+
+
+def load_teams_wrapper(request, wb):
+    worksheet = wb["Teams"]
+    list = []
+    n = worksheet.max_row
+    m = worksheet.max_column
+    wb_changed = False
+    for i in range(2, n + 1):
+        team_name = worksheet.cell(i, 1).value
+        if Team.objects.filter(user__tournament=request.user.tournament, team_name=team_name).exists():
+            pk = Team.objects.get(user__tournament=request.user.tournament, team_name=team_name).pk
+        else:
+            pk = None
+            
+        school = worksheet.cell(i, 2).value
+        j = 3
+        team_roster = []
+        while j <= m and worksheet.cell(i,j).value != None and worksheet.cell(i,j).value != '':
+            team_roster.append(worksheet.cell(i,j).value)
+            j+=1
+        message = ''
+        
+        try:
+            if Team.objects.filter(pk=pk).exists():
+                Team.objects.filter(pk=pk).update(team_name=team_name,school=school)
+                team = Team.objects.get(pk=pk)
+                message += f' update team {team.pk} \n'
+            else:
+                raw_password = worksheet.cell(i,17).value
+                if raw_password:
+                    username = ''.join(team_name.split(' '))
+                    user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False,
+                                tournament=request.user.tournament)
+                    user.set_password(raw_password)
+                    user.save()
+                    with transaction.atomic():
+                        team = Team(user=user, team_name=team_name, school=school)
+                        team.save()
+                    message += f' create team {team.pk} \n'
+
+            for name in team_roster:
+                name = re.sub(r'\([^)]*\)', '', name).strip()
+                if Competitor.objects.filter(team=team, name=name).exists():
+                    message += f' update member {name} \n'
+                    Competitor.objects.filter(team=team, name=name).update(team=team,name=name)
                 else:
-                    raw_password = worksheet.cell(i,17).value
-                    if raw_password:
-                        username = ''.join(team_name.split(' '))
-                        user = User(username=username, raw_password=raw_password, is_team=True, is_judge=False,
-                                    tournament=request.user.tournament)
-                        user.set_password(raw_password)
-                        user.save()
-                        with transaction.atomic():
-                            team = Team(user=user, team_name=team_name, school=school)
-                            team.save()
-                        message += f' create team {team.pk} \n'
+                    message += f' create member {name} \n'
+                    Competitor.objects.create(name=name, team=team)
+        except Exception as e:
+            message += str(e)
+        else:
+            message += ' success \n'
+            
+        list.append(message)
+    return list, wb_changed
 
-                for name in team_roster:
-                    name = re.sub(r'\([^)]*\)', '', name).strip()
-                    if Competitor.objects.filter(team=team, name=name).exists():
-                        message += f' update member {name} \n'
-                        Competitor.objects.filter(team=team, name=name).update(team=team,name=name)
-                    else:
-                        message += f' create member {name} \n'
-                        Competitor.objects.create(name=name, team=team)
-            except Exception as e:
-                message += str(e)
+def load_judges_wrapper(request, wb):
+    worksheet = wb["Judges"]
+    list = []
+    n = worksheet.max_row
+    m = worksheet.max_column
+    wb_changed = False
+    for i in range(2, n + 1):
+        first_name = worksheet.cell(i, 1).value
+        last_name = worksheet.cell(i, 2).value
+        
+        if not worksheet.cell(row=i, column=10).value:
+            wb_changed = True
+            worksheet.cell(row=i, column=10).value = ''.join(
+                random.choices(string.ascii_letters + string.digits, k=4))
+        if not worksheet.cell(row=i, column=9).value and first_name and last_name:
+            wb_changed = True
+            worksheet.cell(
+                row=i, column=9).value = f"{first_name.lower()}_{last_name.lower()}"
+            
+        username = worksheet.cell(i, 9).value
+        if username == None or username == '':
+            continue
+
+        if last_name == None or last_name == '':
+            last_name = ' '
+        raw_password = worksheet.cell(i,10).value
+        preside = worksheet.cell(i,3).value
+        if preside in ['CIN','No preference']:
+            preside = 2
+        elif preside in ['Y', 'Presiding', 'Yes', 'y', 'YES']:
+            preside = 1
+        else:
+            preside = 0
+        availability = []
+        for j in range(4, 9):
+            if worksheet.cell(i, j).value in ['y', 'YES', 'Y', 'Yes']:
+                availability.append(True)
             else:
-                message += ' success \n'
-            list.append(message)
-        return render(request, 'admin/load_excel.html', {"list": list})
+                availability.append(False)
+        
+        message = ''
+        try:
+            if Judge.objects.filter(user__username=username).exists():
+                message += f'update judge {username} \n'
+                judge = Judge.objects.get(user__username=username)
+                user = judge.user
+                user.first_name = first_name
+                user.last_name = last_name
+                user.tournament = request.user.tournament
+                user.save()
 
+
+                judge.preside = preside
+                for i in range(len(availability)):
+                    setattr(judge, f'available_round{i+1}', availability[i])
+                judge.save()
+            else:
+                message += f'create judge {username} \n'
+                user = User(username=username,
+                            first_name=first_name, last_name=last_name,
+                            is_team=False, is_judge=True, tournament=request.user.tournament)
+                user.set_password(raw_password)
+                user.save()
+                judge = Judge(user=user, preside=preside)
+                for i in range(len(availability)):
+                    setattr(judge, f'available_round{i+1}', availability[i])
+
+                judge.save()
+
+        except Exception as e:
+            message += str(e)
+        else:
+            message += ' success \n'
+        list.append(message)
+    return list, wb_changed
 
 @user_passes_test(lambda u: u.is_staff)
 def load_judges(request):
@@ -679,85 +833,13 @@ def load_judges(request):
     else:
         excel_file = request.FILES["excel_file"]
         wb = openpyxl.load_workbook(excel_file)
-        worksheet = wb["Judges"]
-        list = []
-        n = worksheet.max_row
-        m = worksheet.max_column
-        for i in range(2, n + 1):
-            username = worksheet.cell(i, 9).value
-            if username == None or username == '':
-                continue
-            first_name = worksheet.cell(i, 1).value
-            last_name = worksheet.cell(i, 2).value
-            if last_name == None or last_name == '':
-                last_name = ' '
-            raw_password = worksheet.cell(i,10).value
-            preside = worksheet.cell(i,3).value
-            if preside in ['CIN','No preference']:
-                preside = 2
-            elif preside in ['Y', 'Presiding', 'Yes', 'y', 'YES']:
-                preside = 1
-            else:
-                preside = 0
-            availability = []
-            for j in range(4, 9):
-                if worksheet.cell(i, j).value in ['y', 'YES', 'Y', 'Yes']:
-                    availability.append(True)
-                else:
-                    availability.append(False)
-
-            # judge_friends = worksheet.cell(i, 11).value
-            # if judge_friends != None:
-            #     judge_friends = judge_friends.split(',')
-
-            message = ''
-            try:
-                if Judge.objects.filter(user__username=username).exists():
-                    message += f'update judge {username} \n'
-                    judge = Judge.objects.get(user__username=username)
-                    user = judge.user
-                    user.first_name = first_name
-                    user.last_name = last_name
-                    user.tournament = request.user.tournament
-                    user.save()
-
-                    # if judge_friends:
-                    #     for friend in judge_friends:
-                    #         first = friend.split(' ')[0]
-                    #         last = friend.split(' ')[1]
-                    #         if Judge.objects.filter(user__first_name=first, user__last_name=last).exists():
-                    #             judge.judge_friends.add(Judge.objects.get(user__first_name=first, user__last_name=last))
-
-                    judge.preside = preside
-                    for i in range(len(availability)):
-                        setattr(judge, f'available_round{i+1}', availability[i])
-                    judge.save()
-                else:
-                    message += f'create judge {username} \n'
-                    user = User(username=username,
-                                first_name=first_name, last_name=last_name,
-                                is_team=False, is_judge=True, tournament=request.user.tournament)
-                    user.set_password(raw_password)
-                    user.save()
-                    judge = Judge(user=user, preside=preside)
-                    for i in range(len(availability)):
-                        setattr(judge, f'available_round{i+1}', availability[i])
-
-                    # if judge_friends:
-                    #     for friend in judge_friends:
-                    #         first = friend.split(' ')[0]
-                    #         last = friend.split(' ')[1]
-                    #         if Judge.objects.filter(user__first_name=first, user__last_name=last).exists():
-                    #             judge.judge_friends.add(Judge.objects.get(user__first_name=first, user__last_name=last))
-                    judge.save()
-
-            except Exception as e:
-                message += str(e)
-            else:
-                message += ' success \n'
-            list.append(message)
-        return render(request, 'admin/load_excel.html', {"list": list})
-
+        response_list, wb_changed = load_judges_wrapper(request, wb)
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        wb.save(response)
+        if wb_changed:
+            return response
+        elif DEBUG: 
+            return render(request, 'admin/load_excel.html', {"list": response_list, })
 
 
 @user_passes_test(lambda u: u.is_staff)
@@ -913,7 +995,7 @@ def load_sections(request):
                                   side='D',
                                   role='att',
                                   type='statement',
-                                  help_text=f'{tournament.p_choice} Closing',
+                                  help_text=f'Defense Closing',
                                   sequence=i)
     return redirect('index')
 

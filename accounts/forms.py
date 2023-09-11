@@ -30,3 +30,11 @@ class SignUpForm(UserCreationForm):
             del self.fields['last_name']
 
 
+
+class UserTournamentForm(forms.ModelForm): 
+    class Meta:
+        model = User
+        fields = ['tournament']
+        exclude = ['split_division', 'rank_nums', 'conflict_other_side']
+    
+

@@ -46,9 +46,14 @@
 				{% endfor %}
 			</tbody>
 		</table>
-		<a href="{% url 'load_teams' %}">
+		<a href="{% url 'generate_passwords' %}">
 			<button type="button" class="button button-primary m-2">
-				Load Teams from Excel
+				Generate Passwords
+			</button>
+		</a>
+		<a href="{% url 'load_teams_and_judges' %}">
+			<button type="button" class="button button-primary m-2">
+				Load Teams & Judges from Excel
 			</button>
 		</a>
 		<a href="{% url 'accounts:team_signup' %}">

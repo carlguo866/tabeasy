@@ -15,6 +15,7 @@ class User(AbstractUser):
     )
     is_judge = models.BooleanField(default=True)
     is_team = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     tournament = models.ForeignKey('tourney.Tournament', on_delete=models.SET_NULL, related_name='users',
                                    related_query_name='user', null=True)
 

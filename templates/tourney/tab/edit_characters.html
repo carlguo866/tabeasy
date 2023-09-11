@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% load mytags %}
+
+{% block content %}
+<!-- {# {% for team in form.conflicts %}#}
+{# {{ team }}<br>#}
+{# {% endfor %}#} -->
+
+{##}
+<form method="post">
+    {% csrf_token %}
+
+    <div class="row mx-3">
+        <h3>Characters</h3>
+        {{ formset.management_form }}
+        {% for form in formset %}
+        {{ form.media }}
+        <div class="form-group col-md-12 p-1">
+            <strong>Name</strong>
+            <br>
+            {{ form.name }}
+        </div>
+        <div class="form-group col-md-12 p-1">
+            <strong>Side</strong>
+            <br>
+            {{ form.side }}
+        </div>
+        <div class="form-group col-md-12 p-1">
+            <strong>Delete:</strong>
+            <br>
+            {{ form.DELETE }}
+        </div>
+        {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+        {% endfor %}
+        {% endfor %}
+    </div>
+    <input class="button button-primary my-3" type="submit" value="Save">
+
+
+</form>
+{# {{ field.field.instance. }}#}
+
+{% endblock content %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'js/form.js' %}"></script>
+{% endblock js %}

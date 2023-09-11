@@ -10,9 +10,9 @@ pronoun_choices = [
     ('ze','ze/hir')
 ]
 side_choices = [
-    ('P', 'P'),
-    ('D', 'D'),
-    ('other','Other'),
+    ('P', 'Prosecution/Plaintiff'),
+    ('D', 'Defense'),
+    ('other','Swing'),
 ]
 
 class Character(models.Model):
