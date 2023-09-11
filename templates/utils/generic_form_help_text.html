@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
+	{% if form.errors %}
+		{% for key, value in form.errors.items %}
+			{% if value %}
+				<div class="alert alert-danger" role="alert">{{ value }}</div>
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+	{% if form.non_field_errors %}
+		{{ form.non_field_errors }}
+	{% endif %}
+
   <form method="post">
     {% csrf_token %}
 		{% for field in form %}

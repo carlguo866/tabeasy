@@ -14,7 +14,7 @@ p_choices = [
 class Tournament(models.Model):
     name = models.CharField(max_length=40, help_text='Tournament Name:')
     short_name = models.CharField(max_length=10, help_text='Shortened Tournament Name:', 
-                                      validators=[RegexValidator(r'^[a-zA-Z0-9_-]+$','You can only enter alphanumerics')])
+                                      validators=[RegexValidator(r'^[a-zA-Z0-9_-]+$','You can only enter alphanumerics, underscores, and dashes.')])
     wit_nums = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(3)],default=3,
                                    help_text='How many witnesses does each side call?')
     rank_nums = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)],default=5,
@@ -42,7 +42,7 @@ class Tournament(models.Model):
                                  help_text='How many judges do you count into the result?')
     conflict_other_side = models.BooleanField(default=True)
     hide_captains_meeting = models.BooleanField(default=False, help_text='Hide the captains meeting?')
-    spirit = models.BooleanField(default=False)
+    spirit = models.BooleanField(default=False, help_text='Do you want to enable the spirit award functionality?')
     
     def __str__(self):
         return self.name

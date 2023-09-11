@@ -29,7 +29,7 @@ class SignUpForm(UserCreationForm):
         super(SignUpForm, self).__init__(*args, **kwargs)
         
         validator = RegexValidator(r'^[a-zA-Z0-9_-]+$',
-                               'You can only enter alphanumerics')
+                               'You can only enter alphanumerics, underscores, and dashes.')
         self.fields['username'].validators = [validator]
         if team_signup:
             del self.fields['first_name']
