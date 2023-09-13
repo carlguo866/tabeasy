@@ -638,7 +638,7 @@ def generate_passwords(request):
         m = worksheet.max_column
         wb_changed = False
         for i in range(2, n + 1):
-            if not worksheet.cell(row=i, column=17).value:
+            if not worksheet.cell(row=i, column=17).value and worksheet.cell(row=i, column=1).value:
                 wb_changed = True
                 worksheet.cell(row=i, column=17).value = ''.join(
                 random.choices(string.ascii_letters + string.digits, k=4))
@@ -703,6 +703,9 @@ def load_teams_wrapper(request, wb):
     wb_changed = False
     for i in range(2, n + 1):
         team_name = worksheet.cell(i, 1).value
+        if not team_name: 
+            continue
+        
         if Team.objects.filter(user__tournament=request.user.tournament, team_name=team_name).exists():
             pk = Team.objects.get(user__tournament=request.user.tournament, team_name=team_name).pk
         else:
