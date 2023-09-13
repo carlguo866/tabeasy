@@ -642,7 +642,7 @@ def generate_passwords(request):
                 wb_changed = True
                 worksheet.cell(row=i, column=17).value = ''.join(
                 random.choices(string.ascii_letters + string.digits, k=4))
-            if not worksheet.cell(row=i, column=16).value:
+            if not worksheet.cell(row=i, column=16).value and worksheet.cell(row=i, column=1).value:
                 wb_changed = True
                 worksheet.cell(row=i, column=16).value = request.user.tournament.short_name+'_'+''.join(
                     worksheet.cell(row=i, column=1).value.split(' '))
