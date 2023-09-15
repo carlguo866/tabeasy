@@ -558,7 +558,10 @@ class TournamentUpdateView(TabOnlyMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user.tournament
 
-    success_url = reverse_lazy('load_sections')
+    def get_success_url(self):
+        if self.request.user.tournament.spirit:
+            add_spirit_forms(self.request)
+        return reverse_lazy('load_sections')
 
 
 
