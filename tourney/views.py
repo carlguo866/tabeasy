@@ -449,7 +449,10 @@ def view_individual_team(request, pk):
         if formset.is_valid() and team_form.is_valid():
             team_form.save()
             formset.save()
-            return redirect('tourney:view_teams')
+            if request.user.is_staff:
+                return redirect('tourney:view_teams')
+            else:
+                return redict('index')
     else:
         formset = FormSet(prefix='competitors', instance=team)
         team_form = TeamForm(instance=team)
