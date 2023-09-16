@@ -41,7 +41,7 @@ class Ballot(models.Model):
                                    related_name='wit_rank_3', null=True)
     wit_rank_4 = models.ForeignKey(Competitor, on_delete=models.SET_NULL, related_query_name='wit_rank_4',
                                    related_name='wit_rank_4', null=True)
-    upload = models.FileField(upload_to=user_directory_path, null=True)
+    upload = models.FileField(upload_to=user_directory_path, null=True, blank=True)
     submit = models.BooleanField(default=False, help_text='Submit')
 
     def att_ranks(self):
