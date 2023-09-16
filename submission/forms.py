@@ -71,7 +71,7 @@ class BallotForm(forms.ModelForm):
         errors = []
         if self.instance.round.pairing.round_num != 5 and cleaned_data.get('submit'):
             for k,v in cleaned_data.items():
-                if k.find('comment') == -1 and v == None:
+                if k.find('comment') == -1 and k.find("upload") == -1 and v == None:
                     if k.find('att') != -1:
                         error = k.replace('att', 'Attorney').replace('rank','Rank')
                     else:
