@@ -50,7 +50,7 @@ dependencies:
   - pycparser=2.19=py37_0
   - pyopenssl=19.0.0=py37_0
   - pysocks=1.7.0=py37_0
-  - python=3.7.2=haf84260_0
+  - python=3.8.2=haf84260_0
   - python-dateutil=2.8.0=py37_0
   - pytz=2018.9=py37_0
   - readline=7.0=h1de35cc_5

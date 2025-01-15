@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
+from accounts.models import User
 
 p_choices = [
     ('Prosecution', 'Criminal'),
@@ -13,6 +14,7 @@ p_choices = [
 
 
 class Tournament(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     name = models.CharField(max_length=40, help_text='Tournament Name:')
     short_name = models.CharField(max_length=10, help_text='Shortened Tournament Name:',
                                   validators=[RegexValidator(r'^[a-zA-Z0-9_-]+$', 'You can only enter alphanumerics, underscores, and dashes.')])

@@ -43,4 +43,11 @@ class UserTournamentForm(forms.ModelForm):
         fields = ['tournament']
         exclude = ['split_division', 'rank_nums', 'conflict_other_side']
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        user = kwargs.get('instance')
+        if user:
+            self.fields['tournament'].queryset = self.fields['tournament'].queryset.filter(owner=user)
+        elif user.is_god: 
+            self.fields['tournament'].queryset = self.fields['tournament'].queryset.all()
 
